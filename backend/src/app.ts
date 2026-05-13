@@ -3,6 +3,7 @@ import helmet from "helmet";
 import cors from "cors";
 
 import authRoutes from "./modules/auth/auth.routes.js";
+import { errorMiddleware } from "./middleware/error.middleware.js";
 
 const app = express();
 
@@ -19,5 +20,7 @@ app.get("/health", (req, res) => {
 });
 
 app.use("/api/v1/auth", authRoutes);
+
+app.use(errorMiddleware);
 
 export default app;
