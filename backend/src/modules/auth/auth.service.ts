@@ -6,10 +6,11 @@ import { users } from "../../db/schema/users.js";
 import { eq } from "drizzle-orm";
 
 import { hashPassword } from "../../lib/hash-password.js";
+import { verifyPassword } from "../../lib/verify-password.js";
 
 import { generateToken } from "../../lib/generate-token.js";
 
-import type { SignupInput } from "./auth.schema.js";
+import type { SignupInput, LoginInput } from "./auth.schema.js";
 
 export async function signup(data: SignupInput) {
   const existingUser = await db.query.users.findFirst({
@@ -34,6 +35,35 @@ export async function signup(data: SignupInput) {
   });
 
   const token = generateToken(userId);
+
+  return {
+    token,
+  };
+}
+
+export async function login(data: LoginInput) {
+  const existingUser =
+    await db.query.users.findFirst({
+      where: eq(users.email, data.email),
+    });
+
+  if (!existingUser) {
+    throw new Error("Invalid credentials");
+  }
+
+  const isPasswordValid =
+    await verifyPassword(
+      data.password,
+      existingUser.passwordHash
+    );
+
+  if (!isPasswordValid) {
+    throw new Error("Invalid credentials");
+  }
+
+  const token = generateToken(
+    existingUser.id
+  );
 
   return {
     token,
