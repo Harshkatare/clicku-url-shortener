@@ -11,4 +11,9 @@ router.post(
   asyncHandler(authController.signup)
 );
 
+router.post(
+  "/login",
+  asyncHandler(authController.login)
+);
+
 export default router;
