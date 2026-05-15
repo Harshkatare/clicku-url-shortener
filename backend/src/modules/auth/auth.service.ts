@@ -69,3 +69,23 @@ export async function login(data: LoginInput) {
     token,
   };
 }
+
+export async function getCurrentUser(
+  userId: string
+) {
+  const user =
+    await db.query.users.findFirst({
+      where: eq(users.id, userId),
+    });
+
+  if (!user) {
+    throw new Error("User not found");
+  }
+
+  return {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    createdAt: user.createdAt,
+  };
+}
