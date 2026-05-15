@@ -40,3 +40,18 @@ export async function login(
     data: result,
   });
 }
+
+export async function me(
+  req: Request,
+  res: Response
+) {
+  const user =
+    await authService.getCurrentUser(
+      req.user!.id
+    );
+
+  res.status(200).json({
+    success: true,
+    data: user,
+  });
+}
