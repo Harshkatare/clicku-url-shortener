@@ -8,6 +8,12 @@ import { protect } from "../../middleware/auth.middleware.js";
 
 const router = Router();
 
+router.get(
+  "/",
+  protect,
+  asyncHandler(urlController.getUserUrls)
+);
+
 router.post(
   "/",
   protect,
