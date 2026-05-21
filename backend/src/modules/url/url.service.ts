@@ -8,7 +8,7 @@ import { generateShortCode } from "../../lib/generate-short-code.js";
 
 import type { CreateUrlInput } from "./url.schema.js";
 
-import { eq, sql } from "drizzle-orm";
+import { eq, sql, desc } from "drizzle-orm";
 
 export async function createShortUrl(
   data: CreateUrlInput,
@@ -52,4 +52,16 @@ export async function redirectToOriginalUrl(
     .where(eq(urls.id, existingUrl.id));
 
   return existingUrl.originalUrl;
+}
+
+export async function getUserUrls(
+  userId: string
+) {
+  const userUrls = await db.query.urls.findMany({
+    where: eq(urls.userId, userId),
+
+    orderBy: desc(urls.createdAt),
+  });
+
+  return userUrls;
 }
