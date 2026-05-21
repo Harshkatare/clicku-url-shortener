@@ -3,6 +3,7 @@ import { Request, Response } from "express";
 import * as urlService from "./url.service.js";
 
 import { createUrlSchema } from "./url.schema.js";
+import { success } from "zod";
 
 export async function createShortUrl(
   req: Request,
@@ -35,4 +36,18 @@ export async function redirectToOriginalUrl(
     );
 
   res.redirect(originalUrl);
+}
+
+export async function getUserUrls(
+  req: Request,
+  res: Response
+) {
+  const userUrls = await urlService.getUserUrls(
+    req.user!.id
+  );
+
+  res.status(200).json({
+    success: true,
+    data: userUrls,
+  });
 }
