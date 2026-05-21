@@ -20,4 +20,10 @@ router.post(
   asyncHandler(urlController.createShortUrl)
 );
 
+router.delete(
+  "/:id",
+  protect,
+  asyncHandler(urlController.deleteUrl)
+);
+
 export default router;
