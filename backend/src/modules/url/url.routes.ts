@@ -26,4 +26,10 @@ router.delete(
   asyncHandler(urlController.deleteUrl)
 );
 
+router.patch(
+  "/:id",
+  protect,
+  asyncHandler(urlController.updateUrl)
+);
+
 export default router;

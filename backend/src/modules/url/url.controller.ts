@@ -69,7 +69,7 @@ export async function deleteUrl(
   });
 }
 
-export async function updatedUrl(
+export async function updateUrl(
   req: Request,
   res: Response
 ) {
