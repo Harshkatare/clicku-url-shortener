@@ -7,3 +7,13 @@ export const createUrlSchema = z.object({
 export type CreateUrlInput = z.infer<
   typeof createUrlSchema
 >;
+
+export const updateUrlSchema = z.object({
+  originalUrl: z
+    .url("Invalid URL")
+    .optional(),
+});
+
+export type updateUrlInput = z.infer<
+  typeof updateUrlSchema
+>;
