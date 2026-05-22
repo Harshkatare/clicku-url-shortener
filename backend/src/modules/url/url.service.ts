@@ -6,7 +6,7 @@ import { urls } from "../../db/schema/urls.js";
 
 import { generateShortCode } from "../../lib/generate-short-code.js";
 
-import type { CreateUrlInput } from "./url.schema.js";
+import type { CreateUrlInput, updateUrlInput } from "./url.schema.js";
 
 import { eq, sql, desc, and } from "drizzle-orm";
 import { url } from "inspector";
@@ -82,4 +82,34 @@ export async function deleteUrl(
   }
 
   return deletedUrl;
+}
+
+export async function updateUrl(
+  urlId: string,
+  userId: string,
+  data: updateUrlInput
+) {
+  const updatedUrls = await db
+    .update(urls)
+    .set({
+      ...data,
+      updatedAt: new Date(),
+    })
+    .where(
+      and(
+        eq(urls.id, urlId),
+        eq(urls.userId, userId)
+      )
+    )
+    .returning();
+
+  const updatedUrl = updatedUrls[0];
+
+  if (!updatedUrl) {
+    throw new Error(
+      "URL not found or unathorized"
+    );
+  }
+
+  return updatedUrl;
 }
