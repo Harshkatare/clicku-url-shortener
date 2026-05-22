@@ -1,7 +1,8 @@
 import { Request, Response } from "express";
 
 import * as urlService from "./url.service.js";
-import { createUrlSchema } from "./url.schema.js";
+import { createUrlSchema, updateUrlSchema } from "./url.schema.js";
+import { success } from "zod";
 
 export async function createShortUrl(
   req: Request,
@@ -65,5 +66,25 @@ export async function deleteUrl(
   res.status(200).json({
     success: true,
     data: deletedUrl,
+  });
+}
+
+export async function updatedUrl(
+  req: Request,
+  res: Response
+) {
+  const validatedData =
+    updateUrlSchema.parse(req.body);
+
+  const updatedUrl = 
+    await urlService.updateUrl(
+      req.params.id as string,
+      req.user!.id,
+      validatedData
+    );
+  
+  res.status(200).json({
+    success: true,
+    data: updatedUrl,
   });
 }
