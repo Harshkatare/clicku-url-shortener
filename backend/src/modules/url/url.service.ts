@@ -11,8 +11,27 @@ import type { CreateUrlInput, updateUrlInput } from "./url.schema.js";
 import { eq, sql, desc, and } from "drizzle-orm";
 import { url } from "inspector";
 
-export async function createShortUrl(data: CreateUrlInput, userId: string) {
-  const shortCode = generateShortCode();
+export async function createShortUrl(
+  data: CreateUrlInput,
+  userId: string
+) {
+  let shortCode = "";
+
+  let isCollision = true;
+
+  while (isCollision) {
+    shortCode = generateShortCode();
+
+    const existingShortCode =
+      await db.query.urls.findFirst({
+        where: eq(
+          urls.shortCode,
+          shortCode
+        ),
+      });
+
+    isCollision = !!existingShortCode;
+  }
 
   const urlId = crypto.randomUUID();
 
