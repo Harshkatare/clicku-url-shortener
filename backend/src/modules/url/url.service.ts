@@ -8,8 +8,9 @@ import { generateShortCode } from "../../lib/generate-short-code.js";
 
 import type { CreateUrlInput, updateUrlInput } from "./url.schema.js";
 
+import { NotFoundError } from "../../lib/errors/index.js"
+
 import { eq, sql, desc, and } from "drizzle-orm";
-import { url } from "inspector";
 
 export async function createShortUrl(
   data: CreateUrlInput,
@@ -95,7 +96,7 @@ export async function deleteUrl(
   const deletedUrl = deletedUrls[0];
 
   if (!deletedUrl) {
-    throw new Error(
+    throw new NotFoundError(
       "URL not found or unauthorized"
     );
   }
@@ -125,8 +126,8 @@ export async function updateUrl(
   const updatedUrl = updatedUrls[0];
 
   if (!updatedUrl) {
-    throw new Error(
-      "URL not found or unathorized"
+    throw new NotFoundError(
+      "URL not found or unauthorized"
     );
   }
 

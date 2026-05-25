@@ -9,6 +9,7 @@ import { hashPassword } from "../../lib/hash-password.js";
 import { verifyPassword } from "../../lib/verify-password.js";
 
 import { generateToken } from "../../lib/generate-token.js";
+import { ConflictError } from "../../lib/errors/index.js"
 
 import type { SignupInput, LoginInput } from "./auth.schema.js";
 
@@ -18,7 +19,9 @@ export async function signup(data: SignupInput) {
   });
 
   if (existingUser) {
-    throw new Error("User already exists");
+    throw new ConflictError(
+      "User already exists"
+    );
   }
 
   const hashedPassword = await hashPassword(
