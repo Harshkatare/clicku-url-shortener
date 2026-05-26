@@ -7,6 +7,7 @@ import urlRoutes from "./modules/url/url.routes.js";
 import redirectRoutes from "./routes/redirect.routes.js";
 
 import { errorMiddleware } from "./middleware/error.middleware.js";
+import { apiRateLimit } from "./lib/rate-limit/api-rate-limit.js"
 
 const app = express();
 
@@ -21,6 +22,8 @@ app.get("/health", (req, res) => {
     message: "server is running",
   });
 });
+
+app.use("/api", apiRateLimit);
 
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/urls", urlRoutes);
