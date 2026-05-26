@@ -6,7 +6,11 @@ import { asyncHandler } from "../../utils/async-handler.js";
 
 import { protect } from "../../middleware/auth.middleware.js";
 
+import { authRateLimit } from "../../lib/rate-limit/auth-rate-limit.js"
+
 const router = Router();
+
+router.use(authRateLimit);
 
 router.post(
   "/signup",
