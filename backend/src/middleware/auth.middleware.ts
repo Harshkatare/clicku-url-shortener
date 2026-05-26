@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 
 import jwt from "jsonwebtoken";
+import { env } from "../config/env.js";
 
 interface JwtPayload {
   userId: string;
@@ -29,7 +30,7 @@ export async function protect(
   try {
     const decoded = jwt.verify(
       token,
-      process.env.JWT_SECRET!
+      env.JWT_SECRET
     ) as JwtPayload;
 
     req.user = {
