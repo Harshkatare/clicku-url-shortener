@@ -26,6 +26,12 @@ app.use(requestIdMiddleware);
 app.use(
   pinoHttp({
     logger,
+
+    customProps(req) {
+      return {
+        requestId: req.requestId,
+      };
+    },
   })
 );
 
