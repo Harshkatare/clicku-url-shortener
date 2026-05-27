@@ -46,6 +46,11 @@ app.use("/api", apiRateLimit);
 
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/urls", urlRoutes);
+
+app.get("/favicon.ico", (_req, res) => {
+  res.status(204).end();
+});
+
 app.use("/", redirectRoutes);
 
 app.use(errorMiddleware);
