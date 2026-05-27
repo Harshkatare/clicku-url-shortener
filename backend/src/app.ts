@@ -9,12 +9,22 @@ import redirectRoutes from "./routes/redirect.routes.js";
 import { errorMiddleware } from "./middleware/error.middleware.js";
 import { apiRateLimit } from "./lib/rate-limit/api-rate-limit.js"
 
+import pinoHttp from "pino-http";
+import { logger } from "./lib/logger.js";
+import PinoHttp from "pino-http";
+
 const app = express();
 
 app.use(helmet());
 app.use(cors());
 
 app.use(express.json());
+
+app.use(
+  pinoHttp({
+    logger,
+  })
+);
 
 app.get("/health", (req, res) => {
   res.status(200).json({
