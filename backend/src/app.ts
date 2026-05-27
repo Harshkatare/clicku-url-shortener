@@ -11,7 +11,8 @@ import { apiRateLimit } from "./lib/rate-limit/api-rate-limit.js"
 
 import pinoHttp from "pino-http";
 import { logger } from "./lib/logger.js";
-import PinoHttp from "pino-http";
+import { requestIdMiddleware } from "./middleware/request-id.middleware.js";
+
 
 const app = express();
 
@@ -19,6 +20,8 @@ app.use(helmet());
 app.use(cors());
 
 app.use(express.json());
+
+app.use(requestIdMiddleware);
 
 app.use(
   pinoHttp({
