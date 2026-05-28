@@ -12,12 +12,18 @@ import { apiRateLimit } from "./lib/rate-limit/api-rate-limit.js"
 import pinoHttp from "pino-http";
 import { logger } from "./lib/logger.js";
 import { requestIdMiddleware } from "./middleware/request-id.middleware.js";
+import { env } from "./config/env.js";
 
 
 const app = express();
 
 app.use(helmet());
-app.use(cors());
+
+app.use(
+  cors({
+    origin: env.CLIENT_URL,
+  })
+);
 
 app.use(express.json());
 

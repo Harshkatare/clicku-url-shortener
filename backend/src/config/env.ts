@@ -10,6 +10,8 @@ const envSchema = z.object({
   JWT_SECRET: z
     .string()
     .min(10),
+
+  CLIENT_URL: z.url(),
 });
 
 const parsedEnv =
