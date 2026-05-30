@@ -8,6 +8,8 @@ RUN corepack enable && pnpm install
 
 COPY . .
 
+RUN pnpm build
+
 EXPOSE 5000
 
-CMD ["pnpm", "run", "dev"]
+CMD ["pnpm", "start"]
