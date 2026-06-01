@@ -28,7 +28,8 @@ services:
       - "5000:5000"
 
     depends_on:
-      - postgres
+      postgres:
+        condition: service_started
 
     env_file:
       - .env
