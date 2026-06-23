@@ -5,6 +5,8 @@ import { RegisterPage } from "../pages/RegisterPage";
 import { DashboardPage } from "../pages/DashboardPage";
 import { HomePage } from "../pages/HomePage";
 
+import { ProtectedRoute } from "./ProtectedRoute";
+
 export function AppRoutes() {
   return (
     <Routes>
@@ -22,10 +24,12 @@ export function AppRoutes() {
         element={<RegisterPage />} 
     />
 
-      <Route 
-        path="/dashboard" 
-        element={<DashboardPage />} 
-    />
+      <Route element={<ProtectedRoute />}>
+        <Route
+          path="/dashboard"
+          element={<DashboardPage />}
+        />
+      </Route>
     </Routes>
   );
 }

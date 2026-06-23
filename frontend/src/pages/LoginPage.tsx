@@ -6,7 +6,13 @@ import {
   type LoginFormData,
 } from "../features/auth/auth.schemas";
 
+import { login } from "../features/auth/auth.api";
+import { useNavigate } from "react-router-dom";
+
 export function LoginPage() {
+
+  const navigate = useNavigate();
+
   const {
     register,
     handleSubmit,
@@ -15,10 +21,25 @@ export function LoginPage() {
     resolver: zodResolver(loginSchema),
   });
 
-  function onSubmit(
+  async function onSubmit(
     data: LoginFormData
   ) {
-    console.log(data);
+    try {
+      const response = 
+        await login(data);
+
+      localStorage.setItem(
+        "token",
+        response.data.token
+      );
+
+      navigate("/dashboard");
+      
+      console.log(response);
+
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   return (

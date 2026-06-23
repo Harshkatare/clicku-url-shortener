@@ -1,11 +1,20 @@
-import type { ReactNode } from "react";
+import {
+  Navigate,
+  Outlet,
+} from "react-router-dom";
 
-type ProtectedRouteProps = {
-  children: ReactNode;
-};
+export function ProtectedRoute() {
+  const token =
+    localStorage.getItem("token");
 
-export function ProtectedRoute({
-  children,
-}: ProtectedRouteProps) {
-  return children;
+  if (!token) {
+    return (
+      <Navigate
+        to="/login"
+        replace
+      />
+    );
+  }
+
+  return <Outlet />;
 }
