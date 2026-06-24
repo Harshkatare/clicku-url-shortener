@@ -31,8 +31,6 @@ export function RegisterPage() {
       const response =
         await register(data);
 
-      console.log(response);
-
       navigate("/login");
 
     } catch (error) {

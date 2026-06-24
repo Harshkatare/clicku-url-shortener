@@ -34,8 +34,6 @@ export function LoginPage() {
       );
 
       navigate("/dashboard");
-      
-      console.log(response);
 
     } catch (error) {
       console.error(error);
