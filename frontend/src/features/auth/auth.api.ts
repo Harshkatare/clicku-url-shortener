@@ -19,7 +19,7 @@ export async function register(
     data: RegisterInput
 ) {
     const response = await api.post(
-        "/auth/register",
+        "/auth/signup",
         data
     );
 
