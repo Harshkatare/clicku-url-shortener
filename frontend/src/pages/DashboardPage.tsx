@@ -8,6 +8,11 @@ import {
 } from "../features/urls/urls.schemas";
 
 import { createUrl } from "../features/urls/urls.api";
+import { 
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
+import { getUrls } from "../features/urls/urls.api";
 
 export function DashboardPage() {
   const {
@@ -18,15 +23,46 @@ export function DashboardPage() {
     resolver: zodResolver(createUrlSchema),
   });
 
-  const onSubmit = async (data: CreateUrlFormData) => {
+  const {
+    data,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["urls"],
+    queryFn: getUrls,
+  });
+
+  const queryClient = useQueryClient();
+
+  const onSubmit = async (
+    data: CreateUrlFormData
+  ) => {
     try {
-      const response = await createUrl(data);
+      await createUrl(data);
   
-      console.log(response);
-  } catch (error) {
+      queryClient.invalidateQueries({
+        queryKey: ["urls"],
+      });
+    } catch (error) {
       console.error(error);
-  }
+    }
   };
+
+  if (isLoading) {
+    return (
+      <DashboardLayout>
+        <p>Loading...</p>
+      </DashboardLayout>
+    );
+  }
+
+  if (error) {
+    return (
+      <DashboardLayout>
+        <p>Something went wrong.</p>
+      </DashboardLayout>
+    );
+  }
 
   return (
     <DashboardLayout>
@@ -72,7 +108,30 @@ export function DashboardPage() {
           My URLs
         </h3>
 
-        <p>No shortened URLs yet.</p>
+        {data?.data.length === 0 ? (
+  <p>No shortened URLs yet.</p>
+) : (
+  <ul className="space-y-4">
+    {data?.data.map((url) => (
+      <li
+        key={url.id}
+        className="rounded border p-4"
+      >
+        <p className="font-semibold">
+          {url.shortCode}
+        </p>
+
+        <p className="break-all text-sm text-gray-600">
+          {url.originalUrl}
+        </p>
+
+        <p className="mt-2 text-sm">
+          Clicks: {url.clicks}
+        </p>
+      </li>
+    ))}
+  </ul>
+)}
       </section>
     </DashboardLayout>
   );

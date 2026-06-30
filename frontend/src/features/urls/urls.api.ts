@@ -1,12 +1,16 @@
 import { api } from "../../api/client";
+
 import type {
     CreateUrlInput,
+    CreateUrlResponse,
+    GetUrlsResponse
 } from "./urls.types";
 
 export async function createUrl(
     data: CreateUrlInput
 ) {
-    const response = await api.post(
+    const response = 
+            await api.post<CreateUrlResponse>(
         "/urls",
         data
     );
@@ -15,7 +19,7 @@ export async function createUrl(
 }
 
 export async function getUrls() {
-    const response = await api.get(
+    const response = await api.get<GetUrlsResponse>(
         "/urls"
     );
 
