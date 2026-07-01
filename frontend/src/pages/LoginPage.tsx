@@ -8,6 +8,7 @@ import {
 
 import { login } from "../features/auth/auth.api";
 import { useNavigate } from "react-router-dom";
+import { saveToken } from "../features/auth/auth.storage"
 
 export function LoginPage() {
 
@@ -28,10 +29,7 @@ export function LoginPage() {
       const response = 
         await login(data);
 
-      localStorage.setItem(
-        "token",
-        response.data.token
-      );
+      saveToken(response.data.token)
 
       navigate("/dashboard");
 

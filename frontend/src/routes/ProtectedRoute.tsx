@@ -3,9 +3,11 @@ import {
   Outlet,
 } from "react-router-dom";
 
+import { getToken } from "../features/auth/auth.storage";
+
 export function ProtectedRoute() {
   const token =
-    localStorage.getItem("token");
+    getToken();
 
   if (!token) {
     return (
