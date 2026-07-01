@@ -1,9 +1,9 @@
 import axios from "axios";
 import { getToken } from "../features/auth/auth.storage";
+import { env } from "../config/env";
 
 export const api = axios.create({
-    baseURL:
-        "https://clicku-url-shortener.onrender.com/api/v1",
+    baseURL: env.API_URL,
 });
 
 api.interceptors.request.use((config) => {
