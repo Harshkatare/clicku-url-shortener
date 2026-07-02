@@ -1,18 +1,28 @@
+import { useState } from "react";
+
 import { DashboardLayout } from "../layouts/DashboardLayout";
+
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+
+import {
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
 
 import {
   createUrlSchema,
   type CreateUrlFormData,
 } from "../features/urls/urls.schemas";
 
-import { createUrl } from "../features/urls/urls.api";
-import { 
-  useQuery,
-  useQueryClient,
-} from "@tanstack/react-query";
-import { getUrls } from "../features/urls/urls.api";
+import {
+  createUrl,
+  getUrls,
+} from "../features/urls/urls.api";
+
+import { env } from "../config/env";
+
+import { copyToClipboard } from "../utils/copy";
 
 export function DashboardPage() {
   const {
@@ -34,12 +44,15 @@ export function DashboardPage() {
 
   const queryClient = useQueryClient();
 
+  const [copiedId, setCopiedId] =
+    useState<string | null>(null);
+
   const onSubmit = async (
     data: CreateUrlFormData
   ) => {
     try {
       await createUrl(data);
-  
+
       queryClient.invalidateQueries({
         queryKey: ["urls"],
       });
@@ -47,6 +60,25 @@ export function DashboardPage() {
       console.error(error);
     }
   };
+
+  async function handleCopy(
+    shortCode: string,
+    id: string
+  ) {
+    try {
+      const shortUrl = `${env.SHORT_URL_BASE}/${shortCode}`;
+
+      await copyToClipboard(shortUrl);
+
+      setCopiedId(id);
+
+      setTimeout(() => {
+        setCopiedId(null);
+      }, 2000);
+    } catch (error) {
+      console.error(error);
+    }
+  }
 
   if (isLoading) {
     return (
@@ -109,29 +141,46 @@ export function DashboardPage() {
         </h3>
 
         {data?.data.length === 0 ? (
-  <p>No shortened URLs yet.</p>
-) : (
-  <ul className="space-y-4">
-    {data?.data.map((url) => (
-      <li
-        key={url.id}
-        className="rounded border p-4"
-      >
-        <p className="font-semibold">
-          {url.shortCode}
-        </p>
+          <p>No shortened URLs yet.</p>
+        ) : (
+          <ul className="space-y-4">
+            {data?.data.map((url) => (
+              <li
+                key={url.id}
+                className="rounded border p-4"
+              >
+                <div className="flex items-center justify-between gap-4">
+                  <p className="break-all font-semibold">
+                    {`${env.SHORT_URL_BASE}/${url.shortCode}`}
+                  </p>
 
-        <p className="break-all text-sm text-gray-600">
-          {url.originalUrl}
-        </p>
+                  <button
+                    type="button"
+                    onClick={() =>
+                      handleCopy(
+                        url.shortCode,
+                        url.id
+                      )
+                    }
+                    className="rounded bg-gray-200 px-3 py-1 text-sm transition hover:bg-gray-300"
+                  >
+                    {copiedId === url.id
+                      ? "Copied!"
+                      : "Copy"}
+                  </button>
+                </div>
 
-        <p className="mt-2 text-sm">
-          Clicks: {url.clicks}
-        </p>
-      </li>
-    ))}
-  </ul>
-)}
+                <p className="mt-3 break-all text-sm text-gray-600">
+                  {url.originalUrl}
+                </p>
+
+                <p className="mt-2 text-sm">
+                  Clicks: {url.clicks}
+                </p>
+              </li>
+            ))}
+          </ul>
+        )}
       </section>
     </DashboardLayout>
   );
