@@ -5,20 +5,14 @@ import { DashboardLayout } from "../layouts/DashboardLayout";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import {
-  useQuery,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 
 import {
   createUrlSchema,
   type CreateUrlFormData,
 } from "../features/urls/urls.schemas";
 
-import {
-  createUrl,
-  getUrls,
-} from "../features/urls/urls.api";
+import { createUrl, getUrls } from "../features/urls/urls.api";
 
 import { env } from "../config/env";
 
@@ -28,43 +22,42 @@ export function DashboardPage() {
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm<CreateUrlFormData>({
     resolver: zodResolver(createUrlSchema),
   });
 
-  const {
-    data,
-    isLoading,
-    error,
-  } = useQuery({
+  const { data, isLoading, error } = useQuery({
     queryKey: ["urls"],
     queryFn: getUrls,
   });
 
   const queryClient = useQueryClient();
 
-  const [copiedId, setCopiedId] =
-    useState<string | null>(null);
+  const createUrlMutation = useMutation({
+    mutationFn: createUrl,
 
-  const onSubmit = async (
-    data: CreateUrlFormData
-  ) => {
-    try {
-      await createUrl(data);
-
+    onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["urls"],
       });
+
+      reset();
+    },
+  });
+
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+
+  const onSubmit = async (data: CreateUrlFormData) => {
+    try {
+      await createUrlMutation.mutateAsync(data);
     } catch (error) {
       console.error(error);
     }
   };
 
-  async function handleCopy(
-    shortCode: string,
-    id: string
-  ) {
+  async function handleCopy(shortCode: string, id: string) {
     try {
       const shortUrl = `${env.SHORT_URL_BASE}/${shortCode}`;
 
@@ -98,17 +91,10 @@ export function DashboardPage() {
 
   return (
     <DashboardLayout>
-      <h2 className="mb-6 text-3xl font-bold">
-        Welcome back!
-      </h2>
+      <h2 className="mb-6 text-3xl font-bold">Welcome back!</h2>
 
-      <form
-        onSubmit={handleSubmit(onSubmit)}
-        className="rounded border p-6"
-      >
-        <h3 className="mb-4 text-xl font-semibold">
-          Create Short URL
-        </h3>
+      <form onSubmit={handleSubmit(onSubmit)} className="rounded border p-6">
+        <h3 className="mb-4 text-xl font-semibold">Create Short URL</h3>
 
         <div className="flex gap-4">
           <div className="flex-1">
@@ -128,27 +114,23 @@ export function DashboardPage() {
 
           <button
             type="submit"
-            className="rounded bg-blue-600 px-4 py-2 text-white"
+            disabled={createUrlMutation.isPending}
+            className="rounded bg-blue-600 px-4 py-2 text-white disabled:cursor-not-allowed             disabled:opacity-50"
           >
-            Create
+            {createUrlMutation.isPending ? "Creating..." : "Create"}
           </button>
         </div>
       </form>
 
       <section className="mt-8">
-        <h3 className="mb-4 text-xl font-semibold">
-          My URLs
-        </h3>
+        <h3 className="mb-4 text-xl font-semibold">My URLs</h3>
 
         {data?.data.length === 0 ? (
           <p>No shortened URLs yet.</p>
         ) : (
           <ul className="space-y-4">
             {data?.data.map((url) => (
-              <li
-                key={url.id}
-                className="rounded border p-4"
-              >
+              <li key={url.id} className="rounded border p-4">
                 <div className="flex items-center justify-between gap-4">
                   <p className="break-all font-semibold">
                     {`${env.SHORT_URL_BASE}/${url.shortCode}`}
@@ -156,17 +138,10 @@ export function DashboardPage() {
 
                   <button
                     type="button"
-                    onClick={() =>
-                      handleCopy(
-                        url.shortCode,
-                        url.id
-                      )
-                    }
+                    onClick={() => handleCopy(url.shortCode, url.id)}
                     className="rounded bg-gray-200 px-3 py-1 text-sm transition hover:bg-gray-300"
                   >
-                    {copiedId === url.id
-                      ? "Copied!"
-                      : "Copy"}
+                    {copiedId === url.id ? "Copied!" : "Copy"}
                   </button>
                 </div>
 
@@ -174,9 +149,7 @@ export function DashboardPage() {
                   {url.originalUrl}
                 </p>
 
-                <p className="mt-2 text-sm">
-                  Clicks: {url.clicks}
-                </p>
+                <p className="mt-2 text-sm">Clicks: {url.clicks}</p>
               </li>
             ))}
           </ul>
