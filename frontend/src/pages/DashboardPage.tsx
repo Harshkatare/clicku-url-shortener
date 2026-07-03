@@ -126,7 +126,15 @@ export function DashboardPage() {
         <h3 className="mb-4 text-xl font-semibold">My URLs</h3>
 
         {data?.data.length === 0 ? (
-          <p>No shortened URLs yet.</p>
+          <div className="rounded-lg border border-dashed p-10 text-center">
+            <div className="mb-4 text-3xl">🔗</div>
+
+            <h3 className="text-xl font-semibold">No URLs Yet</h3>
+
+            <p className="mt-2 text-gray-500">
+              Create your first short URL using the form above.
+            </p>
+          </div>
         ) : (
           <ul className="space-y-4">
             {data?.data.map((url) => (
