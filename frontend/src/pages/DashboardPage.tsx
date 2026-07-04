@@ -22,6 +22,11 @@ import { env } from "../config/env";
 
 import { copyToClipboard } from "../utils/copy";
 
+import { 
+    Alert,
+    type AlertState,
+  } from "../components/Alert";
+
 export function DashboardPage() {
   const {
     register,
@@ -48,6 +53,11 @@ export function DashboardPage() {
       });
 
       reset();
+
+      setAlert({
+        type: "success",
+        message: "Short URL created successfully.",
+      });
     },
   });
 
@@ -62,6 +72,10 @@ export function DashboardPage() {
       queryClient.invalidateQueries({
         queryKey: ["urls"],
       });
+      setAlert({
+        type: "success",
+        message: "Short URL deleted successfully.",
+      });
     },
   
     onSettled: () => {
@@ -73,10 +87,18 @@ export function DashboardPage() {
 
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
+  const [alert, setAlert] =
+  useState<AlertState | null>(null);
+
   const onSubmit = async (data: CreateUrlFormData) => {
     try {
       await createUrlMutation.mutateAsync(data);
     } catch (error) {
+      setAlert({
+        type: "error",
+        message: "Failed to create short URL.",
+      });
+      
       console.error(error);
     }
   };
@@ -103,6 +125,11 @@ export function DashboardPage() {
     try {
       await deleteUrlMutation.mutateAsync(id);
     } catch (error) {
+      setAlert({
+        type: "error",
+        message: "Failed to delete short URL.",
+      });
+      
       console.error(error);
     }
   }
@@ -125,6 +152,14 @@ export function DashboardPage() {
 
   return (
     <DashboardLayout>
+
+      {alert && (
+        <Alert
+          type={alert.type}
+          message={alert.message}
+        />
+      )}
+
       <h2 className="mb-6 text-3xl font-bold">Welcome back!</h2>
 
       <form onSubmit={handleSubmit(onSubmit)} className="rounded border p-6">
