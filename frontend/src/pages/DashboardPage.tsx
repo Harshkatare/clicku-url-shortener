@@ -12,7 +12,11 @@ import {
   type CreateUrlFormData,
 } from "../features/urls/urls.schemas";
 
-import { createUrl, getUrls } from "../features/urls/urls.api";
+import { 
+    createUrl, 
+    getUrls,
+    deleteUrl,
+} from "../features/urls/urls.api";
 
 import { env } from "../config/env";
 
@@ -47,7 +51,27 @@ export function DashboardPage() {
     },
   });
 
+  const deleteUrlMutation = useMutation({
+    mutationFn: deleteUrl,
+  
+    onMutate: (id) => {
+      setDeletingId(id);
+    },
+  
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ["urls"],
+      });
+    },
+  
+    onSettled: () => {
+      setDeletingId(null);
+    },
+  });
+
   const [copiedId, setCopiedId] = useState<string | null>(null);
+
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const onSubmit = async (data: CreateUrlFormData) => {
     try {
@@ -68,6 +92,16 @@ export function DashboardPage() {
       setTimeout(() => {
         setCopiedId(null);
       }, 2000);
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  async function handleDelete(
+    id: string
+  ) {
+    try {
+      await deleteUrlMutation.mutateAsync(id);
     } catch (error) {
       console.error(error);
     }
@@ -157,7 +191,22 @@ export function DashboardPage() {
                   {url.originalUrl}
                 </p>
 
-                <p className="mt-2 text-sm">Clicks: {url.clicks}</p>
+                <div className="mt-2 flex items-center justify-between">
+  <p className="text-sm">
+    Clicks: {url.clicks}
+  </p>
+
+  <button
+    type="button"
+    onClick={() => handleDelete(url.id)}
+    disabled={deletingId === url.id}
+    className="rounded bg-red-600 px-3 py-1 text-sm text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
+  >
+    {deletingId === url.id
+      ? "Deleting..."
+      : "Delete"}
+  </button>
+</div>
               </li>
             ))}
           </ul>

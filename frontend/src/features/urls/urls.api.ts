@@ -25,3 +25,12 @@ export async function getUrls() {
 
     return response.data;
 }
+
+export async function deleteUrl(
+    id: string
+) {
+    const response = 
+        await api.delete( `/urls/${id}`);
+
+    return response.data;
+}
