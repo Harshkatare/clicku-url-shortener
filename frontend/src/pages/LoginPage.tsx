@@ -17,7 +17,10 @@ export function LoginPage() {
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: {
+      errors,
+      isSubmitting,
+    },
   } = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
   });
@@ -37,13 +40,13 @@ export function LoginPage() {
   return (
     <AuthLayout
       title="Welcome Back"
-      subtitle="Login to manage your short URLs."
+      subtitle="Sign in to manage and track your shortened links."
     >
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="mb-5">
           <label
             htmlFor="email"
-            className="mb-1 block text-sm font-medium text-gray-700"
+            className="mb-2 block text-sm font-medium text-gray-700"
           >
             Email
           </label>
@@ -52,7 +55,7 @@ export function LoginPage() {
             id="email"
             type="email"
             placeholder="Enter your email"
-            className="mt-1 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none transition focus:border-blue-500"
+            className="mt-1 h-12 w-full rounded-xl border border-gray-300 bg-white px-4 text-gray-900 placeholder:text-gray-400 transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
             {...register("email")}
           />
 
@@ -66,7 +69,7 @@ export function LoginPage() {
         <div className="mb-5">
           <label
             htmlFor="password"
-            className="mb-1 block text-sm font-medium text-gray-700"
+            className="mb-2 block text-sm font-medium text-gray-700"
           >
             Password
           </label>
@@ -75,7 +78,7 @@ export function LoginPage() {
             id="password"
             type="password"
             placeholder="Enter your password"
-            className="mt-1 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none transition focus:border-blue-500"
+            className="mt-1 h-12 w-full rounded-xl border border-gray-300 bg-white px-4 text-gray-900 placeholder:text-gray-400 transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
             {...register("password")}
           />
 
@@ -88,12 +91,13 @@ export function LoginPage() {
 
         <button
           type="submit"
-          className="mt-2 w-full rounded-xl bg-blue-600 py-3 font-medium text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+          disabled={isSubmitting}
+          className="mt-3 h-12 w-full rounded-xl bg-blue-600 font-medium text-white transition hover:bg-blue-700 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50"
         >
-          Login
+          {isSubmitting ? "Signing in..." : "Login"}
         </button>
 
-        <p className="mt-6 text-center text-sm text-gray-500">
+        <p className="mt-8 text-center text-sm text-gray-500">
           Don't have an account?{" "}
           <Link
             to="/register"

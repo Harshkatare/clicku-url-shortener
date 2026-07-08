@@ -16,11 +16,12 @@ export function RegisterPage() {
   const {
     register: registerField,
     handleSubmit,
-    formState: { errors },
+    formState: {
+      errors,
+      isSubmitting,
+    },
   } = useForm<RegisterFormData>({
-    resolver: zodResolver(
-      registerSchema
-    ),
+    resolver: zodResolver(registerSchema),
   });
 
   async function onSubmit(
@@ -38,13 +39,13 @@ export function RegisterPage() {
   return (
     <AuthLayout
       title="Create Account"
-      subtitle="Create your ClickU account."
+      subtitle="Create an account to start shortening links."
     >
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="mb-5">
           <label
             htmlFor="name"
-            className="mb-1 block text-sm font-medium text-gray-700"
+            className="mb-2 block text-sm font-medium text-gray-700"
           >
             Name
           </label>
@@ -53,7 +54,7 @@ export function RegisterPage() {
             id="name"
             type="text"
             placeholder="Enter your name"
-            className="mt-1 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none transition focus:border-blue-500"
+            className="mt-1 h-12 w-full rounded-xl border border-gray-300 bg-white px-4 text-gray-900 placeholder:text-gray-400 transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
             {...registerField("name")}
           />
 
@@ -67,7 +68,7 @@ export function RegisterPage() {
         <div className="mb-5">
           <label
             htmlFor="email"
-            className="mb-1 block text-sm font-medium text-gray-700"
+            className="mb-2 block text-sm font-medium text-gray-700"
           >
             Email
           </label>
@@ -76,7 +77,7 @@ export function RegisterPage() {
             id="email"
             type="email"
             placeholder="Enter your email"
-            className="mt-1 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none transition focus:border-blue-500"
+            className="mt-1 h-12 w-full rounded-xl border border-gray-300 bg-white px-4 text-gray-900 placeholder:text-gray-400 transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
             {...registerField("email")}
           />
 
@@ -90,7 +91,7 @@ export function RegisterPage() {
         <div className="mb-5">
           <label
             htmlFor="password"
-            className="mb-1 block text-sm font-medium text-gray-700"
+            className="mb-2 block text-sm font-medium text-gray-700"
           >
             Password
           </label>
@@ -99,7 +100,7 @@ export function RegisterPage() {
             id="password"
             type="password"
             placeholder="Create a password"
-            className="mt-1 w-full rounded-xl border border-gray-300 px-4 py-3 outline-none transition focus:border-blue-500"
+            className="mt-1 h-12 w-full rounded-xl border border-gray-300 bg-white px-4 text-gray-900 placeholder:text-gray-400 transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
             {...registerField("password")}
           />
 
@@ -112,13 +113,16 @@ export function RegisterPage() {
 
         <button
           type="submit"
-          className="mt-2 w-full rounded-xl bg-blue-600 py-3 font-medium text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+          disabled={isSubmitting}
+          className="mt-3 h-12 w-full rounded-xl bg-blue-600 font-medium text-white transition hover:bg-blue-700 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50"
         >
-          Register
+          {isSubmitting
+            ? "Creating account..."
+            : "Register"}
         </button>
       </form>
 
-      <p className="mt-6 text-center text-sm text-gray-500">
+      <p className="mt-8 text-center text-sm text-gray-500">
         Already have an account?{" "}
         <Link
           to="/login"
