@@ -14,15 +14,15 @@ export function Navbar() {
   }
 
   return (
-    <header className="border-b">
+    <header className="border-b border-gray-200 bg-white">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
-        <h1 className="text-2xl font-bold">
+        <h1 className="select-none text-3xl font-bold tracking-tight text-blue-600">
           ClickU
         </h1>
 
         <button
           onClick={handleLogout}
-          className="rounded bg-red-500 px-4 py-2 text-white"
+          className="rounded-xl bg-red-600 px-4 py-2 font-medium text-white transition hover:bg-red-700"
         >
           Logout
         </button>

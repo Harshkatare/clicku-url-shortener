@@ -160,18 +160,18 @@ export function DashboardPage() {
         />
       )}
 
-      <h2 className="mb-6 text-3xl font-bold">Welcome back!</h2>
+      <h2 className="mb-6 text-3xl font-bold">Dashboard</h2>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="rounded border p-6">
+      <form onSubmit={handleSubmit(onSubmit)} className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm">
         <h3 className="mb-4 text-xl font-semibold">Create Short URL</h3>
 
-        <div className="flex gap-4">
+        <div className="flex flex-col gap-4 md:flex-row">
           <div className="flex-1">
             <input
               type="url"
               placeholder="https://example.com"
               {...register("originalUrl")}
-              className="w-full rounded border px-4 py-2"
+              className="w-full h-12 rounded-xl border border-gray-300 px-4 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
             />
 
             {errors.originalUrl && (
@@ -184,7 +184,7 @@ export function DashboardPage() {
           <button
             type="submit"
             disabled={createUrlMutation.isPending}
-            className="rounded bg-blue-600 px-4 py-2 text-white disabled:cursor-not-allowed             disabled:opacity-50"
+            className="h-12 rounded-xl bg-blue-600 px-6 font-medium text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {createUrlMutation.isPending ? "Creating..." : "Create"}
           </button>
@@ -207,7 +207,7 @@ export function DashboardPage() {
         ) : (
           <ul className="space-y-4">
             {data?.data.map((url) => (
-              <li key={url.id} className="rounded border p-4">
+              <li key={url.id} className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
                 <div className="flex items-center justify-between gap-4">
                   <p className="break-all font-semibold">
                     {`${env.SHORT_URL_BASE}/${url.shortCode}`}
