@@ -195,8 +195,8 @@ export function DashboardPage() {
         <h3 className="mb-4 text-xl font-semibold">My URLs</h3>
 
         {data?.data.length === 0 ? (
-          <div className="rounded-lg border border-dashed p-10 text-center">
-            <div className="mb-4 text-3xl">🔗</div>
+          <div className="rounded-2xl border border-dashed p-12 text-center">
+            <div className="mb-4 text-5xl">🔗</div>
 
             <h3 className="text-xl font-semibold">No URLs Yet</h3>
 
@@ -209,25 +209,25 @@ export function DashboardPage() {
             {data?.data.map((url) => (
               <li key={url.id} className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
                 <div className="flex items-center justify-between gap-4">
-                  <p className="break-all font-semibold">
+                  <p className="break-all text-lg font-semibold text-gray-900">
                     {`${env.SHORT_URL_BASE}/${url.shortCode}`}
                   </p>
 
                   <button
                     type="button"
                     onClick={() => handleCopy(url.shortCode, url.id)}
-                    className="rounded bg-gray-200 px-3 py-1 text-sm transition hover:bg-gray-300"
+                    className="rounded-xl bg-gray-100 px-3 py-2 text-sm font-medium transition hover:bg-gray-200"
                   >
                     {copiedId === url.id ? "Copied!" : "Copy"}
                   </button>
                 </div>
 
-                <p className="mt-3 break-all text-sm text-gray-600">
+                <p className="mt-3 break-all text-sm text-gray-500">
                   {url.originalUrl}
                 </p>
 
                 <div className="mt-2 flex items-center justify-between">
-  <p className="text-sm">
+  <p className="text-sm text-gray-500">
     Clicks: {url.clicks}
   </p>
 
@@ -235,7 +235,7 @@ export function DashboardPage() {
     type="button"
     onClick={() => handleDelete(url.id)}
     disabled={deletingId === url.id}
-    className="rounded bg-red-600 px-3 py-1 text-sm text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
+    className="rounded-xl bg-red-600 px-3 py-2 text-sm font-medium text-white transition hover:bg-red-700 disabled:cursor-not-allowed disabled:opacity-50"
   >
     {deletingId === url.id
       ? "Deleting..."
