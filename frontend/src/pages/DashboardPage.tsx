@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { DashboardLayout } from "../layouts/DashboardLayout";
 
@@ -89,6 +89,18 @@ export function DashboardPage() {
 
   const [alert, setAlert] =
   useState<AlertState | null>(null);
+
+  useEffect(() => {
+  if (!alert) {
+    return;
+  }
+
+  const timer = setTimeout(() => {
+    setAlert(null);
+  }, 3000);
+
+  return () => clearTimeout(timer);
+}, [alert]);
 
   const onSubmit = async (data: CreateUrlFormData) => {
     try {
