@@ -55,7 +55,9 @@ export async function redirectToOriginalUrl(shortCode: string) {
   });
 
   if (!existingUrl) {
-    throw new Error("Short URL not found");
+    throw new NotFoundError(
+      "Short URL not found"
+    );
   }
 
   await db
