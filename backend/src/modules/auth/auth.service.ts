@@ -9,7 +9,11 @@ import { hashPassword } from "../../lib/hash-password.js";
 import { verifyPassword } from "../../lib/verify-password.js";
 
 import { generateToken } from "../../lib/generate-token.js";
-import { ConflictError } from "../../lib/errors/index.js"
+import { 
+  ConflictError,
+  UnauthorizedError,
+  NotFoundError,
+ } from "../../lib/errors";
 
 import type { SignupInput, LoginInput } from "./auth.schema.js";
 
@@ -51,7 +55,9 @@ export async function login(data: LoginInput) {
     });
 
   if (!existingUser) {
-    throw new Error("Invalid credentials");
+    throw new UnauthorizedError(
+      "Invalid credentials"
+    );
   }
 
   const isPasswordValid =
@@ -61,7 +67,9 @@ export async function login(data: LoginInput) {
     );
 
   if (!isPasswordValid) {
-    throw new Error("Invalid credentials");
+    throw new UnauthorizedError(
+      "Invalid credentials"
+    );
   }
 
   const token = generateToken(
@@ -82,7 +90,9 @@ export async function getCurrentUser(
     });
 
   if (!user) {
-    throw new Error("User not found");
+    throw new NotFoundError(
+      "User not found"
+    );
   }
 
   return {
