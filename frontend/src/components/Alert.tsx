@@ -14,7 +14,8 @@ export type AlertState = {
   
     return (
       <div
-      className={`mb-6 rounded-xl border px-4 py-3 text-sm font-medium ${styles}`}
+        role="alert"
+        className={`mb-6 rounded-xl border px-4 py-3 text-sm font-medium ${styles}`}
       >
         {message}
       </div>

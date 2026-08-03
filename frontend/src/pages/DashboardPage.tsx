@@ -105,15 +105,13 @@ export function DashboardPage() {
   const onSubmit = async (data: CreateUrlFormData) => {
     try {
       await createUrlMutation.mutateAsync(data);
-    } catch (error) {
-      setAlert({
-        type: "error",
-        message: "Failed to create short URL.",
-      });
-      
-      console.error(error);
-    }
-  };
+    } catch {
+        setAlert({
+          type: "error",
+          message: "Failed to create short URL.",
+        });
+      }
+    };
 
   async function handleCopy(shortCode: string, id: string) {
     try {
@@ -126,9 +124,12 @@ export function DashboardPage() {
       setTimeout(() => {
         setCopiedId(null);
       }, 2000);
-    } catch (error) {
-      console.error(error);
-    }
+    } catch {
+        setAlert({
+          type: "error",
+          message: "Failed to copy URL.",
+        });
+      }
   }
 
   async function handleDelete(
@@ -136,14 +137,12 @@ export function DashboardPage() {
   ) {
     try {
       await deleteUrlMutation.mutateAsync(id);
-    } catch (error) {
-      setAlert({
-        type: "error",
-        message: "Failed to delete short URL.",
-      });
-      
-      console.error(error);
-    }
+    } catch {
+        setAlert({
+          type: "error",
+          message: "Failed to delete short URL.",
+        });
+      }
   }
 
   if (isLoading) {
