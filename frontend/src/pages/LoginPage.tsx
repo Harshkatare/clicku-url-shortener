@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -11,8 +12,15 @@ import { login } from "../features/auth/auth.api";
 import { saveToken } from "../features/auth/auth.storage";
 import { AuthLayout } from "../layouts/AuthLayout";
 
+import {
+  Alert,
+  type AlertState,
+} from "../components/Alert";
+
 export function LoginPage() {
   const navigate = useNavigate();
+
+  const [alert, setAlert] = useState<AlertState | null>(null);
 
   const {
     register,
@@ -25,6 +33,16 @@ export function LoginPage() {
     resolver: zodResolver(loginSchema),
   });
 
+  useEffect(() => {
+    if (!alert) return;
+
+    const timer = setTimeout(() => {
+      setAlert(null);
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, [alert]);
+
   async function onSubmit(data: LoginFormData) {
     try {
       const response = await login(data);
@@ -32,8 +50,11 @@ export function LoginPage() {
       saveToken(response.data.token);
 
       navigate("/dashboard");
-    } catch (error) {
-      console.error(error);
+    } catch {
+      setAlert({
+        type: "error",
+        message: "Invalid email or password.",
+      })
     }
   }
 
@@ -42,6 +63,13 @@ export function LoginPage() {
       title="Welcome Back"
       subtitle="Sign in to manage and track your shortened links."
     >
+      {alert && (
+        <Alert
+          type={alert.type}
+          message={alert.message}
+        />
+      )}
+
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="mb-5">
           <label
@@ -55,6 +83,7 @@ export function LoginPage() {
             id="email"
             type="email"
             placeholder="Enter your email"
+            autoComplete="email"
             className="mt-1 h-12 w-full rounded-xl border border-gray-300 bg-white px-4 text-gray-900 placeholder:text-gray-400 transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
             {...register("email")}
           />
@@ -78,6 +107,7 @@ export function LoginPage() {
             id="password"
             type="password"
             placeholder="Enter your password"
+            autoComplete="current-password"
             className="mt-1 h-12 w-full rounded-xl border border-gray-300 bg-white px-4 text-gray-900 placeholder:text-gray-400 transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
             {...register("password")}
           />

@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -10,8 +11,15 @@ import {
 import { register } from "../features/auth/auth.api";
 import { AuthLayout } from "../layouts/AuthLayout";
 
+import {
+  Alert,
+  type AlertState,
+} from "../components/Alert";
+
 export function RegisterPage() {
   const navigate = useNavigate();
+
+  const [alert, setAlert] =useState<AlertState | null>(null);
 
   const {
     register: registerField,
@@ -24,6 +32,16 @@ export function RegisterPage() {
     resolver: zodResolver(registerSchema),
   });
 
+  useEffect(() => {
+    if (!alert) return;
+
+    const timer = setTimeout(() => {
+      setAlert(null);
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, [alert]);
+
   async function onSubmit(
     data: RegisterFormData
   ) {
@@ -31,8 +49,11 @@ export function RegisterPage() {
       await register(data);
 
       navigate("/login");
-    } catch (error) {
-      console.error(error);
+    } catch {
+        setAlert({
+          type: "error",
+          message: "Registration failed.",
+        });
     }
   }
 
@@ -41,6 +62,13 @@ export function RegisterPage() {
       title="Create Account"
       subtitle="Create an account to start shortening links."
     >
+      {alert && (
+        <Alert
+          type={alert.type}
+          message={alert.message}
+        />
+      )}
+
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="mb-5">
           <label
@@ -77,6 +105,7 @@ export function RegisterPage() {
             id="email"
             type="email"
             placeholder="Enter your email"
+            autoComplete="email"
             className="mt-1 h-12 w-full rounded-xl border border-gray-300 bg-white px-4 text-gray-900 placeholder:text-gray-400 transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
             {...registerField("email")}
           />
@@ -100,6 +129,7 @@ export function RegisterPage() {
             id="password"
             type="password"
             placeholder="Create a password"
+            autoComplete="new-password"
             className="mt-1 h-12 w-full rounded-xl border border-gray-300 bg-white px-4 text-gray-900 placeholder:text-gray-400 transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
             {...registerField("password")}
           />
