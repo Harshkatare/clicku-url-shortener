@@ -1,6 +1,6 @@
 {
   "name": "backend",
-  "version": "1.0.0",
+  "version": "0.4.0",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -8,7 +8,8 @@
     "build": "tsc",
     "start": "node dist/server.js",
     "db:generate": "drizzle-kit generate",
-    "db:migrate": "drizzle-kit migrate"
+    "db:migrate": "drizzle-kit migrate",
+    "db:migrate:prod": "tsx -e \"process.env.NODE_ENV='production'; import('child_process').then(cp => cp.execSync('drizzle-kit migrate', { stdio: 'inherit', env: process.env }))\""
   },
   "keywords": [],
   "author": "",
