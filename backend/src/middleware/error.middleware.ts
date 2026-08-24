@@ -4,14 +4,14 @@ import { ZodError } from "zod";
 
 import { AppError } from "../lib/errors/AppError.js";
 
+import { logger } from "../lib/logger.js"; 
+
 export function errorMiddleware(
   error: Error,
-  _req: Request,
+  req: Request,
   res: Response,
   _next: NextFunction
 ) {
-  console.error(error);
-
   if (error instanceof ZodError) {
     return res.status(400).json({
       success: false,
@@ -25,6 +25,8 @@ export function errorMiddleware(
       message: error.message,
     });
   }
+
+  logger.error({ err: error, requestId: req.requestId }, "Unhandled server error");
 
   return res.status(500).json({
     success: false,
