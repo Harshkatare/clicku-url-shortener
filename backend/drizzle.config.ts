@@ -1,7 +1,10 @@
 import { defineConfig } from "drizzle-kit";
 import dotenv from "dotenv";
 
-dotenv.config();
+const envFile =
+  process.env.DOTENV_CONFIG_PATH ||
+  (process.env.NODE_ENV === "production" ? ".env.production" : ".env");
+dotenv.config({ path: envFile });
 
 export default defineConfig({
   schema: "./src/db/schema/*",
