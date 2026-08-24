@@ -38,3 +38,6 @@ postgres_data
 
 # TypeScript
 *.tsbuildinfo
+
+# internal dev workspace
+dev_team_internals/
