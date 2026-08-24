@@ -4,11 +4,13 @@ import crypto from "crypto";
 
 export function requestIdMiddleware(
   req: Request,
-  _res: Response,
+  res: Response,
   next: NextFunction
 ) {
   req.requestId =
     crypto.randomUUID();
+
+  res.setHeader("X-Request-ID", req.requestId);
 
   next();
 }
