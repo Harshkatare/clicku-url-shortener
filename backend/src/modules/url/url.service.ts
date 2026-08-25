@@ -8,45 +8,45 @@ import { generateShortCode } from "../../lib/generate-short-code.js";
 
 import type { CreateUrlInput, updateUrlInput } from "./url.schema.js";
 
-import { NotFoundError } from "../../lib/errors/index.js"
+import { AppError, NotFoundError } from "../../lib/errors/index.js";
 
 import { eq, sql, desc, and } from "drizzle-orm";
+
+const MAX_COLLISION_RETRIES = 5;
 
 export async function createShortUrl(
   data: CreateUrlInput,
   userId: string
 ) {
-  let shortCode = "";
+  for (let attempt = 1; attempt <= MAX_COLLISION_RETRIES; attempt++) {
+    const shortCode = generateShortCode();
+    const urlId = crypto.randomUUID();
 
-  let isCollision = true;
+    try {
+      const [createdUrl] = await db
+        .insert(urls)
+        .values({
+          id: urlId,
+          userId,
+          originalUrl: data.originalUrl,
+          shortCode,
+        })
+        .returning();
 
-  while (isCollision) {
-    shortCode = generateShortCode();
-
-    const existingShortCode =
-      await db.query.urls.findFirst({
-        where: eq(
-          urls.shortCode,
-          shortCode
-        ),
-      });
-
-    isCollision = !!existingShortCode;
+      return createdUrl;
+    } catch (error: any) {
+      // Postgres code 23505 = unique_violation (short_code collision)
+      if (error?.code === "23505" && attempt < MAX_COLLISION_RETRIES) {
+        continue;
+      }
+      throw error;
+    }
   }
 
-  const urlId = crypto.randomUUID();
-
-  const [createdUrl] = await db
-    .insert(urls)
-    .values({
-      id: urlId,
-      userId,
-      originalUrl: data.originalUrl,
-      shortCode,
-    })
-    .returning();
-
-  return createdUrl;
+  throw new AppError(
+    "Failed to generate a unique short URL. Please try again.",
+    500
+  );
 }
 
 export async function redirectToOriginalUrl(shortCode: string) {
@@ -64,7 +64,6 @@ export async function redirectToOriginalUrl(shortCode: string) {
     .update(urls)
     .set({
       clicks: sql`${urls.clicks} + 1`,
-      updatedAt: new Date(),
     })
     .where(eq(urls.id, existingUrl.id));
 
