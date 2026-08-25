@@ -26,3 +26,10 @@ export const updateUrlSchema = z
 export type updateUrlInput = z.infer<
   typeof updateUrlSchema
 >;
+
+export const urlParamsSchema = z.object({
+  id: z.string()
+    .uuid("Invalid URL ID format"),
+});
+
+export type UrlParamsInput = z.infer<typeof urlParamsSchema>;
