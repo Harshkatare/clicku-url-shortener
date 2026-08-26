@@ -1,414 +1,206 @@
 # ClickU
 
-A production-oriented URL shortening backend built with TypeScript, Express, PostgreSQL, Drizzle ORM, and Docker.
+A modern, production-oriented fullstack URL shortener built with TypeScript, Express 5, PostgreSQL, Drizzle ORM, Docker, React 19, and Tailwind CSS v4.
 
-ClickU allows authenticated users to create, manage, and track shortened URLs while following production-minded backend practices such as validation, authorization, structured logging, rate limiting, environment validation, and containerized deployment.
-
----
-
-# Features
-
-## Authentication
-
-* User registration
-* User login
-* JWT-based authentication
-* Protected routes
-* Current user endpoint
-
-## URL Management
-
-* Create short URLs
-* Get all URLs belonging to the authenticated user
-* Update URLs
-* Delete URLs
-* Query-level ownership enforcement
-
-## Redirect System
-
-* Redirect short URLs to original URLs
-* Automatic click tracking
-* Collision-resistant short code generation
-
-## Analytics
-
-* Total click count tracking per URL
-
-## Security & Reliability
-
-* Request validation with Zod
-* Environment variable validation
-* Semantic error architecture
-* Authentication & authorization
-* API rate limiting
-* Production-ready CORS configuration
-
-## Observability
-
-* Structured logging with Pino
-* Request logging
-* Request IDs
-* Graceful shutdown
-* Async crash handling
-
-## Infrastructure
-
-* PostgreSQL database
-* Drizzle ORM
-* Dockerized PostgreSQL
-* Dockerized backend
-* Production build pipeline
+ClickU allows authenticated users to create, manage, and track shortened URLs with real-time click counters, 1-click clipboard sharing, and atomic redirect telemetry.
 
 ---
 
-# Architecture
+## 🚀 Live Features (v0.4.0 MVP)
+
+### 🔐 Authentication & Security
+* User registration (`/signup`) and secure login (`/login`)
+* JWT-based authentication with 7-day expiration
+* Scrypt password hashing with 16-byte random salt and `timingSafeEqual` comparison
+* Protected API routes and client-side authenticated navigation guards
+* Route-tier and global API rate limiting with `express-rate-limit`
+
+### 🔗 URL Management & Redirects
+* 6-character collision-resistant short codes ($62^6 \approx 56.8\text{B}$ combinations)
+* Protected URL listing, creation, updating, and deletion
+* Query-level database ownership enforcement (`urls.id = :id AND urls.userId = :userId`)
+* Public redirect (`GET /:shortCode`) with atomic SQL click increments (`clicks + 1`)
+
+### 💻 Frontend Dashboard
+* Built with React 19, Vite 8, TypeScript, and Tailwind CSS v4
+* TanStack React Query v5 for server state with automatic cache invalidation
+* React Hook Form with Zod schema validation
+* 1-click clipboard copy utility with temporary feedback state
+* Responsive layout and self-dismissing alerts
+* Deployed on Vercel with SPA routing rewrite configuration
+
+### 🛡️ Observability & Infrastructure
+* Structured JSON logging via Pino and Pino-HTTP
+* Request correlation IDs (`X-Request-ID` in response headers)
+* Centralized semantic error handling (`AppError` hierarchy)
+* Graceful process lifecycle management (`SIGINT`, `SIGTERM`, unhandled rejections)
+* Dockerized PostgreSQL and multi-container Docker Compose orchestration
+
+---
+
+## 📐 Architecture
 
 ```text
-Client
-   ↓
-Express Routes
-   ↓
-Controllers
-   ↓
-Services
-   ↓
-Drizzle ORM
-   ↓
-PostgreSQL
+┌─────────────────────────────────────────────────────────────┐
+│                 Frontend (React 19 + Vite 8)                │
+│   - Tailwind CSS v4, TanStack Query v5, React Router v7     │
+│   - Hosted / Deployed on Vercel                             │
+└──────────────────────────────┬──────────────────────────────┘
+                               │ HTTPS / JSON (Axios + Bearer JWT)
+                               ▼
+┌─────────────────────────────────────────────────────────────┐
+│                  Backend (Express 5 + Node 22)              │
+│   - TypeScript (NodeNext / ES2022)                          │
+│   - Rate Limiting, Helmet, CORS, Request Correlation IDs    │
+│   - Centralized AppError Semantic Error Flow & Pino Logging │
+└──────────────────────────────┬──────────────────────────────┘
+                               │ Drizzle ORM (node-postgres Pool)
+                               ▼
+┌─────────────────────────────────────────────────────────────┐
+│                   PostgreSQL 16 Database                    │
+│   - users table (UUID PK, unique email, scrypt password)   │
+│   - urls table (UUID PK, FK users cascade, short_code UK)   │
+└─────────────────────────────────────────────────────────────┘
 ```
 
-## Layer Responsibilities
+---
 
-### Routes
+## 🛠️ Tech Stack
 
-* Define API endpoints
-* Apply middleware
-* Forward requests to controllers
-
-### Controllers
-
-* Handle HTTP requests and responses
-* Validate incoming data
-* Delegate business logic to services
-
-### Services
-
-* Contain business logic
-* Execute database operations
-* Enforce application rules
-
-### Drizzle ORM
-
-* Type-safe database access
-* Query building
-* Schema management
-
-### PostgreSQL
-
-* Persistent data storage
+* **Backend:** Node.js 22, Express 5, TypeScript, Zod, Drizzle ORM, Pino
+* **Database:** PostgreSQL 16 (Docker)
+* **Frontend:** React 19, Vite 8, TypeScript, Tailwind CSS v4, TanStack Query v5, React Hook Form, React Router v7
+* **Deployment & Containers:** Docker, Docker Compose, Vercel
 
 ---
 
-## Architecture Highlights
-
-* Modular feature-based architecture
-* Query-level ownership enforcement
-* Semantic operational error architecture
-* Request correlation IDs
-* Structured request logging
-* Graceful shutdown handling
-* Environment variable validation
-* Production-ready CORS configuration
-* Collision-resistant short code generation
-* Dockerized application infrastructure
-
----
-
-# Tech Stack
-
-## Backend
-
-* Node.js
-* TypeScript
-* Express
-
-## Database
-
-* PostgreSQL
-* Drizzle ORM
-
-## Validation
-
-* Zod
-
-## Authentication & Security
-
-* JWT Authentication
-* Secure password hashing using Node.js `crypto.scrypt`
-
-## Logging
-
-* Pino
-* Pino HTTP
-
-## Infrastructure
-
-* Docker
-* Docker Compose
-
----
-
-# Project Structure
+## 📁 Project Structure
 
 ```text
-backend/
-├── src/
-│   ├── config/
-│   ├── db/
-│   │   ├── migrations/
-│   │   └── schema/
-│   ├── lib/
-│   │   ├── errors/
-│   │   └── rate-limit/
-│   ├── middleware/
-│   ├── modules/
-│   │   ├── auth/
-│   │   └── url/
-│   ├── routes/
-│   ├── types/
-│   └── utils/
+clicku-url/
+├── backend/
+│   ├── src/
+│   │   ├── config/          # Environment variable validation (Zod)
+│   │   ├── db/              # Drizzle ORM schemas & migrations
+│   │   ├── lib/             # Crypto, tokens, logger, rate-limit, errors
+│   │   ├── middleware/       # Auth, error handling, request-id
+│   │   ├── modules/         # Auth and URL controllers, services, schemas, routes
+│   │   ├── routes/          # Public redirect routes
+│   │   └── types/           # Express namespace typing extensions
+│   ├── Dockerfile
+│   ├── docker-compose.yml
+│   └── package.json
 │
-├── Dockerfile
-├── docker-compose.yml
-├── tsconfig.json
-└── package.json
+├── frontend/
+│   ├── src/
+│   │   ├── api/             # Axios client & request interceptors
+│   │   ├── components/      # Shared UI (Alert, Navbar, PageContainer)
+│   │   ├── config/          # Client environment validation
+│   │   ├── features/        # Auth & URL feature queries, mutations, schemas, types
+│   │   ├── layouts/         # AuthLayout and DashboardLayout shells
+│   │   ├── pages/           # LoginPage, RegisterPage, DashboardPage
+│   │   └── routes/          # AppRoutes and ProtectedRoute guard
+│   ├── vercel.json
+│   └── package.json
+│
+└── README.md
 ```
 
 ---
 
-# Environment Variables
+## 🔑 Environment Variables
 
-Create a `.env` file using `.env.example`.
-
+### Backend (`backend/.env`)
 ```env
 PORT=5000
-
-DATABASE_URL=
-
-JWT_SECRET=
-
-CLIENT_URL=
-```
-
-Example:
-
-```env
-PORT=5000
-
-DATABASE_URL=postgresql://postgres:postgres@postgres:5432/clicku_db
-
-JWT_SECRET=your_secret_key
-
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/clicku_db
+JWT_SECRET=your_jwt_super_secret_key_12345
 CLIENT_URL=http://localhost:5173
 ```
 
----
-
-# Installation
-
-Install dependencies:
-
-```bash
-pnpm install
+### Frontend (`frontend/.env`)
+```env
+VITE_API_URL=http://localhost:5000/api/v1
+VITE_SHORT_URL_BASE=http://localhost:5000
 ```
 
 ---
 
-# Database Setup
+## 🚀 Getting Started
 
-Generate migrations:
-
+### 1. Start PostgreSQL
 ```bash
-pnpm db:generate
+cd backend
+docker compose up postgres -d
 ```
 
-Run migrations:
-
+### 2. Run Database Migrations
 ```bash
+# In backend/
 pnpm db:migrate
 ```
 
----
-
-# Local Development
-
-Start PostgreSQL:
-
+### 3. Start Backend Server
 ```bash
-docker compose up postgres
-```
-
-Start backend:
-
-```bash
+# In backend/
 pnpm dev
+# Server listens on http://localhost:5000
 ```
 
----
-
-# Production Build
-
-Build application:
-
+### 4. Start Frontend Client
 ```bash
-pnpm build
+# In frontend/
+pnpm dev
+# Client runs on http://localhost:5173
 ```
 
-Run production server:
-
+### 5. Run Automated Tests
 ```bash
-pnpm start
+# In backend/
+pnpm test
+
+# Run in watch mode during development
+pnpm test:watch
 ```
 
 ---
 
-# Docker
+## 🔌 API Endpoints Reference
 
-Build containers:
+### Health & Redirects
+* `GET /health` — Server liveness & health check
+* `GET /:shortCode` — Public redirect to destination with atomic click increment
 
-```bash
-docker compose build
-```
+### Authentication (`/api/v1/auth`)
+* `POST /api/v1/auth/signup` — Register new user account
+* `POST /api/v1/auth/login` — Authenticate and receive JWT token
+* `GET /api/v1/auth/me` — Retrieve current user profile (Protected)
 
-Start all services:
-
-```bash
-docker compose up
-```
-
-Start backend only:
-
-```bash
-docker compose up backend
-```
-
-Start PostgreSQL only:
-
-```bash
-docker compose up postgres
-```
+### URLs (`/api/v1/urls`)
+* `POST /api/v1/urls` — Create a new shortened link (Protected)
+* `GET /api/v1/urls` — List all links for authenticated user (Protected)
+* `PATCH /api/v1/urls/:id` — Update link destination URL (Protected)
+* `DELETE /api/v1/urls/:id` — Delete a shortened link (Protected)
 
 ---
 
-# Health Check
+### 📌 Project Status & Roadmap
 
-Endpoint:
+### ✅ Completed (v0.4.0 Live MVP)
+* End-to-end user authentication & authorization
+* URL creation, atomic click tracking, and redirection
+* Query-level authorization enforcement
+* Structured logging & request correlation IDs
+* React 19 Frontend Dashboard with TanStack Query
+* Dockerized backend and PostgreSQL
+* Production Vercel deployment
 
-```http
-GET /health
-```
+### ✅ Completed (v0.4.1 Backend Hardening & Testing)
+* Centralized error handling unification through Pino `logger.error`
+* Route parameter UUID validation with Zod (`urlParamsSchema`)
+* Unique constraint collision retry handling (`23505`) with 5x loop
+* Automated integration test suite (Vitest + Supertest, 16/16 tests passing)
 
-Response:
-
-```json
-{
-  "success": true,
-  "message": "server is running"
-}
-```
-
----
-
-# API Endpoints
-
-## Authentication
-
-```http
-POST /api/v1/auth/register
-```
-
-```http
-POST /api/v1/auth/login
-```
-
-```http
-GET /api/v1/auth/me
-```
-
----
-
-## URLs
-
-```http
-POST /api/v1/urls
-```
-
-```http
-GET /api/v1/urls
-```
-
-```http
-PATCH /api/v1/urls/:id
-```
-
-```http
-DELETE /api/v1/urls/:id
-```
-
----
-
-## Redirect
-
-```http
-GET /:shortCode
-```
-
----
-
-# Project Status
-
-## Completed
-
-* Authentication & Authorization
-* URL Shortening
-* URL Management
-* URL Redirection
-* Click Tracking
-* Query-Level Ownership Enforcement
-* Input Validation
-* Semantic Error Handling
-* Environment Validation
-* Rate Limiting
-* Structured Logging
-* Request IDs
-* Graceful Shutdown
-* Async Crash Handling
-* Production CORS Configuration
-* Dockerized PostgreSQL
-* Dockerized Backend
-* Production Build Pipeline
-* Production Containerization
-
-## Planned
-
-* Frontend Application
-* Advanced Analytics
-* Multi-Environment Deployment Workflow
-* Cloud Deployment
-* CI/CD Pipeline
-
----
-
-# Learning Goals
-
-This project is being built with a focus on learning real-world backend engineering concepts, including:
-
-* Layered architecture
-* Authentication & authorization
-* Database design
-* API security
-* Validation strategies
-* Observability
-* Docker & containerization
-* Deployment preparation
-* Production-oriented backend practices
+### ✅ Completed (v0.4.2 Frontend Client Resilience)
+* Axios 401 response auto-logout interceptor
+* Strict TypeScript generic return types (`AuthResponse`)
