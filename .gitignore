@@ -41,3 +41,6 @@ postgres_data
 
 # internal dev workspace
 dev_team_internals/
+
+# UI design prototype reference
+00_temp/
