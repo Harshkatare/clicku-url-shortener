@@ -8,3 +8,10 @@ export type RegisterInput = {
     email: string;
     password: string;
 };
+
+export type AuthResponse = {
+  success: boolean;
+  data: {
+    token: string;
+  };
+};
