@@ -1,7 +1,11 @@
 import { Request, Response } from "express";
 
 import * as urlService from "./url.service.js";
-import { createUrlSchema, updateUrlSchema } from "./url.schema.js";
+import { 
+  createUrlSchema, 
+  updateUrlSchema,
+  urlParamsSchema
+ } from "./url.schema.js";
 
 export async function createShortUrl(
   req: Request,
@@ -56,28 +60,34 @@ export async function deleteUrl(
   req: Request,
   res: Response
 ) {
-  const deletedUrl =
-    await urlService.deleteUrl(
-      req.params.id as string,
-      req.user!.id
-    );
+    const { id } = 
+      urlParamsSchema.parse(req.params);
 
-  res.status(200).json({
-    success: true,
-    data: deletedUrl,
-  });
+      const deleteUrl =
+        await urlService.deleteUrl(
+          id,
+          req.user!.id
+        );
+
+      res.status(200).json({
+        success: true,
+        data: deleteUrl,
+      });
 }
 
 export async function updateUrl(
   req: Request,
   res: Response
 ) {
+    const { id } = 
+      urlParamsSchema.parse(req.params);
+
   const validatedData =
     updateUrlSchema.parse(req.body);
 
   const updatedUrl = 
     await urlService.updateUrl(
-      req.params.id as string,
+      id,
       req.user!.id,
       validatedData
     );

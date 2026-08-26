@@ -154,6 +154,15 @@ pnpm dev
 # Client runs on http://localhost:5173
 ```
 
+### 5. Run Automated Tests
+```bash
+# In backend/
+pnpm test
+
+# Run in watch mode during development
+pnpm test:watch
+```
+
 ---
 
 ## 🔌 API Endpoints Reference
@@ -175,7 +184,7 @@ pnpm dev
 
 ---
 
-## 📌 Project Status & Roadmap
+### 📌 Project Status & Roadmap
 
 ### ✅ Completed (v0.4.0 Live MVP)
 * End-to-end user authentication & authorization
@@ -186,14 +195,12 @@ pnpm dev
 * Dockerized backend and PostgreSQL
 * Production Vercel deployment
 
-### ⏳ In Progress (v0.4.1 Stabilization)
-* Centralized error handling unification
-* Route parameter UUID validation
-* Unique constraint collision retry handling (`23505`)
-* Frontend 401 response interceptor
-* Automated test baseline (Vitest + Supertest)
+### ✅ Completed (v0.4.1 Backend Hardening & Testing)
+* Centralized error handling unification through Pino `logger.error`
+* Route parameter UUID validation with Zod (`urlParamsSchema`)
+* Unique constraint collision retry handling (`23505`) with 5x loop
+* Automated integration test suite (Vitest + Supertest, 16/16 tests passing)
 
-### 🎯 Planned (v0.5.0 URL Management)
-* URL search, filtering, and pagination
-* Frontend Edit link modal UI
+
+
 

@@ -39,5 +39,8 @@ postgres_data
 # TypeScript
 *.tsbuildinfo
 
-# internal documentation
-dev_team_internals/
+# internal dev workspace
+dev_team_internals/
+
+# UI design prototype reference
+00_temp/
