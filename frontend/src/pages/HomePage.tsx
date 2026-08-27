@@ -24,16 +24,16 @@ export function HomePage() {
     <LandingLayout>
       {/* Hero Section */}
       <section className="relative overflow-hidden border-b border-gray-100 bg-gradient-to-b from-blue-50/60 via-white to-gray-50/40 px-6 pt-20 pb-24 text-center">
-        {/* Soft Radial Ambient Glow */}
+        {/* Ambient Glow */}
         <div className="pointer-events-none absolute inset-x-0 top-0 -z-10 flex justify-center overflow-hidden">
           <div className="h-[380px] w-[720px] bg-gradient-to-tr from-blue-400/20 via-indigo-300/20 to-purple-400/20 blur-3xl" />
         </div>
 
         <div className="mx-auto max-w-4xl">
-          {/* Top Pill Badge */}
+          {/* Top Badge */}
           <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-blue-200/80 bg-blue-50/90 px-4 py-1.5 text-xs font-semibold text-blue-700 shadow-xs backdrop-blur">
             <span className="flex h-2 w-2 rounded-full bg-blue-600 animate-pulse" />
-            <span>Shortlynk v0.4.3 • Next-Gen URL Shortener</span>
+            <span>Shortlynk v0.4.3 &bull; Next-Gen URL Shortener</span>
           </div>
 
           {/* Main Headline */}
@@ -57,8 +57,16 @@ export function HomePage() {
               to="/register"
               className="group flex h-12 items-center gap-2 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-8 font-medium text-white shadow-md shadow-blue-500/20 transition-all hover:shadow-lg hover:shadow-blue-500/30 hover:brightness-110 active:scale-[0.99]"
             >
-              Get Started for Free
-              <span className="transition-transform group-hover:translate-x-1">→</span>
+              <span>Get Started for Free</span>
+              <svg
+                className="h-4 w-4 transition-transform group-hover:translate-x-1"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth="2"
+                stroke="currentColor"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+              </svg>
             </Link>
 
             <Link
@@ -94,9 +102,18 @@ export function HomePage() {
 
                 <button
                   onClick={handleDemoCopy}
-                  className="rounded-xl border border-gray-200 bg-gray-50 px-3.5 py-1.5 text-xs font-medium text-gray-700 transition hover:bg-gray-100 active:scale-95"
+                  className="flex items-center gap-1.5 rounded-xl border border-gray-200 bg-gray-50 px-3.5 py-1.5 text-xs font-medium text-gray-700 transition hover:bg-gray-100 active:scale-95"
                 >
-                  {copied ? "Copied! ✓" : "Copy Link"}
+                  {copied ? (
+                    <>
+                      <svg className="h-3.5 w-3.5 text-emerald-600" fill="none" viewBox="0 0 24 24" strokeWidth="2.5" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
+                      </svg>
+                      <span>Copied!</span>
+                    </>
+                  ) : (
+                    <span>Copy Link</span>
+                  )}
                 </button>
               </div>
             </div>
@@ -143,8 +160,10 @@ export function HomePage() {
           <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
             {/* Card 1 */}
             <div className="group rounded-2xl border border-gray-200/90 bg-white p-7 shadow-xs transition-all duration-200 hover:-translate-y-1 hover:border-blue-200 hover:shadow-md">
-              <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 text-2xl ring-1 ring-blue-500/10">
-                ⚡
+              <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-50 ring-1 ring-blue-500/10">
+                <svg className="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
               </div>
               <h3 className="text-lg font-semibold text-gray-900">Instant Short Links</h3>
               <p className="mt-2 text-sm leading-6 text-gray-500">
@@ -154,8 +173,10 @@ export function HomePage() {
 
             {/* Card 2 */}
             <div className="group rounded-2xl border border-gray-200/90 bg-white p-7 shadow-xs transition-all duration-200 hover:-translate-y-1 hover:border-indigo-200 hover:shadow-md">
-              <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-50 text-2xl ring-1 ring-indigo-500/10">
-                📊
+              <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-50 ring-1 ring-indigo-500/10">
+                <svg className="h-6 w-6 text-indigo-600" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z" />
+                </svg>
               </div>
               <h3 className="text-lg font-semibold text-gray-900">Real-Time Click Tracking</h3>
               <p className="mt-2 text-sm leading-6 text-gray-500">
@@ -165,8 +186,10 @@ export function HomePage() {
 
             {/* Card 3 */}
             <div className="group rounded-2xl border border-gray-200/90 bg-white p-7 shadow-xs transition-all duration-200 hover:-translate-y-1 hover:border-purple-200 hover:shadow-md">
-              <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-purple-50 text-2xl ring-1 ring-purple-500/10">
-                🛡️
+              <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-purple-50 ring-1 ring-purple-500/10">
+                <svg className="h-6 w-6 text-purple-600" fill="none" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" />
+                </svg>
               </div>
               <h3 className="text-lg font-semibold text-gray-900">Secure Link Management</h3>
               <p className="mt-2 text-sm leading-6 text-gray-500">
@@ -191,7 +214,7 @@ export function HomePage() {
               to="/register"
               className="flex h-12 items-center rounded-xl bg-white px-8 font-semibold text-blue-600 shadow-md transition hover:bg-blue-50 hover:shadow-lg active:scale-95"
             >
-              Get Started for Free →
+              Get Started for Free &rarr;
             </Link>
           </div>
         </div>
@@ -206,7 +229,7 @@ export function HomePage() {
           </div>
 
           <p className="text-xs text-gray-400">
-            © 2026 Shortlynk. Built for performance and reliability. All rights reserved.
+            &copy; 2026 Shortlynk. Built for performance and reliability. All rights reserved.
           </p>
 
           <div className="flex items-center gap-4 text-xs font-medium text-gray-500">
