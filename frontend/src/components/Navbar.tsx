@@ -16,9 +16,12 @@ export function Navbar() {
   return (
     <header className="border-b border-gray-200 bg-white">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
-        <h1 className="select-none text-3xl font-bold tracking-tight text-blue-600">
-          ClickU
-        </h1>
+        <div className="flex items-center gap-2.5">
+          <img src="/logo.svg" alt="Shortlynk" className="h-8 w-8 select-none" />
+          <h1 className="select-none text-2xl font-bold tracking-tight text-blue-600">
+            Shortlynk
+          </h1>
+        </div>
 
         <button
           onClick={handleLogout}
