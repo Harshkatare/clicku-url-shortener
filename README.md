@@ -8,6 +8,11 @@ Shortlynk allows authenticated users to create, manage, and track shortened URLs
 
 ## 🚀 Live Features
 
+### 🌐 Edge Reverse Proxy Routing (v0.4.4)
+* Root-domain short URLs (`https://shortlynk.in/:shortCode`) proxied directly at Vercel's edge network to the Render backend redirect engine
+* Seamless HTTP 302 redirects with atomic SQL click telemetry without exposing raw backend hosting domains
+* Clean dashboard visual URL presentation (`shortlynk.in/a8X9q2`) with RFC-compliant clipboard copy
+
 ### 🌐 Public Landing Page & Identity (v0.4.3)
 * Modern public-facing landing page with interactive demo link preview card
 * Smart authentication guard: automatically redirects authenticated visitors from `/` to `/dashboard`
@@ -222,3 +227,8 @@ pnpm test:watch
 * Smart authentication guard (Gap #24) routing logged-in users from `/` to `/dashboard`
 * Shortlynk branding and vector SVG logo integrated across the application
 * Modern sticky `LandingNavbar` and standalone `LandingLayout`
+
+### ✅ Completed (v0.4.4 Edge Reverse Proxy Routing)
+* Vercel edge reverse proxy configuration (`vercel.json`) proxying Base62 6-character shortcodes to Render backend
+* Root custom domain short link resolution (`shortlynk.in/:shortcode`)
+* Dashboard short URL visual display styling and clipboard copy alignment
