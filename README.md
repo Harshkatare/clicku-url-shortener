@@ -1,53 +1,50 @@
-# Shortlynk
+# Shortlynk (ClickU)
 
 A modern, production-oriented fullstack URL shortener built with TypeScript, Express 5, PostgreSQL, Drizzle ORM, Docker, React 19, and Tailwind CSS v4.
 
-**Shortlynk** allows authenticated users to create, manage, and track shortened URLs with real-time click counters, 1-click clipboard sharing, atomic redirect telemetry, and a sleek public landing page.
-
-* **Live Product:** [shortlynk.in](https://shortlynk.in)
-* **Current Version:** `v0.4.3`
-* **Repository:** `Harshkatare/clicku-url`
+Shortlynk allows authenticated users to create, manage, and track shortened URLs with real-time click counters, 1-click clipboard sharing, and atomic redirect telemetry.
 
 ---
 
 ## 🚀 Live Features
 
-### 🌐 Public Landing Page & Identity (`v0.4.3`)
-* Modern public-facing landing page with interactive demo link preview and 1-click clipboard copy feedback.
-* Smart authentication routing: logged-in visitors navigating to `/` are immediately routed to `/dashboard`.
-* Consistent brand identity and SVG logo integrated across public navbar, dashboard, and authentication flows.
-* 4-stat metrics overview and 3-card feature showcase.
+### 🌐 Public Landing Page & Identity (v0.4.3)
+* Modern public-facing landing page with interactive demo link preview card
+* Smart authentication guard: automatically redirects authenticated visitors from `/` to `/dashboard`
+* Brand identity with vector SVG logo integrated across navbar, landing page, and authentication forms
+* 4-stat metrics overview and responsive 3-card feature grid
 
 ### 🔐 Authentication & Security
-* User registration (`/signup`) and secure login (`/login`).
-* JWT-based authentication with 7-day expiration.
-* Scrypt password hashing with 16-byte random salt and `timingSafeEqual` comparison.
-* Protected API routes and client-side authenticated navigation guards.
-* Axios 401 response auto-logout interceptor (`v0.4.2`).
-* Route-tier and global API rate limiting with `express-rate-limit`.
+* User registration (`/signup`) and secure login (`/login`)
+* JWT-based authentication with 7-day expiration
+* Scrypt password hashing with 16-byte random salt and `timingSafeEqual` comparison
+* Protected API routes and client-side authenticated navigation guards
+* Route-tier and global API rate limiting with `express-rate-limit`
+* Axios 401 response auto-logout interceptor (`v0.4.2`)
 
 ### 🔗 URL Management & Redirects
-* 6-character collision-resistant short codes ($62^6 \approx 56.8\text{B}$ combinations) with optimistic database retry (`23505`).
-* Protected URL listing, creation, updating, and deletion.
-* Query-level database ownership enforcement (`urls.id = :id AND urls.userId = :userId`).
-* Public redirect (`GET /:shortCode`) with atomic SQL click increments (`clicks + 1`).
-* Strict UUID route parameter validation to prevent unhandled database cast errors.
+* 6-character collision-resistant short codes ($62^6 \approx 56.8\text{B}$ combinations)
+* Protected URL listing, creation, updating, and deletion
+* Query-level database ownership enforcement (`urls.id = :id AND urls.userId = :userId`)
+* Public redirect (`GET /:shortCode`) with atomic SQL click increments (`clicks + 1`)
+* Unique constraint collision retry handling (`23505`) with 5x loop (`v0.4.1`)
+* UUID route parameter validation with Zod (`urlParamsSchema`, `v0.4.1`)
 
 ### 💻 Frontend Dashboard
-* Built with React 19, Vite 8, TypeScript, and Tailwind CSS v4.
-* TanStack React Query v5 for server state with automatic cache invalidation.
-* React Hook Form with Zod schema validation.
-* 1-click clipboard copy utility with temporary feedback state.
-* Responsive layout and self-dismissing alerts.
-* Deployed on Vercel with SPA routing rewrite configuration.
+* Built with React 19, Vite 8, TypeScript, and Tailwind CSS v4
+* TanStack React Query v5 for server state with automatic cache invalidation
+* React Hook Form with Zod schema validation
+* 1-click clipboard copy utility with temporary feedback state
+* Responsive layout and self-dismissing alerts
+* Deployed on Vercel with SPA routing rewrite configuration
 
-### 🛡️ Observability & Quality Assurance
-* Structured JSON logging via Pino and Pino-HTTP.
-* Request correlation IDs (`X-Request-ID` in response headers).
-* Centralized semantic error handling (`AppError` hierarchy).
-* Graceful process lifecycle management (`SIGINT`, `SIGTERM`, unhandled rejections).
-* Comprehensive automated integration test suite with Vitest and Supertest (16/16 tests passing).
-* Dockerized PostgreSQL and multi-container Docker Compose orchestration.
+### 🛡️ Observability & Infrastructure
+* Structured JSON logging via Pino and Pino-HTTP
+* Request correlation IDs (`X-Request-ID` in response headers)
+* Centralized semantic error handling (`AppError` hierarchy)
+* Graceful process lifecycle management (`SIGINT`, `SIGTERM`, unhandled rejections)
+* Automated integration test suite with Vitest and Supertest (16/16 tests passing, `v0.4.1`)
+* Dockerized PostgreSQL and multi-container Docker Compose orchestration
 
 ---
 
@@ -80,10 +77,10 @@ A modern, production-oriented fullstack URL shortener built with TypeScript, Exp
 
 ## 🛠️ Tech Stack
 
-* **Backend:** Node.js 22, Express 5, TypeScript, Zod, Drizzle ORM, Pino, Vitest, Supertest
+* **Backend:** Node.js 22, Express 5, TypeScript, Zod, Drizzle ORM, Pino
 * **Database:** PostgreSQL 16 (Docker)
 * **Frontend:** React 19, Vite 8, TypeScript, Tailwind CSS v4, TanStack Query v5, React Hook Form, React Router v7
-* **Deployment & Containers:** Docker, Docker Compose, Vercel, Render
+* **Deployment & Containers:** Docker, Docker Compose, Vercel
 
 ---
 
@@ -108,11 +105,11 @@ clicku-url/
 ├── frontend/
 │   ├── public/              # Brand SVG logo, favicon
 │   ├── src/
-│   │   ├── api/             # Axios client & 401 response interceptors
-│   │   ├── components/      # Navbar, LandingNavbar, Alert, PageContainer
+│   │   ├── api/             # Axios client & request interceptors
+│   │   ├── components/      # Shared UI (Alert, Navbar, LandingNavbar, PageContainer)
 │   │   ├── config/          # Client environment validation
 │   │   ├── features/        # Auth & URL feature queries, mutations, schemas, types
-│   │   ├── layouts/         # AuthLayout, DashboardLayout, LandingLayout
+│   │   ├── layouts/         # AuthLayout, DashboardLayout, LandingLayout shells
 │   │   ├── pages/           # HomePage (Landing), LoginPage, RegisterPage, DashboardPage
 │   │   └── routes/          # AppRoutes and ProtectedRoute guard
 │   ├── vercel.json
@@ -123,7 +120,7 @@ clicku-url/
 
 ---
 
-## ⚙️ Environment Variables
+## 🔑 Environment Variables
 
 ### Backend (`backend/.env`)
 ```env
@@ -199,10 +196,29 @@ pnpm test:watch
 
 ---
 
-## 📈 Release Milestones
+### 📌 Project Status & Roadmap
 
-* ✅ **v0.4.0 (MVP Baseline)**: Fullstack auth, URL creation, atomic click tracking, dashboard UI, and Vercel/Render deployments.
-* ✅ **v0.4.1 (Backend Hardening & Tests)**: Pino error logging, UUID route validation, 5x collision retry loop, and 16/16 Vitest integration test suite.
-* ✅ **v0.4.2 (Frontend Client Resilience)**: Axios 401 auto-logout interceptor and strict TypeScript generic return types.
-* ✅ **v0.4.3 (Landing Page & Shortlynk Identity)**: Interactive public landing page, smart token routing (Gap #24), Shortlynk SVG brand integration, and UI rebranding.
-* ⏳ **v0.4.4 (Edge Reverse Proxy Routing)**: Root domain short URL routing via Vercel rewrites (`shortlynk.in/:shortcode`).
+### ✅ Completed (v0.4.0 Live MVP)
+* End-to-end user authentication & authorization
+* URL creation, atomic click tracking, and redirection
+* Query-level authorization enforcement
+* Structured logging & request correlation IDs
+* React 19 Frontend Dashboard with TanStack Query
+* Dockerized backend and PostgreSQL
+* Production Vercel deployment
+
+### ✅ Completed (v0.4.1 Backend Hardening & Testing)
+* Centralized error handling unification through Pino `logger.error`
+* Route parameter UUID validation with Zod (`urlParamsSchema`)
+* Unique constraint collision retry handling (`23505`) with 5x loop
+* Automated integration test suite (Vitest + Supertest, 16/16 tests passing)
+
+### ✅ Completed (v0.4.2 Frontend Client Resilience)
+* Axios 401 response auto-logout interceptor
+* Strict TypeScript generic return types (`AuthResponse`)
+
+### ✅ Completed (v0.4.3 Landing Page & Product Identity)
+* Public-facing landing page with interactive demo link preview
+* Smart authentication guard (Gap #24) routing logged-in users from `/` to `/dashboard`
+* Shortlynk branding and vector SVG logo integrated across the application
+* Modern sticky `LandingNavbar` and standalone `LandingLayout`
