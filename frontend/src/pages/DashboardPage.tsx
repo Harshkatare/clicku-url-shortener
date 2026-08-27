@@ -220,8 +220,8 @@ export function DashboardPage() {
             {data?.data.map((url) => (
               <li key={url.id} className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
                 <div className="flex items-center justify-between gap-4">
-                  <p className="break-all text-lg font-semibold text-gray-900">
-                    {`${env.SHORT_URL_BASE}/${url.shortCode}`}
+                  <p className="break-all text-lg font-semibold text-blue-600">
+                    {env.SHORT_URL_BASE.replace(/^https?:\/\//, "")}/<span className="font-bold text-gray-900">{url.shortCode}</span>
                   </p>
 
                   <button
