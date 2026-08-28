@@ -25,7 +25,7 @@ app.use(
   })
 );
 
-app.use(express.json());
+app.use(express.json({ limit: "10kb" }));
 
 app.use(requestIdMiddleware);
 
@@ -58,6 +58,13 @@ app.get("/favicon.ico", (_req, res) => {
 });
 
 app.use("/", redirectRoutes);
+
+app.use((_req, res) => {
+  res.status(404).json({
+    success: false,
+    message: "Route not found",
+  });
+});
 
 app.use(errorMiddleware);
 
