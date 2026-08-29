@@ -1,5 +1,16 @@
 # Shortlynk (ClickU)
 
+[![Live Demo](https://img.shields.io/badge/Live_App-shortlynk.in-10B981?style=for-the-badge&logo=safari&logoColor=white)](https://shortlynk.in)
+[![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![React 19](https://img.shields.io/badge/React_19-20232A?style=flat-square&logo=react&logoColor=61DAFB)](https://react.dev/)
+[![Express 5](https://img.shields.io/badge/Express_5-000000?style=flat-square&logo=express&logoColor=white)](https://expressjs.com/)
+[![PostgreSQL 16](https://img.shields.io/badge/PostgreSQL_16-316192?style=flat-square&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
+[![Tailwind CSS v4](https://img.shields.io/badge/Tailwind_v4-38B2AC?style=flat-square&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+[![Vitest](https://img.shields.io/badge/Tests-16_Passing-brightgreen?style=flat-square&logo=vitest&logoColor=white)](https://vitest.dev/)
+
+> 🌐 **Live Production Application:** [https://shortlynk.in](https://shortlynk.in)  
+> ⚡ **Architecture:** React 19 (Vercel) + Express 5 (Render) + PostgreSQL 16 (Neon DB)
+
 A modern, production-oriented fullstack URL shortener built with TypeScript, Express 5, PostgreSQL, Drizzle ORM, Docker, React 19, and Tailwind CSS v4.
 
 Shortlynk allows authenticated users to create, manage, and track shortened URLs with real-time click counters, 1-click clipboard sharing, and atomic redirect telemetry.
@@ -239,3 +250,11 @@ pnpm test:watch
 * Vercel edge reverse proxy configuration (`vercel.json`) proxying Base62 6-character shortcodes to Render backend
 * Root custom domain short link resolution (`shortlynk.in/:shortcode`)
 * Dashboard short URL visual display styling and clipboard copy alignment
+
+### ✅ Completed (v0.4.5 Schema & Security Hardening)
+* Catch-all 404 JSON response handler on backend (`{ success: false, message: "Route not found" }`)
+* 10kb body payload protection against DoS floods (`express.json({ limit: '10kb' })`)
+* Structured Pino error logging across all 4xx client and validation error paths with request IDs
+* Database schema foundations (`role`, `is_active`, `updated_at` on `users` table) with Drizzle migration
+* Comprehensive `.env.example` templates for backend and frontend developer onboarding
+
