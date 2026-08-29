@@ -78,7 +78,18 @@ describe("URLs API Integration Tests", () => {
     expect(res.body.data.originalUrl).toBe("https://github.com");
   });
 
-  // 5. Test Deleting the URL
+  // 5. Test Updating with Empty Body (400 Bad Request)
+  it("should return 400 Bad Request when updating with an empty body", async () => {
+    const res = await request(app)
+      .patch(`/api/v1/urls/${createdUrlId}`)
+      .set("Authorization", `Bearer ${authToken}`)
+      .send({});
+
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+  });
+
+  // 6. Test Deleting the URL
   it("should delete the URL with status 200", async () => {
     const res = await request(app)
       .delete(`/api/v1/urls/${createdUrlId}`)
@@ -89,7 +100,7 @@ describe("URLs API Integration Tests", () => {
     expect(res.body.data.id).toBe(createdUrlId);
   });
 
-  // 6. Test Deleting a Non-Existent URL (404 Not Found)
+  // 7. Test Deleting a Non-Existent URL (404 Not Found)
   it("should return 404 Not Found when deleting an already deleted URL", async () => {
     const res = await request(app)
       .delete(`/api/v1/urls/${createdUrlId}`)

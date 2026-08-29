@@ -64,7 +64,7 @@ describe("Auth API Integration Tests", () => {
   });
 
   // 5. Test Protected Route with Valid Bearer Token (/me)
-  it("should return the current user profile whenvalid token is provided", async () => {
+  it("should return the current user profile when valid token is provided", async () => {
     const res = await request(app)
       .get("/api/v1/auth/me")
       .set("Authorization", `Bearer ${authToken}`);
