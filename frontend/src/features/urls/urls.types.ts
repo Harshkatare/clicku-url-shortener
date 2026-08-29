@@ -2,8 +2,13 @@ export type CreateUrlInput = {
     originalUrl: string;
 };
 
+export type UpdateUrlInput = {
+    originalUrl: string;
+};
+
 export type Url = {
     id: string;
+    userId: string;
     originalUrl: string;
     shortCode: string;
     clicks: number;
@@ -12,6 +17,11 @@ export type Url = {
 };
 
 export type CreateUrlResponse = {
+    success: boolean;
+    data: Url;
+};
+
+export type UpdateUrlResponse = {
     success: boolean;
     data: Url;
 };

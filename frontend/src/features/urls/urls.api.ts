@@ -3,6 +3,8 @@ import { api } from "../../api/client";
 import type {
     CreateUrlInput,
     CreateUrlResponse,
+    UpdateUrlInput,
+    UpdateUrlResponse,
     GetUrlsResponse
 } from "./urls.types";
 
@@ -31,6 +33,18 @@ export async function deleteUrl(
 ) {
     const response = 
         await api.delete( `/urls/${id}`);
+
+    return response.data;
+}
+
+export async function updateUrl(
+    id: string,
+    data: UpdateUrlInput
+) {
+    const response = await api.patch<UpdateUrlResponse>(
+        `/urls/${id}`,
+        data
+    );
 
     return response.data;
 }
