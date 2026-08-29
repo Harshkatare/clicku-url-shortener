@@ -13,6 +13,11 @@ export function errorMiddleware(
   _next: NextFunction
 ) {
   if (error instanceof ZodError) {
+    logger.error(
+      { err: error.issues, requestId: req.requestId },
+      "Validation error"
+    );
+
     return res.status(400).json({
       success: false,
       message: error.issues[0]?.message,
@@ -20,6 +25,11 @@ export function errorMiddleware(
   }
 
   if (error instanceof AppError) {
+    logger.error(
+      { err: error, statusCode: error.statusCode, requestId: req.requestId },
+      error.message
+    );
+
     return res.status(error.statusCode).json({
       success: false,
       message: error.message,
