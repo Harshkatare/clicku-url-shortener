@@ -1,7 +1,7 @@
 {
-  "name": "backend",
-  "version": "0.4.0",
-  "description": "",
+  "name": "shortlynk-backend",
+  "version": "0.4.6",
+  "description": "Production-grade, high-concurrency URL shortening API engineered with Express 5, TypeScript, Drizzle ORM, and PostgreSQL. Features robust DoS defenses, distributed rate limiting, structured Pino telemetry, and automated schema migrations.",
   "main": "index.js",
   "scripts": {
     "dev": "tsx src/server.ts",
@@ -12,9 +12,25 @@
     "db:migrate": "drizzle-kit migrate",
     "db:migrate:prod": "tsx -e \"process.env.NODE_ENV='production'; import('child_process').then(cp => cp.execSync('drizzle-kit migrate', { stdio: 'inherit', env: process.env }))\""
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": [
+    "url-shortener",
+    "express5",
+    "typescript",
+    "drizzle-orm",
+    "postgresql",
+    "neon-db",
+    "rate-limiting",
+    "dos-mitigation",
+    "structured-logging",
+    "pino",
+    "zod-validation",
+    "jwt-authentication",
+    "vitest-integration-tests",
+    "clean-architecture",
+    "shortlynk"
+  ],
+  "author": "Harsh Katare <https://github.com/Harshkatare>",
+  "license": "MIT",
   "packageManager": "pnpm@10.17.0",
   "dependencies": {
     "cors": "^2.8.6",
