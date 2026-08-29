@@ -3,6 +3,7 @@ import type {
     LoginInput,
     RegisterInput,
     AuthResponse,
+    MeResponse,
 } from "./auth.types";
 
 export async function login(
@@ -24,5 +25,10 @@ export async function register(
         data
     );
 
+    return response.data;
+}
+
+export async function getMe() {
+    const response = await api.get<MeResponse>("/auth/me");
     return response.data;
 }

@@ -9,6 +9,19 @@ export type RegisterInput = {
     password: string;
 };
 
+export type User = {
+  id: string;
+  name: string;
+  email: string;
+  role?: string;
+  createdAt?: string;
+};
+
+export type MeResponse = {
+  success: boolean;
+  data: User;
+};
+
 export type AuthResponse = {
   success: boolean;
   data: {
