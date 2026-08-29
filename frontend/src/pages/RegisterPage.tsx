@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import axios from "axios";
 
 import {
   registerSchema,
@@ -15,11 +16,12 @@ import {
   Alert,
   type AlertState,
 } from "../components/Alert";
+import { saveToken } from "../features/auth/auth.storage";
 
 export function RegisterPage() {
   const navigate = useNavigate();
 
-  const [alert, setAlert] =useState<AlertState | null>(null);
+  const [alert, setAlert] = useState<AlertState | null>(null);
 
   const {
     register: registerField,
@@ -46,14 +48,26 @@ export function RegisterPage() {
     data: RegisterFormData
   ) {
     try {
-      await register(data);
+      const response = await register(data);
 
-      navigate("/login");
-    } catch {
-        setAlert({
-          type: "error",
-          message: "Registration failed.",
-        });
+      if (response?.data?.token) {
+        saveToken(response.data.token);
+        navigate("/dashboard");
+      } else {
+        navigate("/login");
+      }
+    } catch (err) {
+      let serverMessage = "Registration failed.";
+      if (axios.isAxiosError(err) && err.response?.data?.message) {
+        serverMessage = err.response.data.message;
+      } else if (err instanceof Error) {
+        serverMessage = err.message;
+      }
+
+      setAlert({
+        type: "error",
+        message: serverMessage,
+      });
     }
   }
 

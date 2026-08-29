@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import axios from "axios";
 
 import {
   loginSchema,
@@ -50,11 +51,18 @@ export function LoginPage() {
       saveToken(response.data.token);
 
       navigate("/dashboard");
-    } catch {
+    } catch (err) {
+      let serverMessage = "Invalid email or password.";
+      if (axios.isAxiosError(err) && err.response?.data?.message) {
+        serverMessage = err.response.data.message;
+      } else if (err instanceof Error) {
+        serverMessage = err.message;
+      }
+
       setAlert({
         type: "error",
-        message: "Invalid email or password.",
-      })
+        message: serverMessage,
+      });
     }
   }
 
