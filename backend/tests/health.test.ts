@@ -1,7 +1,6 @@
 import request from "supertest";
 import app from "../src/app.js";
-import { describe, it, expect, TestRunner } from "vitest";
-import { success } from "zod";
+import { describe, it, expect } from "vitest";
 
 describe("Health Check API", () => {
   it("Should return 200 and confirm server is running", async () => {
