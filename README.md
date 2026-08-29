@@ -8,6 +8,13 @@ Shortlynk allows authenticated users to create, manage, and track shortened URLs
 
 ## 🚀 Live Features
 
+### 🛡️ Schema & Security Hardening (v0.4.5)
+* **Catch-All 404 JSON Handler:** Consistent `{ success: false, message: "Route not found" }` error envelope preventing raw HTML leaks on unmatched routes
+* **DoS Payload Guard:** Strict 10kb body parser limit (`express.json({ limit: '10kb' })`) protecting against memory-exhaustion floods
+* **Full Error Observability:** Structured Pino logging (`logger.error`) across all 4xx validation and domain error branches with correlation request IDs
+* **Schema Foundations:** Added `role` (`'user' | 'admin'`), `is_active`, and `updated_at` columns to the PostgreSQL `users` table
+* **Configuration Reference:** Self-documenting `.env.example` templates for local developer setup
+
 ### 🌐 Edge Reverse Proxy Routing (v0.4.4)
 * Root-domain short URLs (`https://shortlynk.in/:shortCode`) proxied directly at Vercel's edge network to the Render backend redirect engine
 * Seamless HTTP 302 redirects with atomic SQL click telemetry without exposing raw backend hosting domains
@@ -73,7 +80,7 @@ Shortlynk allows authenticated users to create, manage, and track shortened URLs
                                ▼
 ┌─────────────────────────────────────────────────────────────┐
 │                   PostgreSQL 16 Database                    │
-│   - users table (UUID PK, unique email, scrypt password)   │
+│   - users table (UUID PK, email UK, role, is_active, ts)    │
 │   - urls table (UUID PK, FK users cascade, short_code UK)   │
 └─────────────────────────────────────────────────────────────┘
 ```
