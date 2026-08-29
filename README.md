@@ -66,7 +66,7 @@ Shortlynk allows authenticated users to create, manage, and track shortened URLs
 * Request correlation IDs (`X-Request-ID` in response headers)
 * Centralized semantic error handling (`AppError` hierarchy)
 * Graceful process lifecycle management (`SIGINT`, `SIGTERM`, unhandled rejections)
-* Automated integration test suite with Vitest and Supertest (16/16 tests passing, `v0.4.1`)
+* Automated integration test suite with Vitest and Supertest (17/17 tests passing, `v0.4.6`)
 * Dockerized PostgreSQL and multi-container Docker Compose orchestration
 
 ---
@@ -257,4 +257,17 @@ pnpm test:watch
 * Structured Pino error logging across all 4xx client and validation error paths with request IDs
 * Database schema foundations (`role`, `is_active`, `updated_at` on `users` table) with Drizzle migration
 * Comprehensive `.env.example` templates for backend and frontend developer onboarding
+
+### ✅ Completed (v0.4.6 Frontend Resilience & Test Expansion)
+* User registration auto-login persistence and direct dashboard routing (`RegisterPage.tsx`)
+* Type-safe `axios.isAxiosError` dynamic server error messages in login and signup forms
+* Authenticated user identity display (name & email) in dashboard navbar via `GET /api/v1/auth/me`
+* Client-side JWT `exp` timestamp validation and auto-purge redirect guard in `ProtectedRoute.tsx`
+* Full URL domain feature parity (`updateUrl()` API client, Zod schema, and `userId` type interface)
+* Universal clipboard fallback utility using `document.execCommand('copy')` for non-HTTPS environments
+* Global React `ErrorBoundary` crash recovery shell with 1-click reload recovery
+* TanStack `QueryClient` retry guards (disabled retries on 401/404 errors and mutations)
+* Automated integration test expansion for empty PATCH payload validation (17/17 tests passing)
+* Workspace package manifests updated to `0.4.6` with production metadata and ATS-optimized keywords
+
 
