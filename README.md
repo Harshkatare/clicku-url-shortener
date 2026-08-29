@@ -6,7 +6,7 @@
 [![Express 5](https://img.shields.io/badge/Express_5-000000?style=flat-square&logo=express&logoColor=white)](https://expressjs.com/)
 [![PostgreSQL 16](https://img.shields.io/badge/PostgreSQL_16-316192?style=flat-square&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
 [![Tailwind CSS v4](https://img.shields.io/badge/Tailwind_v4-38B2AC?style=flat-square&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
-[![Vitest](https://img.shields.io/badge/Tests-16_Passing-brightgreen?style=flat-square&logo=vitest&logoColor=white)](https://vitest.dev/)
+[![Vitest](https://img.shields.io/badge/Tests-17_Passing-brightgreen?style=flat-square&logo=vitest&logoColor=white)](https://vitest.dev/)
 
 > 🌐 **Live Production Application:** [https://shortlynk.in](https://shortlynk.in)  
 > ⚡ **Architecture:** React 19 (Vercel) + Express 5 (Render) + PostgreSQL 16 (Neon DB)
@@ -18,6 +18,16 @@ Shortlynk allows authenticated users to create, manage, and track shortened URLs
 ---
 
 ## 🚀 Live Features
+
+### 🛡️ Frontend Resilience, Identity & UX (v0.4.6)
+* **Instant Auto-Login:** User registration automatically saves JWT tokens and routes directly to `/dashboard`
+* **Real-Time Error Alerts:** Type-safe `axios.isAxiosError` error handling displaying specific server responses in auth forms
+* **User Identity Header:** Authenticated user's name and email profile badge displayed dynamically in the navbar via `GET /api/v1/auth/me`
+* **JWT Expiration Navigation Guard:** Automated client-side token lifetime check in `ProtectedRoute.tsx` with smooth session purge
+* **Universal Clipboard Fallback:** Dual-layer clipboard copy utility using `document.execCommand('copy')` ensuring 100% copy success on all devices and local networks
+* **React Crash Recovery:** Global `ErrorBoundary` shell preventing blank white-screen crashes with a 1-click **"Reload Application"** recovery card
+* **Smart Network Retry Telemetry:** `QueryClient` retry guards disabling redundant retries on 401/404 errors and preventing duplicate link creation
+* **Test Suite Expansion:** Automated integration test suite expanded with empty PATCH payload validation (17/17 passing tests)
 
 ### 🛡️ Schema & Security Hardening (v0.4.5)
 * **Catch-All 404 JSON Handler:** Consistent `{ success: false, message: "Route not found" }` error envelope preventing raw HTML leaks on unmatched routes
