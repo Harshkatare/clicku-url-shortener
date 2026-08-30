@@ -5,6 +5,7 @@ import {
   QueryClient,
   QueryClientProvider,
 } from "@tanstack/react-query";
+import { Analytics } from "@vercel/analytics/react";
 import axios from "axios";
 
 import { ErrorBoundary } from './components/ErrorBoundary.tsx';
@@ -36,6 +37,7 @@ createRoot(document.getElementById('root')!).render(
       <QueryClientProvider client={queryClient}>
         <BrowserRouter>
           <App />
+          <Analytics />
         </BrowserRouter>
       </QueryClientProvider>
     </ErrorBoundary>

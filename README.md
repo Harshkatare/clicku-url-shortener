@@ -19,6 +19,11 @@ Shortlynk allows authenticated users to create, manage, and track shortened URLs
 
 ## 🚀 Live Features
 
+### 📊 Product Analytics Baseline (v0.4.8)
+* **Vercel Web Analytics Integration:** Real-time web traffic, unique visitor counts, and pageview telemetry via `@vercel/analytics`
+* **Performance Telemetry:** Core Web Vitals speed monitoring across all public and authenticated routes
+* **Privacy-First Architecture:** 100% GDPR compliant with zero cookies and automatic local development auto-disable
+
 ### 🌓 Dark Mode & Design System Infrastructure (v0.4.7)
 * **Tailwind CSS v4 Dark Mode Engine:** Class-based `@variant dark` architecture with instant reactive theme toggling
 * **Reactive `useTheme` Hook:** Custom React hook with `localStorage` persistence and automatic `prefers-color-scheme` OS detection
@@ -298,3 +303,10 @@ pnpm test:watch
 * `useScrollReveal` hook powered by `IntersectionObserver` for staggered scroll animations
 * Complete dark slate surface styling (`#020617` / `#0f172a`) across Landing, Dashboard, Login, and Register pages
 * Workspace package manifests aligned to version `0.4.7`
+
+### ✅ Completed (v0.4.8 Product Analytics Baseline)
+* Vercel Web Analytics client integrated into React 19 root application tree
+* Real-time visitor, pageview, referrer, and Core Web Vitals performance tracking enabled on `shortlynk.in`
+* Privacy-first, zero-cookie telemetry architecture with automatic local dev exclusion
+* Workspace package manifests aligned to version `0.4.8`
+

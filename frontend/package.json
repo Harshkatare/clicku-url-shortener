@@ -1,7 +1,7 @@
 {
   "name": "shortlynk-frontend",
   "private": true,
-  "version": "0.4.7",
+  "version": "0.4.8",
   "description": "Modern, resilient Single-Page Application (SPA) for Shortlynk built with React 19, Vite, and TypeScript. Implements Tailwind CSS v4 class-based dark mode engine, design system tokens, TanStack Query server-state caching, React Hook Form with Zod validation, and global ErrorBoundary crash recovery.",
   "type": "module",
   "scripts": {
@@ -29,6 +29,7 @@
   "dependencies": {
     "@hookform/resolvers": "^5.4.0",
     "@tanstack/react-query": "^5.101.0",
+    "@vercel/analytics": "^2.0.1",
     "axios": "^1.18.0",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",

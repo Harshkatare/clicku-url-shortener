@@ -1,6 +1,6 @@
 {
   "name": "shortlynk-backend",
-  "version": "0.4.7",
+  "version": "0.4.8",
   "description": "Production-grade, high-concurrency URL shortening API engineered with Express 5, TypeScript, Drizzle ORM, and PostgreSQL. Features robust DoS defenses, distributed rate limiting, structured Pino telemetry, and automated schema migrations.",
   "main": "index.js",
   "scripts": {
