@@ -289,4 +289,12 @@ pnpm test:watch
 * Automated integration test expansion for empty PATCH payload validation (17/17 tests passing)
 * Workspace package manifests updated to `0.4.6` with production metadata and ATS-optimized keywords
 
-
+### ✅ Completed (v0.4.7 Dark Mode & Design System Infrastructure)
+* Tailwind CSS v4 class-based dark mode engine (`@variant dark`) with instant reactive theme toggling
+* Custom `useTheme` hook with `localStorage` persistence and automatic OS color-scheme preference fallback
+* Sun/Moon theme toggle switches integrated into `LandingNavbar` and `Navbar` with smooth micro-interactions
+* 20+ custom design system utility classes (`.glass`, `.card-hover`, `.hero-grid`, `.progress-bar`, `.skeleton`, `[data-tooltip]`, `.bg-grid`)
+* 8 custom `@theme` keyframe animations (`fadeIn`, `slideUp`, `slideDown`, `scaleIn`, `bounceIn`, `spinSlow`, `pulseSoft`, `wiggle`)
+* `useScrollReveal` hook powered by `IntersectionObserver` for staggered scroll animations
+* Complete dark slate surface styling (`#020617` / `#0f172a`) across Landing, Dashboard, Login, and Register pages
+* Workspace package manifests aligned to version `0.4.7`
