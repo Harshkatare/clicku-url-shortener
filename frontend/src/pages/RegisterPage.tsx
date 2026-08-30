@@ -87,7 +87,7 @@ export function RegisterPage() {
         <div className="mb-5">
           <label
             htmlFor="name"
-            className="mb-2 block text-sm font-medium text-gray-700"
+            className="mb-2 block text-sm font-medium text-gray-700 dark:text-slate-300"
           >
             Name
           </label>
@@ -96,7 +96,7 @@ export function RegisterPage() {
             id="name"
             type="text"
             placeholder="Enter your name"
-            className="mt-1 h-12 w-full rounded-xl border border-gray-300 bg-white px-4 text-gray-900 placeholder:text-gray-400 transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
+            className="mt-1 h-12 w-full rounded-xl border border-gray-300 bg-white px-4 text-gray-900 placeholder:text-gray-400 transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:ring-blue-900/50"
             {...registerField("name")}
           />
 
@@ -110,7 +110,7 @@ export function RegisterPage() {
         <div className="mb-5">
           <label
             htmlFor="email"
-            className="mb-2 block text-sm font-medium text-gray-700"
+            className="mb-2 block text-sm font-medium text-gray-700 dark:text-slate-300"
           >
             Email
           </label>
@@ -120,7 +120,7 @@ export function RegisterPage() {
             type="email"
             placeholder="Enter your email"
             autoComplete="email"
-            className="mt-1 h-12 w-full rounded-xl border border-gray-300 bg-white px-4 text-gray-900 placeholder:text-gray-400 transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
+            className="mt-1 h-12 w-full rounded-xl border border-gray-300 bg-white px-4 text-gray-900 placeholder:text-gray-400 transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:ring-blue-900/50"
             {...registerField("email")}
           />
 
@@ -134,7 +134,7 @@ export function RegisterPage() {
         <div className="mb-5">
           <label
             htmlFor="password"
-            className="mb-2 block text-sm font-medium text-gray-700"
+            className="mb-2 block text-sm font-medium text-gray-700 dark:text-slate-300"
           >
             Password
           </label>
@@ -144,7 +144,7 @@ export function RegisterPage() {
             type="password"
             placeholder="Create a password"
             autoComplete="new-password"
-            className="mt-1 h-12 w-full rounded-xl border border-gray-300 bg-white px-4 text-gray-900 placeholder:text-gray-400 transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
+            className="mt-1 h-12 w-full rounded-xl border border-gray-300 bg-white px-4 text-gray-900 placeholder:text-gray-400 transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:ring-blue-900/50"
             {...registerField("password")}
           />
 
@@ -158,7 +158,7 @@ export function RegisterPage() {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="mt-3 h-12 w-full rounded-xl bg-blue-600 font-medium text-white transition hover:bg-blue-700 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50"
+          className="mt-3 h-12 w-full rounded-xl bg-blue-600 font-medium text-white transition hover:bg-blue-700 hover:shadow-md disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
         >
           {isSubmitting
             ? "Creating account..."
@@ -166,11 +166,11 @@ export function RegisterPage() {
         </button>
       </form>
 
-      <p className="mt-8 text-center text-sm text-gray-500">
+      <p className="mt-8 text-center text-sm text-gray-500 dark:text-slate-400">
         Already have an account?{" "}
         <Link
           to="/login"
-          className="font-medium text-blue-600 hover:underline"
+          className="font-medium text-blue-600 hover:underline dark:text-blue-400"
         >
           Login
         </Link>
