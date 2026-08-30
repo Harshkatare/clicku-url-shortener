@@ -19,6 +19,15 @@ Shortlynk allows authenticated users to create, manage, and track shortened URLs
 
 ## 🚀 Live Features
 
+### 🌓 Dark Mode & Design System Infrastructure (v0.4.7)
+* **Tailwind CSS v4 Dark Mode Engine:** Class-based `@variant dark` architecture with instant reactive theme toggling
+* **Reactive `useTheme` Hook:** Custom React hook with `localStorage` persistence and automatic `prefers-color-scheme` OS detection
+* **Theme Switches Across Navbars:** Sun/Moon toggle buttons integrated into `LandingNavbar` and `Navbar` with smooth micro-interactions
+* **Design System Utility Suite:** Ported 20+ custom design tokens (`.glass`, `.card-hover`, `.hero-grid`, `.progress-bar`, `.skeleton`, `[data-tooltip]`, `.bg-grid`)
+* **Tailwind v4 `@theme` Keyframes:** 8 custom animation keyframes (`fadeIn`, `slideUp`, `slideDown`, `scaleIn`, `bounceIn`, `spinSlow`, `pulseSoft`, `wiggle`)
+* **Staggered Scroll Reveals:** Custom `useScrollReveal` hook powered by `IntersectionObserver`
+* **High-Contrast Surface Theme Alignment:** Complete dark slate surfaces (`#020617` / `#0f172a`) across Landing, Dashboard, Login, and Register
+
 ### 🛡️ Frontend Resilience, Identity & UX (v0.4.6)
 * **Instant Auto-Login:** User registration automatically saves JWT tokens and routes directly to `/dashboard`
 * **Real-Time Error Alerts:** Type-safe `axios.isAxiosError` error handling displaying specific server responses in auth forms
