@@ -31,6 +31,11 @@ const queryClient = new QueryClient({
   },
 });
 
+// Non-blocking pre-emptive backend warmup on application mount
+if (typeof window !== "undefined") {
+  fetch("/api/health").catch(() => {});
+}
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <ErrorBoundary>

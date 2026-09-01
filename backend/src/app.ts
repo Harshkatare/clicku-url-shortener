@@ -17,6 +17,8 @@ import { env } from "./config/env.js";
 
 const app = express();
 
+app.set("trust proxy", 1);
+
 app.use(helmet());
 
 app.use(
@@ -42,6 +44,13 @@ app.use(
 );
 
 app.get("/health", (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: "server is running",
+  });
+});
+
+app.get("/api/health", (_req, res) => {
   res.status(200).json({
     success: true,
     message: "server is running",
