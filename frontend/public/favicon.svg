@@ -1,11 +1,13 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
   <defs>
     <linearGradient id="slg" x1="0" y1="0" x2="1" y2="1">
-      <stop offset="0" stop-color="#3b82f6"/><stop offset="1" stop-color="#8b5cf6"/>
+      <stop offset="0%" stop-color="#2563EB"/>
+      <stop offset="100%" stop-color="#4F46E5"/>
     </linearGradient>
   </defs>
-  <g fill="none" stroke="url(#slg)" stroke-width="8" transform="rotate(15 32 32)">
-    <ellipse cx="25" cy="32" rx="11.5" ry="16" transform="rotate(-30 25 32)"/>
-    <ellipse cx="39" cy="32" rx="11.5" ry="16" transform="rotate(30 39 32)"/>
+  <rect width="64" height="64" rx="15" fill="url(#slg)"/>
+  <g fill="none" stroke="white" stroke-width="8" transform="translate(9.2 9.2) scale(0.7125)">
+    <ellipse cx="25" cy="32" rx="12" ry="17" transform="rotate(-33 25 32)"/>
+    <ellipse cx="39" cy="32" rx="12" ry="17" transform="rotate(33 39 32)"/>
   </g>
 </svg>
