@@ -26,6 +26,23 @@ export async function createShortUrl(
   });
 }
 
+export async function createDemoUrl(
+  req: Request,
+  res: Response
+) {
+  const validatedData = createUrlSchema.parse(req.body);
+
+  const createdUrl = await urlService.createShortUrl(
+    validatedData,
+    null
+  );
+
+  res.status(201).json({
+    success: true,
+    data: createdUrl,
+  });
+}
+
 export async function redirectToOriginalUrl(
   req: Request,
   res: Response

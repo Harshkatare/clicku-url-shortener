@@ -6,7 +6,15 @@ import { asyncHandler } from "../../utils/async-handler.js";
 
 import { protect } from "../../middleware/auth.middleware.js";
 
+import { demoRateLimit } from "../../lib/rate-limit/demo-rate-limit.js";
+
 const router = Router();
+
+router.post(
+  "/demo",
+  demoRateLimit,
+  asyncHandler(urlController.createDemoUrl)
+);
 
 router.get(
   "/",

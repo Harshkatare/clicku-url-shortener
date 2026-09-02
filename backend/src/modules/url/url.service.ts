@@ -16,7 +16,7 @@ const MAX_COLLISION_RETRIES = 5;
 
 export async function createShortUrl(
   data: CreateUrlInput,
-  userId: string
+  userId: string | null = null
 ) {
   for (let attempt = 1; attempt <= MAX_COLLISION_RETRIES; attempt++) {
     const shortCode = generateShortCode();
