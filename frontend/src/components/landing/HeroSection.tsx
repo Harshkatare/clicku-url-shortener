@@ -2,7 +2,6 @@ import { useState, useRef } from "react";
 import { Link } from "react-router-dom";
 import { Logo } from "../common/Logo";
 import { useTheme } from "../../hooks/useTheme";
-import { useAnimateCounter } from "../../hooks/useAnimateCounter";
 import { copyToClipboard } from "../../utils/copy";
 import { api } from "../../api/client";
 
@@ -25,10 +24,6 @@ export function HeroSection() {
   const [copied, setCopied] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const totalUrls = useAnimateCounter(12500);
-  const totalClicks = useAnimateCounter(89200);
-  const activeUsers = useAnimateCounter(2400);
-
   async function handleShorten() {
     const trimmed = url.trim();
     if (!trimmed) {
@@ -40,7 +35,7 @@ export function HeroSection() {
       setLoading(true);
       setErrorMessage(null);
 
-      const res = await api.post<DemoResponse>("/api/v1/urls/demo", {
+      const res = await api.post<DemoResponse>("/urls/demo", {
         originalUrl: trimmed,
       });
 
@@ -177,7 +172,7 @@ export function HeroSection() {
 
           {/* Tagline */}
           <p
-            className="animate-slide-up mx-auto mt-6 max-w-2xl text-lg text-gray-600 dark:text-gray-400"
+            className="typing-cursor animate-slide-up mx-auto mt-6 max-w-2xl text-lg text-gray-600 dark:text-gray-400"
             style={{ animationDelay: "0.1s" }}
           >
             Track every click, generate QR codes, and own your links.
@@ -258,31 +253,6 @@ export function HeroSection() {
               </div>
             </div>
           )}
-
-          {/* Animated Stats Numbers */}
-          <div
-            className="mt-16 mb-24 grid animate-slide-up gap-8 text-center sm:grid-cols-3"
-            style={{ animationDelay: "0.3s" }}
-          >
-            <div>
-              <p className="text-3xl font-bold gradient-text-primary">
-                {totalUrls.toLocaleString()}
-              </p>
-              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">URLs Shortened</p>
-            </div>
-            <div>
-              <p className="text-3xl font-bold gradient-text-primary">
-                {totalClicks.toLocaleString()}
-              </p>
-              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Total Clicks</p>
-            </div>
-            <div>
-              <p className="text-3xl font-bold gradient-text-primary">
-                {activeUsers.toLocaleString()}
-              </p>
-              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">Active Users</p>
-            </div>
-          </div>
         </div>
       </section>
     </div>
