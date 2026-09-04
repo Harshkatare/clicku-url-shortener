@@ -86,19 +86,19 @@ export function HeroSection() {
           <div className="hidden items-center gap-8 md:flex">
             <a
               href="#features"
-              className="text-sm font-medium text-gray-600 transition hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
+              className="text-sm font-medium text-slate-600 transition hover:text-slate-900 dark:text-slate-300 dark:hover:text-white"
             >
               Features
             </a>
             <a
               href="#pricing"
-              className="text-sm font-medium text-gray-600 transition hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
+              className="text-sm font-medium text-slate-600 transition hover:text-slate-900 dark:text-slate-300 dark:hover:text-white"
             >
               Pricing
             </a>
             <a
               href="#faq"
-              className="text-sm font-medium text-gray-600 transition hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
+              className="text-sm font-medium text-slate-600 transition hover:text-slate-900 dark:text-slate-300 dark:hover:text-white"
             >
               FAQ
             </a>
@@ -172,7 +172,7 @@ export function HeroSection() {
 
           {/* Tagline */}
           <p
-            className="typing-cursor animate-slide-up mx-auto mt-6 max-w-2xl text-lg text-gray-600 dark:text-gray-400"
+            className="typing-cursor animate-slide-up mx-auto mt-6 max-w-2xl text-lg text-slate-600 dark:text-slate-300"
             style={{ animationDelay: "0.1s" }}
           >
             Track every click, generate QR codes, and own your links.
