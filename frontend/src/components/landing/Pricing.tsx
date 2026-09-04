@@ -80,7 +80,7 @@ export function Pricing({ onSelectPlan }: PricingProps) {
   const cardsRef = useScrollReveal<HTMLDivElement>(0.08);
 
   return (
-    <section id="pricing" className="relative py-16 px-6">
+    <section id="pricing" className="relative pt-24 pb-14 px-6">
       <div className="mx-auto max-w-7xl">
         {/* Section Header */}
         <div ref={headerRef} className="mx-auto mb-14 max-w-3xl text-center">

@@ -181,7 +181,7 @@ export function FeaturesGrid() {
   const headerRef = useScrollReveal<HTMLDivElement>(0);
 
   return (
-    <section id="features" className="relative py-16 px-6">
+    <section id="features" className="relative pt-24 pb-14 px-6">
       <div className="mx-auto max-w-7xl">
         {/* Section Header */}
         <div
