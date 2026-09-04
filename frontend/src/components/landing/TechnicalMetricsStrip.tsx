@@ -82,18 +82,16 @@ export function TechnicalMetricsStrip() {
         <div className="absolute top-1/2 left-1/2 h-24 w-3/4 -translate-x-1/2 -translate-y-1/2 rounded-full bg-blue-500/5 blur-3xl dark:bg-blue-400/5" />
       </div>
 
-      <div className="relative mx-auto max-w-7xl px-6">
-        <div className="grid grid-cols-2 gap-y-8 divide-y divide-slate-200/70 md:grid-cols-4 md:gap-y-0 md:divide-y-0 md:divide-x md:divide-slate-200/70 dark:divide-slate-800/80">
-          {METRICS.map((metric, i) => (
+      <div className="relative mx-auto max-w-7xl px-4 sm:px-6">
+        <div className="grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-4 md:gap-x-0 md:gap-y-0 md:divide-x md:divide-slate-200/70 dark:md:divide-slate-800/80">
+          {METRICS.map((metric) => (
             <div
               key={metric.label}
-              className={`flex flex-col items-center text-center px-4 transition-all duration-200 ${
-                i >= 2 ? "pt-8 md:pt-0" : ""
-              }`}
+              className="flex flex-col items-center text-center px-2 sm:px-4 transition-all duration-200"
             >
               {/* Engineering spec badge with micro-lift and subtle glow on hover */}
               <span
-                className={`group/badge inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 font-mono text-[11px] font-semibold tracking-wide shadow-xs transition-all duration-200 ease-out hover:-translate-y-0.5 cursor-default select-none ${metric.tagStyle}`}
+                className={`group/badge inline-flex items-center gap-1 sm:gap-1.5 rounded-full border px-2 py-0.5 font-mono text-[10px] sm:text-[11px] font-semibold tracking-wide shadow-xs transition-all duration-200 ease-out hover:-translate-y-0.5 cursor-default select-none ${metric.tagStyle}`}
               >
                 <span className="transition-transform duration-200 ease-out group-hover/badge:scale-115">
                   {metric.icon}
@@ -102,17 +100,17 @@ export function TechnicalMetricsStrip() {
               </span>
 
               {/* Metric Hero Value */}
-              <p className="mt-3 text-3xl font-black tracking-tight sm:text-4xl text-slate-900 dark:text-white">
+              <p className="mt-2.5 sm:mt-3 text-2xl font-black tracking-tight sm:text-3xl md:text-4xl text-slate-900 dark:text-white">
                 <span className="gradient-primary">{metric.value}</span>
               </p>
 
               {/* Consumer & Marketer Headline */}
-              <h3 className="mt-1.5 text-sm sm:text-base font-bold text-slate-800 dark:text-slate-200">
+              <h3 className="mt-1 text-xs sm:text-sm md:text-base font-bold text-slate-800 dark:text-slate-200">
                 {metric.label}
               </h3>
 
               {/* One-liner explanatory subtext */}
-              <p className="mt-1 max-w-[260px] text-xs leading-relaxed text-slate-500 dark:text-slate-400">
+              <p className="mt-1 max-w-[220px] sm:max-w-[260px] text-[11px] sm:text-xs leading-relaxed text-slate-500 dark:text-slate-400">
                 {metric.subtext}
               </p>
             </div>
