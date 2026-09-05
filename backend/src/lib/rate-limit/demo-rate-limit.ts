@@ -1,8 +1,11 @@
 import rateLimit from "express-rate-limit";
 
 export const demoRateLimit = rateLimit({
-  windowMs: 24 * 60 * 60 * 1000,
-  limit: 3,
+  windowMs:
+    process.env.NODE_ENV === "development"
+      ? 60 * 1000
+      : 24 * 60 * 60 * 1000,
+  limit: process.env.NODE_ENV === "development" ? 100 : 3,
   message: {
     success: false,
     message:

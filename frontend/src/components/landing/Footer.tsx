@@ -1,7 +1,12 @@
 import { Link } from "react-router-dom";
 import { Logo } from "../common/Logo";
 
-export function Footer() {
+export interface FooterProps {
+  onLogin?: () => void;
+  onRegister?: () => void;
+}
+
+export function Footer({ onLogin, onRegister }: FooterProps = {}) {
   const handleScrollTop = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -74,20 +79,38 @@ export function Footer() {
             </h4>
             <ul className="mt-4 space-y-2.5 text-sm text-slate-600 dark:text-slate-400">
               <li>
-                <Link
-                  to="/login"
-                  className="transition-colors hover:text-blue-600 dark:hover:text-blue-400"
-                >
-                  Sign In
-                </Link>
+                {onLogin ? (
+                  <button
+                    onClick={onLogin}
+                    className="transition-colors hover:text-blue-600 dark:hover:text-blue-400 cursor-pointer"
+                  >
+                    Sign In
+                  </button>
+                ) : (
+                  <Link
+                    to="/login"
+                    className="transition-colors hover:text-blue-600 dark:hover:text-blue-400"
+                  >
+                    Sign In
+                  </Link>
+                )}
               </li>
               <li>
-                <Link
-                  to="/register"
-                  className="transition-colors hover:text-blue-600 dark:hover:text-blue-400"
-                >
-                  Get Started
-                </Link>
+                {onRegister ? (
+                  <button
+                    onClick={onRegister}
+                    className="transition-colors hover:text-blue-600 dark:hover:text-blue-400 cursor-pointer"
+                  >
+                    Get Started
+                  </button>
+                ) : (
+                  <Link
+                    to="/register"
+                    className="transition-colors hover:text-blue-600 dark:hover:text-blue-400"
+                  >
+                    Get Started
+                  </Link>
+                )}
               </li>
               <li>
                 <a

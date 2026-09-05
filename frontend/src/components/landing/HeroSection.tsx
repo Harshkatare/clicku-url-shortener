@@ -4,17 +4,23 @@ import { Logo } from "../common/Logo";
 import { useTheme } from "../../hooks/useTheme";
 import { copyToClipboard } from "../../utils/copy";
 import { api } from "../../api/client";
+import { env } from "../../config/env";
 
 interface DemoResponse {
   success: boolean;
   data: {
     shortCode: string;
-    shortUrl: string;
+    shortUrl?: string;
     originalUrl: string;
   };
 }
 
-export function HeroSection() {
+export interface HeroSectionProps {
+  onLogin?: () => void;
+  onRegister?: () => void;
+}
+
+export function HeroSection({ onLogin, onRegister }: HeroSectionProps = {}) {
   const { dark, toggle } = useTheme();
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -25,10 +31,15 @@ export function HeroSection() {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   async function handleShorten() {
-    const trimmed = url.trim();
+    let trimmed = url.trim();
     if (!trimmed) {
       inputRef.current?.focus();
       return;
+    }
+
+    // Auto-prepend https:// if protocol is missing
+    if (!/^https?:\/\//i.test(trimmed)) {
+      trimmed = `https://${trimmed}`;
     }
 
     try {
@@ -40,10 +51,12 @@ export function HeroSection() {
       });
 
       if (res.data.success && res.data.data) {
-        const fullShortUrl = res.data.data.shortUrl.startsWith("http")
+        const baseUrl = env.SHORT_URL_BASE || window.location.origin;
+        const fullShortUrl = res.data.data.shortUrl
           ? res.data.data.shortUrl
-          : `${window.location.origin}/${res.data.data.shortCode}`;
+          : `${baseUrl}/${res.data.data.shortCode}`;
         setResult(fullShortUrl);
+        sessionStorage.setItem("shortlynk_demo_code", res.data.data.shortCode);
       }
     } catch (err: unknown) {
       setResult(null);
@@ -132,18 +145,37 @@ export function HeroSection() {
               )}
             </button>
 
-            <Link
-              to="/login"
-              className="rounded-xl border border-gray-300/90 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 shadow-xs transition hover:bg-gray-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700 sm:px-4 sm:py-2 sm:text-sm"
-            >
-              Login
-            </Link>
-            <Link
-              to="/register"
-              className="rounded-xl bg-linear-to-r from-blue-600 to-indigo-600 px-3 py-1.5 text-xs font-medium text-white shadow-xs transition hover:brightness-110 active:scale-95 sm:px-4 sm:py-2 sm:text-sm"
-            >
-              Get Started
-            </Link>
+            {onLogin ? (
+              <button
+                onClick={onLogin}
+                className="rounded-xl border border-gray-300/90 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 shadow-xs transition hover:bg-gray-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700 sm:px-4 sm:py-2 sm:text-sm cursor-pointer"
+              >
+                Login
+              </button>
+            ) : (
+              <Link
+                to="/login"
+                className="rounded-xl border border-gray-300/90 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 shadow-xs transition hover:bg-gray-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700 sm:px-4 sm:py-2 sm:text-sm"
+              >
+                Login
+              </Link>
+            )}
+
+            {onRegister ? (
+              <button
+                onClick={onRegister}
+                className="rounded-xl bg-linear-to-r from-blue-600 to-indigo-600 px-3 py-1.5 text-xs font-medium text-white shadow-xs transition hover:brightness-110 active:scale-95 sm:px-4 sm:py-2 sm:text-sm cursor-pointer"
+              >
+                Get Started
+              </button>
+            ) : (
+              <Link
+                to="/register"
+                className="rounded-xl bg-linear-to-r from-blue-600 to-indigo-600 px-3 py-1.5 text-xs font-medium text-white shadow-xs transition hover:brightness-110 active:scale-95 sm:px-4 sm:py-2 sm:text-sm"
+              >
+                Get Started
+              </Link>
+            )}
           </div>
         </div>
       </nav>
@@ -206,12 +238,21 @@ export function HeroSection() {
 
             {/* Action Buttons */}
             <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
-              <Link
-                to="/register"
-                className="rounded-xl bg-blue-600 px-8 py-3.5 text-lg font-medium text-white shadow-lg shadow-blue-200 transition hover:bg-blue-700 hover:shadow-xl dark:shadow-blue-900/30"
-              >
-                Get Started Free
-              </Link>
+              {onRegister ? (
+                <button
+                  onClick={onRegister}
+                  className="rounded-xl bg-blue-600 px-8 py-3.5 text-lg font-medium text-white shadow-lg shadow-blue-200 transition hover:bg-blue-700 hover:shadow-xl dark:shadow-blue-900/30 cursor-pointer"
+                >
+                  Get Started Free
+                </button>
+              ) : (
+                <Link
+                  to="/register"
+                  className="rounded-xl bg-blue-600 px-8 py-3.5 text-lg font-medium text-white shadow-lg shadow-blue-200 transition hover:bg-blue-700 hover:shadow-xl dark:shadow-blue-900/30"
+                >
+                  Get Started Free
+                </Link>
+              )}
               <button
                 onClick={handleFocusInput}
                 className="rounded-xl border border-gray-300 px-8 py-3.5 text-lg font-medium text-gray-700 transition hover:bg-gray-50 dark:border-slate-600 dark:text-gray-300 dark:hover:bg-slate-800 cursor-pointer"
@@ -242,7 +283,22 @@ export function HeroSection() {
                     {result}
                   </p>
                   <p className="text-xs text-green-600 dark:text-green-400">
-                    Added to your dashboard — sign in to claim and track it.
+                    Added to your dashboard —{" "}
+                    {onLogin ? (
+                      <button
+                        onClick={onLogin}
+                        className="font-medium underline hover:text-green-700 dark:hover:text-green-300 cursor-pointer"
+                      >
+                        sign in to claim and track it.
+                      </button>
+                    ) : (
+                      <Link
+                        to="/login"
+                        className="font-medium underline hover:text-green-700 dark:hover:text-green-300"
+                      >
+                        sign in to claim and track it.
+                      </Link>
+                    )}
                   </p>
                 </div>
                 <button
