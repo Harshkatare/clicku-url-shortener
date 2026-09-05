@@ -11,6 +11,7 @@ import {
 
 import { login } from "../features/auth/auth.api";
 import { saveToken } from "../features/auth/auth.storage";
+import { claimUrl } from "../features/urls/urls.api";
 import { AuthLayout } from "../layouts/AuthLayout";
 
 import {
@@ -49,6 +50,17 @@ export function LoginPage() {
       const response = await login(data);
 
       saveToken(response.data.token);
+
+      const demoCode = sessionStorage.getItem("shortlynk_demo_code");
+      if (demoCode) {
+        try {
+          await claimUrl({ shortCode: demoCode });
+        } catch (claimErr) {
+          console.warn("Non-blocking: Failed to claim demo link on login:", claimErr);
+        } finally {
+          sessionStorage.removeItem("shortlynk_demo_code");
+        }
+      }
 
       navigate("/dashboard");
     } catch (err) {
@@ -90,7 +102,7 @@ export function LoginPage() {
           <input
             id="email"
             type="email"
-            placeholder="Enter your email"
+            placeholder="you@example.com"
             autoComplete="email"
             className="mt-1 h-12 w-full rounded-xl border border-gray-300 bg-white px-4 text-gray-900 placeholder:text-gray-400 transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:ring-blue-900/50"
             {...register("email")}

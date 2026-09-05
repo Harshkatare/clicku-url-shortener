@@ -189,40 +189,38 @@ export function AuthModal({
       onClick={onClose}
     >
       <div
-        className="relative max-h-[90vh] w-full max-w-md overflow-y-auto rounded-3xl border border-slate-200/80 bg-white p-6 shadow-2xl transition-all sm:p-8 dark:border-slate-800 dark:bg-slate-900"
+        className="no-scrollbar relative max-h-[90vh] w-full max-w-md overflow-y-auto rounded-3xl border border-slate-200/80 bg-white p-6 shadow-2xl transition-all sm:p-7 dark:border-slate-800 dark:bg-slate-900 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Brand Badge Icon */}
-        <div className="mb-4 flex justify-center">
-          <Logo size={44} variant="badge" />
-        </div>
+        {/* Close Button (Pinned to Top-Right Corner) */}
+        <button
+          onClick={onClose}
+          className="absolute right-4 top-4 z-10 rounded-xl p-2 text-slate-400 transition hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-800 dark:hover:text-slate-200 cursor-pointer sm:right-5 sm:top-5"
+          title="Close modal"
+          aria-label="Close"
+        >
+          <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
 
-        {/* Modal Header */}
-        <div className="mb-5 flex items-center justify-between">
-          <div>
-            <h2 className="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl dark:text-white">
-              {tab === "login" ? "Welcome Back" : "Create Account"}
-            </h2>
-            <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
-              {tab === "login"
-                ? "Sign in to manage and track your shortened links."
-                : "Get started free with unlimited shortened links."}
-            </p>
+        {/* Centered Brand & Header Block */}
+        <div className="mb-4 text-center">
+          <div className="mb-2.5 flex justify-center">
+            <Logo size={42} variant="badge" />
           </div>
-          <button
-            onClick={onClose}
-            className="rounded-xl p-2 text-slate-400 transition hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-800 dark:hover:text-slate-200 cursor-pointer"
-            title="Close modal"
-            aria-label="Close"
-          >
-            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
+          <h2 className="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl dark:text-white">
+            {tab === "login" ? "Welcome Back" : "Create Account"}
+          </h2>
+          <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+            {tab === "login"
+              ? "Sign in to manage and track your shortened links."
+              : "Get started free with unlimited shortened links."}
+          </p>
         </div>
 
         {/* Segmented Tab Controls */}
-        <div className="mb-5 flex rounded-xl bg-slate-100 p-1 dark:bg-slate-800">
+        <div className="mb-4 flex rounded-xl bg-slate-100 p-1 dark:bg-slate-800">
           <button
             type="button"
             onClick={() => {
@@ -254,12 +252,12 @@ export function AuthModal({
         </div>
 
         {/* Social OAuth Buttons (Coming Soon) */}
-        <div className="mb-5 grid grid-cols-2 gap-3">
+        <div className="mb-4 grid grid-cols-2 gap-3">
           <button
             type="button"
             disabled
             title="OAuth integration coming soon"
-            className="relative flex items-center justify-center gap-2 rounded-xl border border-slate-200 py-2.5 text-xs font-medium text-slate-400 transition dark:border-slate-700 dark:text-slate-500 cursor-not-allowed"
+            className="relative flex items-center justify-center gap-2 rounded-xl border border-slate-200 py-2 text-xs font-medium text-slate-400 transition dark:border-slate-700 dark:text-slate-500 cursor-not-allowed"
           >
             <svg className="h-4 w-4 fill-current" viewBox="0 0 24 24">
               <path
@@ -278,7 +276,7 @@ export function AuthModal({
             type="button"
             disabled
             title="OAuth integration coming soon"
-            className="relative flex items-center justify-center gap-2 rounded-xl border border-slate-200 py-2.5 text-xs font-medium text-slate-400 transition dark:border-slate-700 dark:text-slate-500 cursor-not-allowed"
+            className="relative flex items-center justify-center gap-2 rounded-xl border border-slate-200 py-2 text-xs font-medium text-slate-400 transition dark:border-slate-700 dark:text-slate-500 cursor-not-allowed"
           >
             <svg className="h-4 w-4" viewBox="0 0 24 24">
               <path
@@ -306,7 +304,7 @@ export function AuthModal({
         </div>
 
         {/* Divider */}
-        <div className="relative mb-5">
+        <div className="relative mb-4">
           <div className="absolute inset-0 flex items-center">
             <div className="w-full border-t border-slate-200 dark:border-slate-800" />
           </div>
@@ -319,7 +317,7 @@ export function AuthModal({
 
         {/* Preserved Demo Link Notification Banner */}
         {Boolean(demoCode) && (
-          <div className="mb-4 flex items-center gap-2 rounded-xl border border-blue-200/80 bg-blue-50/80 px-3.5 py-2.5 text-xs text-blue-700 dark:border-blue-800/60 dark:bg-blue-950/40 dark:text-blue-300">
+          <div className="mb-3.5 flex items-center gap-2 rounded-xl border border-blue-200/80 bg-blue-50/80 px-3.5 py-2 text-xs text-blue-700 dark:border-blue-800/60 dark:bg-blue-950/40 dark:text-blue-300">
             <span className="shrink-0 text-base">🔗</span>
             <span>
               Your demo link <span className="font-mono font-bold">/{demoCode}</span> will be claimed to your account!
@@ -329,21 +327,21 @@ export function AuthModal({
 
         {/* Error Alert */}
         {errorMessage && (
-          <div className="mb-4 rounded-xl border border-red-200 bg-red-50 p-3 text-xs font-medium text-red-600 dark:border-red-800 dark:bg-red-950/40 dark:text-red-400">
+          <div className="mb-3.5 rounded-xl border border-red-200 bg-red-50 p-2.5 text-xs font-medium text-red-600 dark:border-red-800 dark:bg-red-950/40 dark:text-red-400">
             {errorMessage}
           </div>
         )}
 
         {/* Forms */}
         {tab === "login" ? (
-          <form onSubmit={handleLoginSubmit} className="space-y-4">
+          <form onSubmit={handleLoginSubmit} className="space-y-3.5">
             <div>
-              <label className="mb-1.5 block text-xs font-semibold text-slate-700 dark:text-slate-300">
+              <label className="mb-1 block text-xs font-semibold text-slate-700 dark:text-slate-300">
                 Email Address
               </label>
               <input
                 type="email"
-                placeholder="name@example.com"
+                placeholder="you@example.com"
                 value={loginEmail}
                 onChange={(e) => setLoginEmail(e.target.value)}
                 disabled={loading}
@@ -352,7 +350,7 @@ export function AuthModal({
               />
             </div>
             <div>
-              <label className="mb-1.5 block text-xs font-semibold text-slate-700 dark:text-slate-300">
+              <label className="mb-1 block text-xs font-semibold text-slate-700 dark:text-slate-300">
                 Password
               </label>
               <input
@@ -375,14 +373,14 @@ export function AuthModal({
             </button>
           </form>
         ) : (
-          <form onSubmit={handleRegisterSubmit} className="space-y-4">
+          <form onSubmit={handleRegisterSubmit} className="space-y-3">
             <div>
-              <label className="mb-1.5 block text-xs font-semibold text-slate-700 dark:text-slate-300">
+              <label className="mb-1 block text-xs font-semibold text-slate-700 dark:text-slate-300">
                 Full Name
               </label>
               <input
                 type="text"
-                placeholder="Jane Doe"
+                placeholder="First and last name"
                 value={registerName}
                 onChange={(e) => setRegisterName(e.target.value)}
                 disabled={loading}
@@ -391,12 +389,12 @@ export function AuthModal({
               />
             </div>
             <div>
-              <label className="mb-1.5 block text-xs font-semibold text-slate-700 dark:text-slate-300">
+              <label className="mb-1 block text-xs font-semibold text-slate-700 dark:text-slate-300">
                 Email Address
               </label>
               <input
                 type="email"
-                placeholder="name@example.com"
+                placeholder="you@example.com"
                 value={registerEmail}
                 onChange={(e) => setRegisterEmail(e.target.value)}
                 disabled={loading}
@@ -405,12 +403,12 @@ export function AuthModal({
               />
             </div>
             <div>
-              <label className="mb-1.5 block text-xs font-semibold text-slate-700 dark:text-slate-300">
+              <label className="mb-1 block text-xs font-semibold text-slate-700 dark:text-slate-300">
                 Password
               </label>
               <input
                 type="password"
-                placeholder="Create a password (min. 8 characters)"
+                placeholder="At least 8 characters"
                 value={registerPassword}
                 onChange={(e) => setRegisterPassword(e.target.value)}
                 disabled={loading}
@@ -431,7 +429,7 @@ export function AuthModal({
         )}
 
         {/* Footer Terms */}
-        <p className="mt-5 text-center text-[11px] text-slate-400 dark:text-slate-500">
+        <p className="mt-4 text-center text-[11px] text-slate-400 dark:text-slate-500">
           By continuing, you agree to our Terms of Service and Privacy Policy.
         </p>
       </div>

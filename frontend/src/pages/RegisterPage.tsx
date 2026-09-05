@@ -11,6 +11,8 @@ import {
 
 import { register } from "../features/auth/auth.api";
 import { AuthLayout } from "../layouts/AuthLayout";
+import { PasswordStrengthMeter } from "../components/auth/PasswordStrengthMeter";
+import { claimUrl } from "../features/urls/urls.api";
 
 import {
   Alert,
@@ -22,10 +24,12 @@ export function RegisterPage() {
   const navigate = useNavigate();
 
   const [alert, setAlert] = useState<AlertState | null>(null);
+  const [demoCode, setDemoCode] = useState<string | null>(null);
 
   const {
     register: registerField,
     handleSubmit,
+    watch,
     formState: {
       errors,
       isSubmitting,
@@ -33,6 +37,13 @@ export function RegisterPage() {
   } = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
   });
+
+  const watchedPassword = watch("password") || "";
+
+  useEffect(() => {
+    const code = sessionStorage.getItem("shortlynk_demo_code");
+    setDemoCode(code);
+  }, []);
 
   useEffect(() => {
     if (!alert) return;
@@ -52,6 +63,17 @@ export function RegisterPage() {
 
       if (response?.data?.token) {
         saveToken(response.data.token);
+
+        if (demoCode) {
+          try {
+            await claimUrl({ shortCode: demoCode });
+          } catch (claimErr) {
+            console.warn("Non-blocking: Failed to claim demo link:", claimErr);
+          } finally {
+            sessionStorage.removeItem("shortlynk_demo_code");
+          }
+        }
+
         navigate("/dashboard");
       } else {
         navigate("/login");
@@ -76,6 +98,15 @@ export function RegisterPage() {
       title="Create Account"
       subtitle="Create an account to start shortening links."
     >
+      {demoCode && (
+        <div className="mb-4 flex items-center gap-2 rounded-xl border border-blue-200/80 bg-blue-50/80 px-3.5 py-2.5 text-xs text-blue-700 dark:border-blue-800/60 dark:bg-blue-950/40 dark:text-blue-300">
+          <span className="shrink-0 text-base">🔗</span>
+          <span>
+            <strong>Claim your link:</strong> We'll link your newly shortened link to your new account upon signup.
+          </span>
+        </div>
+      )}
+
       {alert && (
         <Alert
           type={alert.type}
@@ -95,7 +126,7 @@ export function RegisterPage() {
           <input
             id="name"
             type="text"
-            placeholder="Enter your name"
+            placeholder="First and last name"
             className="mt-1 h-12 w-full rounded-xl border border-gray-300 bg-white px-4 text-gray-900 placeholder:text-gray-400 transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:ring-blue-900/50"
             {...registerField("name")}
           />
@@ -118,7 +149,7 @@ export function RegisterPage() {
           <input
             id="email"
             type="email"
-            placeholder="Enter your email"
+            placeholder="you@example.com"
             autoComplete="email"
             className="mt-1 h-12 w-full rounded-xl border border-gray-300 bg-white px-4 text-gray-900 placeholder:text-gray-400 transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:ring-blue-900/50"
             {...registerField("email")}
@@ -142,7 +173,7 @@ export function RegisterPage() {
           <input
             id="password"
             type="password"
-            placeholder="Create a password"
+            placeholder="At least 8 characters"
             autoComplete="new-password"
             className="mt-1 h-12 w-full rounded-xl border border-gray-300 bg-white px-4 text-gray-900 placeholder:text-gray-400 transition focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:ring-blue-900/50"
             {...registerField("password")}
@@ -153,6 +184,10 @@ export function RegisterPage() {
               {errors.password.message}
             </p>
           )}
+
+          <div className="mt-2">
+            <PasswordStrengthMeter password={watchedPassword} />
+          </div>
         </div>
 
         <button

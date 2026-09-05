@@ -246,3 +246,12 @@ body {
   background: #e2e8f0;
   color: #0f172a;
 }
+
+/* Cross-Browser Scrollbar Suppression */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

@@ -1,9 +1,10 @@
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 
 import { removeToken } from "../features/auth/auth.storage";
 import { getMe } from "../features/auth/auth.api";
 import { useTheme } from "../hooks/useTheme";
+import { Logo } from "./common/Logo";
 
 export function Navbar() {
   const navigate = useNavigate();
@@ -22,20 +23,23 @@ export function Navbar() {
   }
 
   return (
-    <header className="border-b border-gray-200 bg-white dark:border-slate-800 dark:bg-slate-900 transition-colors duration-200">
+    <header className="sticky top-0 z-40 glass border-b border-gray-200/50 dark:border-slate-700/50 transition-colors duration-200">
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
-        <div className="flex items-center gap-2.5">
-          <img src="/logo.svg" alt="Shortlynk" className="h-8 w-8 select-none" />
-          <h1 className="select-none text-2xl font-bold tracking-tight text-blue-600 dark:text-blue-400">
-            Shortlynk
-          </h1>
-        </div>
+        <Link to="/dashboard" className="flex items-center gap-2 sm:gap-2.5 group">
+          <div className="transition-transform duration-200 group-hover:scale-105">
+            <Logo size={32} variant="standard" />
+          </div>
+          <span className="select-none text-xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-2xl">
+            Short<span className="gradient-primary">lynk</span>
+          </span>
+        </Link>
 
         <div className="flex items-center gap-3 sm:gap-4">
           <button
             onClick={toggle}
             aria-label="Toggle theme"
             className="flex h-9 w-9 items-center justify-center rounded-xl border border-gray-200 bg-gray-50 text-gray-700 transition hover:bg-gray-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700 sm:h-10 sm:w-10 cursor-pointer"
+            title="Toggle theme"
           >
             {dark ? (
               <svg className="h-4 w-4 sm:h-5 sm:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -60,16 +64,16 @@ export function Navbar() {
 
           {meData?.data?.email && (
             <div className="hidden text-right sm:block">
-              <p className="text-sm font-semibold text-gray-900 dark:text-slate-100 leading-tight">
+              <p className="text-sm font-semibold text-slate-900 dark:text-slate-100 leading-tight">
                 {meData.data.name || "User"}
               </p>
-              <p className="text-xs text-gray-500 dark:text-slate-400">{meData.data.email}</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400">{meData.data.email}</p>
             </div>
           )}
 
           <button
             onClick={handleLogout}
-            className="rounded-xl bg-red-600 px-3.5 py-1.5 text-sm font-medium text-white shadow-xs transition hover:bg-red-700 sm:px-4 sm:py-2 cursor-pointer"
+            className="rounded-xl border border-red-200 bg-red-50 px-3.5 py-1.5 text-sm font-medium text-red-600 shadow-xs transition hover:bg-red-100 dark:border-red-900/40 dark:bg-red-950/40 dark:text-red-300 dark:hover:bg-red-900/60 sm:px-4 sm:py-2 cursor-pointer"
           >
             Logout
           </button>
