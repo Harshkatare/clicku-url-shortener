@@ -3,7 +3,7 @@ import { Routes, Route } from "react-router-dom";
 import { LoginPage } from "../pages/LoginPage";
 import { RegisterPage } from "../pages/RegisterPage";
 import { DashboardPage } from "../pages/DashboardPage";
-import { HomePage } from "../pages/HomePage";
+import { LandingPage } from "../pages/LandingPage";
 
 import { ProtectedRoute } from "./ProtectedRoute";
 
@@ -12,8 +12,8 @@ export function AppRoutes() {
     <Routes>
       <Route 
         path="/" 
-        element={<HomePage />} 
-    />
+        element={<LandingPage />} 
+      />
       <Route 
         path="/login" 
         element={<LoginPage />} 
