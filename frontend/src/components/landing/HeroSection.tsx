@@ -140,7 +140,7 @@ export function HeroSection() {
             </Link>
             <Link
               to="/register"
-              className="rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-3 py-1.5 text-xs font-medium text-white shadow-xs transition hover:brightness-110 active:scale-95 sm:px-4 sm:py-2 sm:text-sm"
+              className="rounded-xl bg-linear-to-r from-blue-600 to-indigo-600 px-3 py-1.5 text-xs font-medium text-white shadow-xs transition hover:brightness-110 active:scale-95 sm:px-4 sm:py-2 sm:text-sm"
             >
               Get Started
             </Link>
@@ -180,7 +180,8 @@ export function HeroSection() {
 
           {/* Interactive Demo Shortener Input */}
           <div
-            className="animate-slide-up mt-10 flex w-full flex-col items-center gap-4"
+            id="demo"
+            className="animate-slide-up mt-10 flex w-full scroll-mt-28 flex-col items-center gap-4"
             style={{ animationDelay: "0.2s" }}
           >
             <div className="flex w-full max-w-md items-center rounded-xl border border-gray-300 bg-white p-1 shadow-sm transition-all focus-within:ring-2 focus-within:ring-blue-500 dark:border-slate-600 dark:bg-slate-800">

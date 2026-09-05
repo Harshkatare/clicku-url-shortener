@@ -13,7 +13,7 @@ export function CTA({ onCta }: CTAProps) {
     <section className="mx-auto max-w-7xl px-6 py-20">
       <div
         ref={ref}
-        className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-700 px-8 py-16 text-center text-white shadow-2xl"
+        className="relative overflow-hidden rounded-3xl bg-linear-to-br from-blue-600 via-indigo-600 to-purple-700 px-8 py-16 text-center text-white shadow-2xl"
       >
         {/* Watermark Brand Mark */}
         <div className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-10 select-none scale-[0.55] sm:scale-75 md:scale-100 transition-transform duration-200">

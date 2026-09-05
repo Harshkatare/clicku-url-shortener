@@ -114,7 +114,7 @@ export function Pricing({ onSelectPlan }: PricingProps) {
             >
               {/* Featured Floating Badge */}
               {plan.featured && (
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 px-3.5 py-0.5 text-[11px] font-semibold tracking-wide text-white shadow-sm">
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-linear-to-r from-blue-600 to-indigo-600 px-3.5 py-0.5 text-[11px] font-semibold tracking-wide text-white shadow-sm">
                   Most Popular
                 </div>
               )}
