@@ -4,7 +4,8 @@ import * as urlService from "./url.service.js";
 import { 
   createUrlSchema, 
   updateUrlSchema,
-  urlParamsSchema
+  urlParamsSchema,
+  claimUrlSchema,
  } from "./url.schema.js";
 
 export async function createShortUrl(
@@ -112,5 +113,23 @@ export async function updateUrl(
   res.status(200).json({
     success: true,
     data: updatedUrl,
+  });
+}
+
+export async function claimUrl(
+  req: Request,
+  res: Response
+) {
+  const { shortCode } = claimUrlSchema.parse(req.body);
+
+  const claimedUrl = await urlService.claimUrl(
+    shortCode,
+    req.user!.id
+  );
+
+  res.status(200).json({
+    success: true,
+    message: "URL claimed successfully",
+    data: claimedUrl,
   });
 }

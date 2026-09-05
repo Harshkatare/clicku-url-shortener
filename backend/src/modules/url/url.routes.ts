@@ -16,6 +16,12 @@ router.post(
   asyncHandler(urlController.createDemoUrl)
 );
 
+router.post(
+  "/claim",
+  protect,
+  asyncHandler(urlController.claimUrl)
+);
+
 router.get(
   "/",
   protect,

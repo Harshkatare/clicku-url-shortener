@@ -30,3 +30,13 @@ export type GetUrlsResponse = {
     success: boolean;
     data: Url[];
 };
+
+export type ClaimUrlInput = {
+    shortCode: string;
+};
+
+export type ClaimUrlResponse = {
+    success: boolean;
+    message?: string;
+    data: Url;
+};

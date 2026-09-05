@@ -5,6 +5,7 @@ import { Logo } from "../common/Logo";
 import { PasswordStrengthMeter } from "./PasswordStrengthMeter";
 import { login, register } from "../../features/auth/auth.api";
 import { saveToken } from "../../features/auth/auth.storage";
+import { claimUrl } from "../../features/urls/urls.api";
 
 export interface AuthModalProps {
   isOpen: boolean;
@@ -88,6 +89,18 @@ export function AuthModal({
 
       if (res.data?.token) {
         saveToken(res.data.token);
+
+        // Claim preserved demo link if present
+        if (demoCode) {
+          try {
+            await claimUrl({ shortCode: demoCode });
+          } catch (claimErr) {
+            console.warn("Non-blocking: Failed to claim demo link:", claimErr);
+          } finally {
+            sessionStorage.removeItem("shortlynk_demo_code");
+          }
+        }
+
         if (onSuccess) {
           onSuccess();
         } else {
@@ -136,9 +149,15 @@ export function AuthModal({
       if (res.data?.token) {
         saveToken(res.data.token);
 
-        // Clear preserved demo code from session
+        // Claim preserved demo link if present
         if (demoCode) {
-          sessionStorage.removeItem("shortlynk_demo_code");
+          try {
+            await claimUrl({ shortCode: demoCode });
+          } catch (claimErr) {
+            console.warn("Non-blocking: Failed to claim demo link:", claimErr);
+          } finally {
+            sessionStorage.removeItem("shortlynk_demo_code");
+          }
         }
 
         if (onSuccess) {
@@ -299,7 +318,7 @@ export function AuthModal({
         </div>
 
         {/* Preserved Demo Link Notification Banner */}
-        {tab === "register" && demoCode && (
+        {Boolean(demoCode) && (
           <div className="mb-4 flex items-center gap-2 rounded-xl border border-blue-200/80 bg-blue-50/80 px-3.5 py-2.5 text-xs text-blue-700 dark:border-blue-800/60 dark:bg-blue-950/40 dark:text-blue-300">
             <span className="shrink-0 text-base">🔗</span>
             <span>

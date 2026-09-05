@@ -283,20 +283,20 @@ export function HeroSection({ onLogin, onRegister }: HeroSectionProps = {}) {
                     {result}
                   </p>
                   <p className="text-xs text-green-600 dark:text-green-400">
-                    Added to your dashboard —{" "}
-                    {onLogin ? (
+                    Your link is live!{" "}
+                    {onRegister ? (
                       <button
-                        onClick={onLogin}
-                        className="font-medium underline hover:text-green-700 dark:hover:text-green-300 cursor-pointer"
+                        onClick={onRegister}
+                        className="font-semibold underline hover:text-green-700 dark:hover:text-green-300 cursor-pointer"
                       >
-                        sign in to claim and track it.
+                        Sign up to claim & track it →
                       </button>
                     ) : (
                       <Link
-                        to="/login"
-                        className="font-medium underline hover:text-green-700 dark:hover:text-green-300"
+                        to="/register"
+                        className="font-semibold underline hover:text-green-700 dark:hover:text-green-300"
                       >
-                        sign in to claim and track it.
+                        Sign up to claim & track it →
                       </Link>
                     )}
                   </p>

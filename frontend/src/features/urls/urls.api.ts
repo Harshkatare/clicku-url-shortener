@@ -5,7 +5,9 @@ import type {
     CreateUrlResponse,
     UpdateUrlInput,
     UpdateUrlResponse,
-    GetUrlsResponse
+    GetUrlsResponse,
+    ClaimUrlInput,
+    ClaimUrlResponse,
 } from "./urls.types";
 
 export async function createUrl(
@@ -43,6 +45,17 @@ export async function updateUrl(
 ) {
     const response = await api.patch<UpdateUrlResponse>(
         `/urls/${id}`,
+        data
+    );
+
+    return response.data;
+}
+
+export async function claimUrl(
+    data: ClaimUrlInput
+) {
+    const response = await api.post<ClaimUrlResponse>(
+        "/urls/claim",
         data
     );
 

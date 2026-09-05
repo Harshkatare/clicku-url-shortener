@@ -8,7 +8,7 @@ import { generateShortCode } from "../../lib/generate-short-code.js";
 
 import type { CreateUrlInput, updateUrlInput } from "./url.schema.js";
 
-import { AppError, NotFoundError } from "../../lib/errors/index.js";
+import { AppError, NotFoundError, ConflictError } from "../../lib/errors/index.js";
 
 import { eq, sql, desc, and } from "drizzle-orm";
 
@@ -130,6 +130,47 @@ export async function updateUrl(
     throw new NotFoundError(
       "URL not found or unauthorized"
     );
+  }
+
+  return updatedUrl;
+}
+
+export async function claimUrl(shortCode: string, userId: string) {
+  const existingUrl = await db.query.urls.findFirst({
+    where: eq(urls.shortCode, shortCode),
+  });
+
+  if (!existingUrl) {
+    throw new NotFoundError("Short URL not found");
+  }
+
+  // Idempotency: already owned by this user
+  if (existingUrl.userId === userId) {
+    return existingUrl;
+  }
+
+  // Anti-hijack: already claimed by another user
+  if (existingUrl.userId !== null) {
+    throw new ConflictError("This short link has already been claimed by another user");
+  }
+
+  // Atomically claim the guest URL
+  const [updatedUrl] = await db
+    .update(urls)
+    .set({
+      userId,
+      updatedAt: new Date(),
+    })
+    .where(
+      and(
+        eq(urls.id, existingUrl.id),
+        sql`${urls.userId} IS NULL`
+      )
+    )
+    .returning();
+
+  if (!updatedUrl) {
+    throw new ConflictError("This short link has already been claimed by another user");
   }
 
   return updatedUrl;

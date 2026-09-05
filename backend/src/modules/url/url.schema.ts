@@ -33,3 +33,13 @@ export const urlParamsSchema = z.object({
 });
 
 export type UrlParamsInput = z.infer<typeof urlParamsSchema>;
+
+export const claimUrlSchema = z.object({
+  shortCode: z
+    .string()
+    .trim()
+    .min(1, "Short code cannot be empty")
+    .max(20, "Short code cannot exceed 20 characters"),
+});
+
+export type ClaimUrlInput = z.infer<typeof claimUrlSchema>;
