@@ -225,12 +225,12 @@ export function HeroSection({ onLogin, onRegister }: HeroSectionProps = {}) {
                 type="url"
                 placeholder="Paste your long URL here..."
                 disabled={loading}
-                className="h-11 flex-1 rounded-lg border-0 bg-transparent px-4 text-sm text-slate-900 outline-none placeholder:text-gray-400 dark:text-white"
+                className="h-11 min-w-0 flex-1 rounded-lg border-0 bg-transparent px-4 text-sm text-slate-900 outline-none placeholder:text-gray-400 dark:text-white"
               />
               <button
                 onClick={handleShorten}
                 disabled={loading}
-                className="h-11 rounded-lg bg-blue-600 px-5 text-sm font-medium text-white transition hover:bg-blue-700 disabled:opacity-50 cursor-pointer"
+                className="inline-flex h-11 shrink-0 items-center justify-center rounded-lg bg-blue-600 px-5 text-sm font-medium text-white transition hover:bg-blue-700 active:scale-95 disabled:opacity-50 cursor-pointer"
               >
                 {loading ? "Shortening..." : "Shorten"}
               </button>
@@ -241,21 +241,21 @@ export function HeroSection({ onLogin, onRegister }: HeroSectionProps = {}) {
               {onRegister ? (
                 <button
                   onClick={onRegister}
-                  className="rounded-xl bg-blue-600 px-8 py-3.5 text-lg font-medium text-white shadow-lg shadow-blue-200 transition hover:bg-blue-700 hover:shadow-xl dark:shadow-blue-900/30 cursor-pointer"
+                  className="inline-flex h-13 items-center justify-center rounded-xl bg-blue-600 px-8 text-lg font-medium text-white shadow-lg shadow-blue-200 transition hover:bg-blue-700 hover:shadow-xl dark:shadow-blue-900/30 cursor-pointer"
                 >
                   Get Started Free
                 </button>
               ) : (
                 <Link
                   to="/register"
-                  className="rounded-xl bg-blue-600 px-8 py-3.5 text-lg font-medium text-white shadow-lg shadow-blue-200 transition hover:bg-blue-700 hover:shadow-xl dark:shadow-blue-900/30"
+                  className="inline-flex h-13 items-center justify-center rounded-xl bg-blue-600 px-8 text-lg font-medium text-white shadow-lg shadow-blue-200 transition hover:bg-blue-700 hover:shadow-xl dark:shadow-blue-900/30"
                 >
                   Get Started Free
                 </Link>
               )}
               <button
                 onClick={handleFocusInput}
-                className="rounded-xl border border-gray-300 px-8 py-3.5 text-lg font-medium text-gray-700 transition hover:bg-gray-50 dark:border-slate-600 dark:text-gray-300 dark:hover:bg-slate-800 cursor-pointer"
+                className="inline-flex h-13 items-center justify-center rounded-xl border border-gray-300 px-8 text-lg font-medium text-gray-700 transition hover:bg-gray-50 dark:border-slate-600 dark:text-gray-300 dark:hover:bg-slate-800 cursor-pointer"
               >
                 Try Demo →
               </button>
