@@ -9,7 +9,7 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: clicku_db
+      POSTGRES_DB: shortlynk_db
 
     ports:
       - "5432:5432"
@@ -35,7 +35,7 @@ services:
       - .env
 
     environment:
-      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/clicku_db
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/shortlynk_db
 
 volumes:
   postgres_data:

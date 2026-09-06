@@ -1,73 +1,72 @@
-# React + TypeScript + Vite
+# Shortlynk Frontend (`frontend/`)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+[![React 19](https://img.shields.io/badge/React_19-20232A?style=flat-square&logo=react&logoColor=61DAFB)](https://react.dev/)
+[![Tailwind CSS v4](https://img.shields.io/badge/Tailwind_v4-38B2AC?style=flat-square&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
+[![Vite 8](https://img.shields.io/badge/Vite_8-646CFF?style=flat-square&logo=vite&logoColor=white)](https://vitejs.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 
-Currently, two official plugins are available:
+The client-side Single-Page Application (SPA) for **[Shortlynk](https://shortlynk.in)**. Built with React 19, Tailwind CSS v4, and Vite 8, engineered for high conversion, responsive dark-mode theming, and resilient server-state caching.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+---
 
-## React Compiler
+## 🌟 Key Architecture & Features
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+* **High-Conversion Public Landing Page:** Hero with interactive public demo shortener, live database platform telemetry strip (`PlatformStatsProof`), technical metrics ribbon (`TechnicalMetricsStrip`), features grid, transparent pricing tiers, animated FAQ accordion, and brand watermark CTA banner.
+* **Unified AuthModal Experience:** Tabbed modal overlay (Login / Signup) with Escape key dismissal, Windows scrollbar stabilization, and real-time 4-level password entropy analysis (`PasswordStrengthMeter`).
+* **Product-Led Growth (PLG) Demo Claiming:** Automatic claiming of guest-shortened URLs from `sessionStorage` upon authentication (`POST /api/v1/urls/claim`).
+* **Tailwind CSS v4 Design System:** `@variant dark` engine with system/manual toggle, custom CSS tokens (`.glass`, `.card-hover`, `.hero-grid`, `.progress-bar`), and 8 keyframe animations.
+* **Resilient Server State:** TanStack React Query v5 caching with automatic cache invalidation and smart retry guards (401/404 skip).
+* **Fault-Tolerant UX:** Global `ErrorBoundary` crash shell and dual-layer clipboard copy utility with legacy fallback.
 
-## Expanding the ESLint configuration
+---
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## 📁 Directory Structure
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```text
+frontend/src/
+├── api/             # Axios client, request/response interceptors & token handlers
+├── components/
+│   ├── auth/        # AuthModal, PasswordStrengthMeter
+│   ├── common/      # Brand Logo, ThemeToggle, Navbar, MobileNavMenu
+│   ├── landing/     # HeroSection, PlatformStatsProof, TechnicalMetricsStrip,
+│   │                # FeaturesGrid, PricingTiers, FaqAccordion, CtaBanner, Footer
+│   ├── Alert.tsx    # Self-dismissing toast alerts
+│   └── ErrorBoundary.tsx # Crash recovery shell
+├── config/          # Client environment validation (env.ts)
+├── features/        # TanStack Query hooks, schemas, API calls (auth, urls)
+├── hooks/           # useTheme, useScrollReveal, useAnimateCounter
+├── layouts/         # AuthLayout, DashboardLayout
+├── pages/           # LandingPage, LoginPage, RegisterPage, DashboardPage
+├── routes/          # AppRoutes and ProtectedRoute authentication guard
+└── utils/           # Clipboard copy utility with HTTP execCommand fallback
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+---
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## 🛠️ Scripts & Development
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+# Start Vite development server (http://localhost:5173)
+pnpm dev
+
+# Typecheck and production bundle build
+pnpm build
+
+# Run ESLint validation
+pnpm lint
+
+# Preview production build locally
+pnpm preview
+```
+
+---
+
+## 🔑 Environment Variables (`.env`)
+
+```env
+# Backend API Base URL (must include /api/v1)
+VITE_API_URL=http://localhost:5000/api/v1
+
+# Base URL for generated shortlinks in development
+VITE_SHORT_URL_BASE=http://localhost:5000
 ```

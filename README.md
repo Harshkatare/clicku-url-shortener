@@ -6,7 +6,7 @@
 [![Express 5](https://img.shields.io/badge/Express_5-000000?style=flat-square&logo=express&logoColor=white)](https://expressjs.com/)
 [![PostgreSQL 16](https://img.shields.io/badge/PostgreSQL_16-316192?style=flat-square&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
 [![Tailwind CSS v4](https://img.shields.io/badge/Tailwind_v4-38B2AC?style=flat-square&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
-[![Vitest](https://img.shields.io/badge/Tests-17_Passing-brightgreen?style=flat-square&logo=vitest&logoColor=white)](https://vitest.dev/)
+[![Vitest](https://img.shields.io/badge/Tests-28_Passing-brightgreen?style=flat-square&logo=vitest&logoColor=white)](https://vitest.dev/)
 
 > 🌐 **Live Production Application:** [https://shortlynk.in](https://shortlynk.in)  
 > ⚡ **Architecture:** React 19 (Vercel) + Express 5 (Render) + PostgreSQL 16 (Neon DB)
@@ -18,6 +18,14 @@ Shortlynk allows authenticated users to create, manage, and track shortened URLs
 ---
 
 ## 🚀 Live Features
+
+### 🌟 Landing Page Rebuild, Public Demo & Unified Auth (v0.5.0)
+* **Rebuilt Public Landing Page:** Full high-conversion SaaS storefront with dynamic hero, PlatformStatsProof live telemetry strip, TechnicalMetricsStrip ribbon, 4-card FeaturesGrid, transparent Pricing tiers (Free vs Pro Coming Soon), interactive FAQ accordion with smooth CSS grid height animation, and conversion CTA banner with 420px tilted watermark branding.
+* **Public Guest Demo Shortener (`POST /api/v1/urls/demo`):** Unauthenticated visitors can create real shortlinks on `shortlynk.in/:shortCode` with a 3 links/IP/24h rate limit (`demoRateLimit`) and live 1-click clipboard copy.
+* **Anonymous Demo Link Claiming (`POST /api/v1/urls/claim`):** Seamless Product-Led Growth (PLG) conversion flow. Guest shortcodes stored in `sessionStorage` are automatically claimed upon registration or login with atomic SQL ownership transfer (`WHERE userId IS NULL`) and anti-hijack conflict guards.
+* **Frosted Glass AuthModal & Password Strength Meter:** Tabbed login/register modal overlay with Escape dismissal, native Windows scrollbar suppression (`.no-scrollbar`), centered brand geometry, and 4-segment reactive password entropy analysis (`PasswordStrengthMeter`).
+* **Visual Identity Parity Across Auth & Dashboard:** Pervasive atmospheric radial glow blobs, `.hero-grid` backgrounds, `<Logo variant="badge" />`, and upgraded dashboard cards with `.card-hover` physics, clickable external short links with micro-animated `↗` icons, and creation timestamp badges (`🕒 Mmm D, YYYY at h:mm A`).
+* **Automated Test Expansion:** Integration test suite expanded to 28 passing tests across 7 test suites covering demo shortening, platform telemetry, authenticated link claiming, auth, url management, redirect telemetry, and health monitoring.
 
 ### 📊 Product Analytics Baseline (v0.4.8)
 * **Vercel Web Analytics Integration:** Real-time web traffic, unique visitor counts, and pageview telemetry via `@vercel/analytics`
@@ -90,7 +98,7 @@ Shortlynk allows authenticated users to create, manage, and track shortened URLs
 * Request correlation IDs (`X-Request-ID` in response headers)
 * Centralized semantic error handling (`AppError` hierarchy)
 * Graceful process lifecycle management (`SIGINT`, `SIGTERM`, unhandled rejections)
-* Automated integration test suite with Vitest and Supertest (17/17 tests passing, `v0.4.6`)
+* Automated integration test suite with Vitest and Supertest (28/28 tests passing across 7 test suites, `v0.5.0`)
 * Dockerized PostgreSQL and multi-container Docker Compose orchestration
 
 ---
@@ -141,10 +149,10 @@ clicku-url/
 │   │   ├── db/              # Drizzle ORM schemas & migrations
 │   │   ├── lib/             # Crypto, tokens, logger, rate-limit, errors
 │   │   ├── middleware/      # Auth, error handling, request-id
-│   │   ├── modules/         # Auth and URL controllers, services, schemas, routes
+│   │   ├── modules/         # Auth, URL, and Stats controllers, services, schemas, routes
 │   │   ├── routes/          # Public redirect routes
 │   │   └── types/           # Express namespace typing extensions
-│   ├── tests/               # Vitest + Supertest integration test suites
+│   ├── tests/               # Vitest + Supertest integration test suites (7 suites, 28 tests)
 │   ├── Dockerfile
 │   ├── docker-compose.yml
 │   └── package.json
@@ -153,12 +161,14 @@ clicku-url/
 │   ├── public/              # Brand SVG logo, favicon
 │   ├── src/
 │   │   ├── api/             # Axios client & request interceptors
-│   │   ├── components/      # Shared UI (Alert, Navbar, LandingNavbar, PageContainer)
+│   │   ├── components/      # Shared UI (Alert, ErrorBoundary, Navbar, auth, common, landing)
 │   │   ├── config/          # Client environment validation
 │   │   ├── features/        # Auth & URL feature queries, mutations, schemas, types
-│   │   ├── layouts/         # AuthLayout, DashboardLayout, LandingLayout shells
-│   │   ├── pages/           # HomePage (Landing), LoginPage, RegisterPage, DashboardPage
-│   │   └── routes/          # AppRoutes and ProtectedRoute guard
+│   │   ├── hooks/           # useTheme, useScrollReveal, useAnimateCounter
+│   │   ├── layouts/         # AuthLayout, DashboardLayout
+│   │   ├── pages/           # LandingPage, LoginPage, RegisterPage, DashboardPage
+│   │   ├── routes/          # AppRoutes and ProtectedRoute guard
+│   │   └── utils/           # Clipboard copy utility with HTTP fallback
 │   ├── vercel.json
 │   └── package.json
 │
@@ -172,7 +182,7 @@ clicku-url/
 ### Backend (`backend/.env`)
 ```env
 PORT=5000
-DATABASE_URL=postgresql://postgres:postgres@localhost:5432/clicku_db
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/shortlynk_db
 JWT_SECRET=your_jwt_super_secret_key_12345
 CLIENT_URL=http://localhost:5173
 ```
@@ -228,6 +238,7 @@ pnpm test:watch
 
 ### Health & Redirects
 * `GET /health` — Server liveness & health check
+* `GET /api/health` — Pre-rate-limiter server keepalive & warmup alias
 * `GET /:shortCode` — Public redirect to destination with atomic click increment
 
 ### Authentication (`/api/v1/auth`)
@@ -236,10 +247,15 @@ pnpm test:watch
 * `GET /api/v1/auth/me` — Retrieve current user profile (Protected)
 
 ### URLs (`/api/v1/urls`)
+* `POST /api/v1/urls/demo` — Create anonymous guest demo shortlink (Public, rate-limited to 3/IP/24h)
+* `POST /api/v1/urls/claim` — Claim anonymous demo shortlink ownership upon login/signup (Protected)
 * `POST /api/v1/urls` — Create a new shortened link (Protected)
 * `GET /api/v1/urls` — List all links for authenticated user (Protected)
 * `PATCH /api/v1/urls/:id` — Update link destination URL (Protected)
 * `DELETE /api/v1/urls/:id` — Delete a shortened link (Protected)
+
+### Platform Statistics (`/api/v1/stats`)
+* `GET /api/v1/stats/public` — Real-time platform telemetry (total links & clicks, 60s in-memory cache)
 
 ---
 
@@ -309,4 +325,20 @@ pnpm test:watch
 * Real-time visitor, pageview, referrer, and Core Web Vitals performance tracking enabled on `shortlynk.in`
 * Privacy-first, zero-cookie telemetry architecture with automatic local dev exclusion
 * Workspace package manifests aligned to version `0.4.8`
+
+### ✅ Completed (v0.5.0 Landing Page Rebuild, Public Demo & Unified Auth)
+* High-conversion SaaS storefront with dynamic hero, PlatformStatsProof live telemetry strip, TechnicalMetricsStrip ribbon, 4-card FeaturesGrid, transparent Pricing tiers (Free vs Pro Coming Soon), interactive FAQ accordion with smooth CSS grid height animation, and conversion CTA banner with 420px tilted watermark branding.
+* Public Guest Demo Shortener (`POST /api/v1/urls/demo`) with strict 3 links/IP/24h rate limiting (`demoRateLimit`).
+* Product-Led Growth (PLG) Anonymous Demo Link Claiming (`POST /api/v1/urls/claim`) with atomic SQL ownership transfer (`WHERE userId IS NULL`) and anti-hijack conflict guards.
+* Tabbed Frosted Glass `AuthModal` overlay and 4-segment reactive `PasswordStrengthMeter` entropy analysis.
+* Pervasive design system parity across Landing, Auth, and Dashboard (`.hero-grid`, `.card-hover`, `<Logo variant="badge" />`, clickable external short links with micro-animated `↗` icons, and creation timestamp badges).
+* Expanded integration test suite to 28 passing tests across 7 test suites (Demo, Claim, Stats, Auth, URLs, Redirects, Health).
+* Deprecated and deleted legacy prototypes (`HomePage.tsx`, `LandingNavbar.tsx`, `LandingLayout.tsx`), mounted `LandingPage.tsx` at `/`, and reduced production JS bundle size to 488 kB.
+* Bumped backend and frontend package manifests to `0.5.0`.
+
+### 🔮 Upcoming (v0.6.0 Enhanced Dashboard & Advanced URL Management)
+* URL search, status filtering (`active`, `expiring`, `archived`), and paginated link queries (`GET /api/v1/urls?search=&status=&page=&limit=`).
+* Custom alias support (`customAlias`) and link expiration dates.
+* HTML5 drag-and-drop card reordering (`PATCH /api/v1/urls/:id/reorder`).
+* Floating interactive toast notifications with 1-click "Undo" deletion callback.
 

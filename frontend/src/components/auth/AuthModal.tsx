@@ -36,15 +36,16 @@ export function AuthModal({
   // Demo link preservation
   const [demoCode, setDemoCode] = useState<string | null>(null);
 
-  // Sync initialTab when modal opens
-  useEffect(() => {
+  // Reset form and sync tab when modal transitions to open
+  const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
+  if (isOpen !== prevIsOpen) {
+    setPrevIsOpen(isOpen);
     if (isOpen) {
       setTab(initialTab);
       setErrorMessage(null);
-      const code = sessionStorage.getItem("shortlynk_demo_code");
-      setDemoCode(code);
+      setDemoCode(typeof window !== "undefined" ? sessionStorage.getItem("shortlynk_demo_code") : null);
     }
-  }, [isOpen, initialTab]);
+  }
 
   // Lock body scroll and handle Escape key
   const handleKeyDown = useCallback(
