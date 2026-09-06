@@ -117,11 +117,11 @@ export function HeroSection({ onLogin, onRegister }: HeroSectionProps = {}) {
             </a>
           </div>
 
-          <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+          <div className="flex shrink-0 items-center gap-1.5 sm:gap-3">
             <button
               onClick={toggle}
               aria-label="Toggle theme"
-              className="flex h-9 w-9 items-center justify-center rounded-xl border border-gray-200 bg-gray-50 text-gray-700 transition hover:bg-gray-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700 sm:h-10 sm:w-10 cursor-pointer"
+              className="flex h-8 w-8 items-center justify-center rounded-xl border border-gray-200 bg-gray-50 text-gray-700 transition hover:bg-gray-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700 sm:h-10 sm:w-10 cursor-pointer"
               title="Toggle theme"
             >
               {dark ? (
@@ -148,14 +148,14 @@ export function HeroSection({ onLogin, onRegister }: HeroSectionProps = {}) {
             {onLogin ? (
               <button
                 onClick={onLogin}
-                className="rounded-xl border border-gray-300/90 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 shadow-xs transition hover:bg-gray-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700 sm:px-4 sm:py-2 sm:text-sm cursor-pointer"
+                className="rounded-xl border border-gray-300/90 bg-white px-2.5 py-1 text-xs font-medium text-gray-700 shadow-xs transition hover:bg-gray-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700 sm:px-4 sm:py-2 sm:text-sm cursor-pointer"
               >
                 Login
               </button>
             ) : (
               <Link
                 to="/login"
-                className="rounded-xl border border-gray-300/90 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 shadow-xs transition hover:bg-gray-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700 sm:px-4 sm:py-2 sm:text-sm"
+                className="rounded-xl border border-gray-300/90 bg-white px-2.5 py-1 text-xs font-medium text-gray-700 shadow-xs transition hover:bg-gray-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700 sm:px-4 sm:py-2 sm:text-sm"
               >
                 Login
               </Link>
@@ -164,16 +164,18 @@ export function HeroSection({ onLogin, onRegister }: HeroSectionProps = {}) {
             {onRegister ? (
               <button
                 onClick={onRegister}
-                className="rounded-xl bg-linear-to-r from-blue-600 to-indigo-600 px-3 py-1.5 text-xs font-medium text-white shadow-xs transition hover:brightness-110 active:scale-95 sm:px-4 sm:py-2 sm:text-sm cursor-pointer"
+                className="rounded-xl bg-linear-to-r from-blue-600 to-indigo-600 px-3 py-1 text-xs font-semibold text-white shadow-xs transition hover:brightness-110 active:scale-95 sm:px-4 sm:py-2 sm:text-sm cursor-pointer"
               >
-                Get Started
+                <span className="sm:hidden">Sign Up</span>
+                <span className="hidden sm:inline">Get Started</span>
               </button>
             ) : (
               <Link
                 to="/register"
-                className="rounded-xl bg-linear-to-r from-blue-600 to-indigo-600 px-3 py-1.5 text-xs font-medium text-white shadow-xs transition hover:brightness-110 active:scale-95 sm:px-4 sm:py-2 sm:text-sm"
+                className="rounded-xl bg-linear-to-r from-blue-600 to-indigo-600 px-3 py-1 text-xs font-semibold text-white shadow-xs transition hover:brightness-110 active:scale-95 sm:px-4 sm:py-2 sm:text-sm"
               >
-                Get Started
+                <span className="sm:hidden">Sign Up</span>
+                <span className="hidden sm:inline">Get Started</span>
               </Link>
             )}
           </div>

@@ -34,7 +34,7 @@ const FAQ_ITEMS: FAQItem[] = [
 ];
 
 export function FAQ() {
-  const [openIdx, setOpenIdx] = useState<number | null>(0);
+  const [openIdx, setOpenIdx] = useState<number | null>(null);
   const headerRef = useScrollReveal<HTMLDivElement>(0);
   const listRef = useScrollReveal<HTMLDivElement>(0.08);
 
