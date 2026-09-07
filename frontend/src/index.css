@@ -45,6 +45,14 @@
   }
 }
 
+:root {
+  color-scheme: light;
+}
+
+:root.dark {
+  color-scheme: dark;
+}
+
 *,
 *::before,
 *::after {
@@ -61,11 +69,20 @@ html {
     "Segoe UI",
     sans-serif;
   overflow-x: hidden;
+  background-color: #ffffff;
+  color: #0f172a;
+}
+
+html.dark {
+  background-color: #020617;
+  color: #f8fafc;
 }
 
 body {
   min-height: 100vh;
   margin: 0;
+  background-color: inherit;
+  color: inherit;
 }
 
 /* Glassmorphism Surfaces */
@@ -96,20 +113,23 @@ body {
 .gradient-primary {
   background: linear-gradient(135deg, #3b82f6, #8b5cf6);
   -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
   background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
 }
 .gradient-text-primary {
   background: linear-gradient(135deg, #3b82f6, #8b5cf6);
   -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
   background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
 }
 .gradient-text-accent {
   background: linear-gradient(135deg, #f59e0b, #ef4444);
   -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
   background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
 }
 
 /* Interactive Card Hover Effects */

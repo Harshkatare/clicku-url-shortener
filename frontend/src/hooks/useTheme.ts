@@ -9,6 +9,7 @@ export function useTheme() {
 
   useEffect(() => {
     document.documentElement.classList.toggle("dark", dark);
+    document.documentElement.style.colorScheme = dark ? "dark" : "light";
     localStorage.setItem("dark", String(dark));
   }, [dark]);
 
