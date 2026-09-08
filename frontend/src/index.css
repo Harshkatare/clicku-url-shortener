@@ -46,11 +46,11 @@
 }
 
 :root {
-  color-scheme: light;
+  color-scheme: only light;
 }
 
 :root.dark {
-  color-scheme: dark;
+  color-scheme: only dark;
 }
 
 *,
