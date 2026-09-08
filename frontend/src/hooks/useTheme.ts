@@ -11,11 +11,26 @@ export function useTheme() {
     return window.matchMedia("(prefers-color-scheme: dark)").matches;
   });
 
+  // Listen for device or browser system theme changes in real time
+  useEffect(() => {
+    const media = window.matchMedia("(prefers-color-scheme: dark)");
+    const handleChange = (e: MediaQueryListEvent) => {
+      setDark(e.matches);
+      try {
+        localStorage.setItem("dark", String(e.matches));
+      } catch {
+        // Ignore storage access errors in private/restricted environments
+      }
+    };
+    media.addEventListener("change", handleChange);
+    return () => media.removeEventListener("change", handleChange);
+  }, []);
+
   useEffect(() => {
     document.documentElement.classList.toggle("dark", dark);
 
-    // W3C 'only' keyword instructs Chromium's rendering engine to never apply auto-darkening shaders
-    const schemeValue = dark ? "only dark" : "only light";
+    // Standard W3C color-scheme values natively supported across all mobile and desktop engines
+    const schemeValue = dark ? "dark" : "light";
     document.documentElement.style.colorScheme = schemeValue;
 
     try {
@@ -23,15 +38,6 @@ export function useTheme() {
     } catch {
       // Ignore storage access errors in private/restricted environments
     }
-
-    // Synchronize <meta name="color-scheme">
-    let colorSchemeMeta = document.querySelector('meta[name="color-scheme"]');
-    if (!colorSchemeMeta) {
-      colorSchemeMeta = document.createElement("meta");
-      colorSchemeMeta.setAttribute("name", "color-scheme");
-      document.head.appendChild(colorSchemeMeta);
-    }
-    colorSchemeMeta.setAttribute("content", schemeValue);
 
     // Synchronize <meta name="theme-color"> for mobile Chrome address bar
     let themeMeta = document.querySelector('meta[name="theme-color"]');
@@ -47,4 +53,3 @@ export function useTheme() {
 
   return { dark, toggle };
 }
-
