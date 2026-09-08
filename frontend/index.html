@@ -1,11 +1,11 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" style="color-scheme: only light;">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg?v=badge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="darkreader-lock" />
-    <meta name="color-scheme" content="light dark" />
+    <meta name="color-scheme" content="only light" />
     <meta name="theme-color" content="#ffffff" />
     <script>
       (function () {
@@ -14,11 +14,10 @@
           var isDark = stored !== null ? stored === "true" : window.matchMedia("(prefers-color-scheme: dark)").matches;
           if (isDark) {
             document.documentElement.classList.add("dark");
-            document.documentElement.style.colorScheme = "dark";
           } else {
             document.documentElement.classList.remove("dark");
-            document.documentElement.style.colorScheme = "light";
           }
+          document.documentElement.style.setProperty("color-scheme", "only light");
         } catch (_) {}
       })();
     </script>

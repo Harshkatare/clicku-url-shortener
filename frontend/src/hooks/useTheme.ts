@@ -12,15 +12,17 @@ export function useTheme() {
   });
 
   // Listen for device or browser system theme changes in real time
+  // but prioritize explicit user selection if they have manually toggled the theme
   useEffect(() => {
     const media = window.matchMedia("(prefers-color-scheme: dark)");
     const handleChange = (e: MediaQueryListEvent) => {
-      setDark(e.matches);
       try {
-        localStorage.setItem("dark", String(e.matches));
+        const userManual = localStorage.getItem("theme_user_selected");
+        if (userManual === "true") return;
       } catch {
-        // Ignore storage access errors in private/restricted environments
+        // Ignore storage access errors
       }
+      setDark(e.matches);
     };
     media.addEventListener("change", handleChange);
     return () => media.removeEventListener("change", handleChange);
@@ -29,15 +31,23 @@ export function useTheme() {
   useEffect(() => {
     document.documentElement.classList.toggle("dark", dark);
 
-    // Standard W3C color-scheme values natively supported across all mobile and desktop engines
-    const schemeValue = dark ? "dark" : "light";
-    document.documentElement.style.colorScheme = schemeValue;
+    // Explicitly opt out of Chromium's Auto-Darkening shader across all states
+    document.documentElement.style.setProperty("color-scheme", "only light");
 
     try {
       localStorage.setItem("dark", String(dark));
     } catch {
       // Ignore storage access errors in private/restricted environments
     }
+
+    // Keep <meta name="color-scheme" content="only light"> locked
+    let colorSchemeMeta = document.querySelector('meta[name="color-scheme"]');
+    if (!colorSchemeMeta) {
+      colorSchemeMeta = document.createElement("meta");
+      colorSchemeMeta.setAttribute("name", "color-scheme");
+      document.head.appendChild(colorSchemeMeta);
+    }
+    colorSchemeMeta.setAttribute("content", "only light");
 
     // Synchronize <meta name="theme-color"> for mobile Chrome address bar
     let themeMeta = document.querySelector('meta[name="theme-color"]');
@@ -49,7 +59,14 @@ export function useTheme() {
     themeMeta.setAttribute("content", dark ? "#020617" : "#ffffff");
   }, [dark]);
 
-  const toggle = useCallback(() => setDark((d) => !d), []);
+  const toggle = useCallback(() => {
+    try {
+      localStorage.setItem("theme_user_selected", "true");
+    } catch {
+      // Ignore storage access errors
+    }
+    setDark((d) => !d);
+  }, []);
 
   return { dark, toggle };
 }
