@@ -26,6 +26,20 @@ import {
     originalUrl: text("original_url")
       .notNull(),
   
+    customAlias: varchar("custom_alias", {
+      length: 50,
+    }).unique(),
+
+    status: varchar("status", {
+      length: 20,
+    })
+      .default("active")
+      .notNull(),
+
+    sortOrder: integer("sort_order")
+      .default(0)
+      .notNull(),
+
     clicks: integer("clicks")
       .default(0)
       .notNull(),

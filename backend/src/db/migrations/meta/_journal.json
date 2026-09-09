@@ -29,6 +29,13 @@
       "when": 1788351533029,
       "tag": "0003_happy_gladiator",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1788976094635,
+      "tag": "0004_curly_stick",
+      "breakpoints": true
     }
   ]
 }
