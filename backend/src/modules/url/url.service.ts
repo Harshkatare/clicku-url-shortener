@@ -10,7 +10,7 @@ import type { CreateUrlInput, updateUrlInput } from "./url.schema.js";
 
 import { AppError, NotFoundError, ConflictError } from "../../lib/errors/index.js";
 
-import { eq, sql, desc, and } from "drizzle-orm";
+import { eq, sql, desc, and, or } from "drizzle-orm";
 
 const MAX_COLLISION_RETRIES = 5;
 
@@ -30,14 +30,32 @@ export async function createShortUrl(
           userId,
           originalUrl: data.originalUrl,
           shortCode,
+          customAlias: data.customAlias || null,
+          status: data.status ?? "active",
         })
         .returning();
 
       return createdUrl;
     } catch (error: any) {
-      // Postgres code 23505 = unique_violation (short_code collision)
-      if (error?.code === "23505" && attempt < MAX_COLLISION_RETRIES) {
-        continue;
+      const pgError = error?.cause || error;
+      const code = pgError?.code || error?.code;
+      const isUniqueViolation =
+        code === "23505" || error?.message?.includes("unique constraint");
+
+      if (isUniqueViolation) {
+        const isCustomAliasViolation =
+          Boolean(data.customAlias) &&
+          (pgError?.constraint === "urls_custom_alias_unique" ||
+            pgError?.detail?.includes("custom_alias") ||
+            error?.message?.includes("urls_custom_alias_unique") ||
+            error?.message?.includes("custom_alias"));
+
+        if (isCustomAliasViolation) {
+          throw new ConflictError("Custom alias already in use");
+        }
+        if (attempt < MAX_COLLISION_RETRIES) {
+          continue;
+        }
       }
       throw error;
     }
@@ -49,9 +67,9 @@ export async function createShortUrl(
   );
 }
 
-export async function redirectToOriginalUrl(shortCode: string) {
+export async function redirectToOriginalUrl(slug: string) {
   const existingUrl = await db.query.urls.findFirst({
-    where: eq(urls.shortCode, shortCode),
+    where: or(eq(urls.shortCode, slug), eq(urls.customAlias, slug)),
   });
 
   if (!existingUrl) {

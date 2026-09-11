@@ -7,7 +7,7 @@ import { asyncHandler } from "../utils/async-handler.js";
 const router = Router();
 
 router.get(
-  "/:shortCode",
+  "/:slug",
   asyncHandler(
     urlController.redirectToOriginalUrl
   )

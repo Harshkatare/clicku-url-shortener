@@ -48,12 +48,11 @@ export async function redirectToOriginalUrl(
   req: Request,
   res: Response
 ) {
-  const shortCode =
-    req.params.shortCode as string;
+  const slug = (req.params.slug || req.params.shortCode) as string;
 
   const originalUrl =
     await urlService.redirectToOriginalUrl(
-      shortCode
+      slug
     );
 
   res.redirect(originalUrl);

@@ -66,6 +66,53 @@ describe("Redirect API Integration Tests", () => {
     expect(res.body.message).toBe("Short URL not found");
   });
 
+  // 4. Test Custom Alias Creation and 302 Redirect
+  it("should create URL with custom alias and redirect to original URL with status 302", async () => {
+    const customAlias = `promo-${Date.now()}`;
+    const createRes = await request(app)
+      .post("/api/v1/urls")
+      .set("Authorization", `Bearer ${authToken}`)
+      .send({
+        originalUrl: "https://example.com/promo-target",
+        customAlias,
+      });
+
+    expect(createRes.status).toBe(201);
+    expect(createRes.body.data.customAlias).toBe(customAlias);
+
+    // Visit via custom alias
+    const redirectRes = await request(app).get(`/${customAlias}`);
+    expect(redirectRes.status).toBe(302);
+    expect(redirectRes.headers.location).toBe("https://example.com/promo-target");
+  });
+
+  // 5. Test 409 Conflict for Duplicate Custom Alias
+  it("should return 409 Conflict when attempting to register an already taken custom alias", async () => {
+    const duplicateAlias = `duplicate-${Date.now()}`;
+
+    // First registration
+    const firstRes = await request(app)
+      .post("/api/v1/urls")
+      .set("Authorization", `Bearer ${authToken}`)
+      .send({
+        originalUrl: "https://example.com/first",
+        customAlias: duplicateAlias,
+      });
+    expect(firstRes.status).toBe(201);
+
+    // Duplicate attempt
+    const secondRes = await request(app)
+      .post("/api/v1/urls")
+      .set("Authorization", `Bearer ${authToken}`)
+      .send({
+        originalUrl: "https://example.com/second",
+        customAlias: duplicateAlias,
+      });
+    expect(secondRes.status).toBe(409);
+    expect(secondRes.body.success).toBe(false);
+    expect(secondRes.body.message).toBe("Custom alias already in use");
+  });
+
   // Clean up database connection
   afterAll(async () => {
     await pool.end();
