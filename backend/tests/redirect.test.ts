@@ -113,6 +113,40 @@ describe("Redirect API Integration Tests", () => {
     expect(secondRes.body.message).toBe("Custom alias already in use");
   });
 
+  // Test 6: Test that incoming UTM tracking tags are preserved across the 302 redirect
+  it("should preserve and forward incoming UTM query parameters across 302 redirect", async () => {
+    const res = await request(app).get(
+      `/${testShortCode}?utm_source=twitter&utm_medium=social`
+    );
+
+    expect(res.status).toBe(302);
+    expect(res.headers.location).toBe(
+      "https://example.com/?utm_source=twitter&utm_medium=social"
+    );
+  });
+
+  // Test 7: Test that incoming query parameters merge cleanly when the destination URL ALREADY has query parameters
+  it("should merge incoming query parameters with existing query parameters on originalUrl", async () => {
+    const customAlias = `merge-${Date.now()}`;
+
+    await request(app)
+      .post("/api/v1/urls")
+      .set("Authorization", `Bearer ${authToken}`)
+      .send({
+        originalUrl: "https://example.com/item?id=42",
+        customAlias,
+      });
+
+    const res = await request(app).get(
+      `/${customAlias}?utm_campaign=summer&ref=affiliate`
+    );
+
+    expect(res.status).toBe(302);
+    expect(res.headers.location).toBe(
+      "https://example.com/item?id=42&utm_campaign=summer&ref=affiliate"
+    );
+  });
+
   // Clean up database connection
   afterAll(async () => {
     await pool.end();

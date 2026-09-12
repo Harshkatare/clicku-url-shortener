@@ -55,6 +55,31 @@ export async function redirectToOriginalUrl(
       slug
     );
 
+    const queryKeys = Object.keys(req.query);
+    if (queryKeys.length > 0) {
+      try{
+        const targetUrl = new URL(originalUrl);
+
+        for (const [key, value] of Object.entries(req.query)) {
+          if (typeof value === "string") {
+            targetUrl.searchParams.set(key, value);
+          }
+          else if (Array.isArray(value)) {
+            targetUrl.searchParams.delete(key);
+
+            for (const v of value) {
+              if (typeof v === "string") {
+                targetUrl.searchParams.append(key, v);
+              }
+            }
+          }
+        }
+        return res.redirect(targetUrl.toString());
+      } catch {
+        return res.redirect(originalUrl);
+      }
+    }
+
   res.redirect(originalUrl);
 }
 
