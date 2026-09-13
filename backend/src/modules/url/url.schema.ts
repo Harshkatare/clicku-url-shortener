@@ -80,4 +80,29 @@ export const claimUrlSchema = z.object({
 });
 
 export type ClaimUrlInput = z.infer<typeof claimUrlSchema>;
+
+export const urlQuerySchema = z.object({
+  search: z
+    .string()
+    .trim()
+    .max(100, "Search query cannot exceed 100 characters")
+    .optional()
+    .transform((val) => (val === "" ? undefined : val)),
+  status: z.enum(["active", "expiring", "archived", "all"]).default("all"),
+  page: z.coerce
+    .number({ message: "Page must be a valid number" })
+    .int("Page must be an integer")
+    .positive("Page must be greater than 0")
+    .default(1),
+  limit: z.coerce
+    .number({ message: "Limit must be a valid number" })
+    .int("Limit must be an integer")
+    .positive("Limit must be greater than 0")
+    .max(50, "Limit cannot exceed 50 items per page")
+    .default(10),
+  sortBy: z.enum(["createdAt", "clicks", "sortOrder"]).default("createdAt"),
+  sortDir: z.enum(["asc", "desc"]).default("desc"),
+});
+
+export type UrlQueryInput = z.infer<typeof urlQuerySchema>;
 
