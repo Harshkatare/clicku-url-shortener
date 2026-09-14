@@ -6,11 +6,16 @@ import { urls } from "../../db/schema/urls.js";
 
 import { generateShortCode } from "../../lib/generate-short-code.js";
 
-import type { CreateUrlInput, updateUrlInput } from "./url.schema.js";
+import {
+  type CreateUrlInput,
+  type updateUrlInput,
+  type UrlQueryInput,
+  urlQuerySchema,
+} from "./url.schema.js";
 
 import { AppError, NotFoundError, ConflictError } from "../../lib/errors/index.js";
 
-import { eq, sql, desc, and, or } from "drizzle-orm";
+import { eq, sql, desc, asc, and, or, ilike } from "drizzle-orm";
 
 const MAX_COLLISION_RETRIES = 5;
 
@@ -88,14 +93,72 @@ export async function redirectToOriginalUrl(slug: string) {
   return existingUrl.originalUrl;
 }
 
-export async function getUserUrls(userId: string) {
-  const userUrls = await db.query.urls.findMany({
-    where: eq(urls.userId, userId),
+export async function getUserUrls(
+  userId: string,
+  query: UrlQueryInput = urlQuerySchema.parse({})
+) {
+  const conditions = [eq(urls.userId, userId)];
 
-    orderBy: desc(urls.createdAt),
-  });
+  if (query.status && query.status !== "all") {
+    conditions.push(eq(urls.status, query.status));
+  }
 
-  return userUrls;
+  if (query.search) {
+    const searchPattern = `%${query.search}%`;
+    conditions.push(
+      or(
+        ilike(urls.originalUrl, searchPattern),
+        ilike(urls.shortCode, searchPattern),
+        ilike(urls.customAlias, searchPattern)
+      )!
+    );
+  }
+
+  let sortColumn;
+  switch (query.sortBy) {
+    case "clicks":
+      sortColumn = urls.clicks;
+      break;
+    case "sortOrder":
+      sortColumn = urls.sortOrder;
+      break;
+    case "createdAt":
+    default:
+      sortColumn = urls.createdAt;
+      break;
+  }
+
+  const orderExpression =
+    query.sortDir === "asc" ? asc(sortColumn) : desc(sortColumn);
+
+  const offset = (query.page - 1) * query.limit;
+
+  const [data, countResult] = await Promise.all([
+    db
+      .select()
+      .from(urls)
+      .where(and(...conditions))
+      .orderBy(orderExpression)
+      .limit(query.limit)
+      .offset(offset),
+    db
+      .select({ count: sql<number>`count(*)::int` })
+      .from(urls)
+      .where(and(...conditions)),
+  ]);
+
+  const total = countResult[0]?.count ?? 0;
+  const totalPages = Math.ceil(total / query.limit);
+
+  return {
+    data,
+    pagination: {
+      total,
+      page: query.page,
+      limit: query.limit,
+      totalPages,
+    },
+  };
 }
 
 export async function deleteUrl(

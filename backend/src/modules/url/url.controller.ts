@@ -6,6 +6,7 @@ import {
   updateUrlSchema,
   urlParamsSchema,
   claimUrlSchema,
+  urlQuerySchema,
  } from "./url.schema.js";
 
 export async function createShortUrl(
@@ -87,14 +88,18 @@ export async function getUserUrls(
   req: Request,
   res: Response
 ) {
-  const userUrls =
+  const validatedQuery = urlQuerySchema.parse(req.query);
+
+  const result =
     await urlService.getUserUrls(
-      req.user!.id
+      req.user!.id,
+      validatedQuery
     );
 
   res.status(200).json({
     success: true,
-    data: userUrls,
+    data: result.data,
+    pagination: result.pagination,
   });
 }
 
