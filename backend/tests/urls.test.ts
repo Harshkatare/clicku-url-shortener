@@ -90,6 +90,14 @@ describe("URLs API Integration Tests", () => {
           status: "active",
         });
 
+      await request(app)
+        .post("/api/v1/urls")
+        .set("Authorization", `Bearer ${authToken}`)
+        .send({
+          originalUrl: "https://shop.example.com/50%_discount_deal",
+          status: "active",
+        });
+
       // Create a second isolated user to verify tenant isolation
       const secondUserRes = await request(app)
         .post("/api/v1/auth/signup")
@@ -111,6 +119,18 @@ describe("URLs API Integration Tests", () => {
       expect(res.body.success).toBe(true);
       expect(res.body.data.length).toBe(1);
       expect(res.body.data[0].originalUrl).toContain("docs.shortlynk.in");
+      expect(res.body.pagination.total).toBe(1);
+    });
+
+    it("should escape SQL LIKE wildcards (% and _) and search for literal characters", async () => {
+      const res = await request(app)
+        .get("/api/v1/urls?search=50%_discount")
+        .set("Authorization", `Bearer ${authToken}`);
+
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+      expect(res.body.data.length).toBe(1);
+      expect(res.body.data[0].originalUrl).toContain("50%_discount_deal");
       expect(res.body.pagination.total).toBe(1);
     });
 

@@ -1,29 +1,81 @@
 import { z } from "zod";
 
 export const RESERVED_SLUGS = new Set([
+  // Core Auth & Accounts
   "login",
+  "signin",
+  "logout",
+  "signout",
   "register",
   "signup",
+  "auth",
+  "account",
+  "profile",
+  "user",
+  "users",
+
+  // Dashboard & Application
   "dashboard",
   "analytics",
+  "links",
+  "urls",
   "settings",
   "preview",
+  "overview",
+  "app",
+
+  // Marketing & Informational Pages
+  "pricing",
+  "features",
+  "faq",
+  "about",
+  "contact",
+  "support",
+  "help",
+  "docs",
+  "documentation",
+  "blog",
+  "news",
+  "status",
+
+  // Legal & Compliance
+  "terms",
+  "privacy",
+  "legal",
+  "security",
+  "cookie-policy",
+  "dmca",
+
+  // System, API & Infrastructure
   "api",
   "health",
+  "metrics",
+  "stats",
+  "demo",
+  "claim",
+  "admin",
+  "root",
+  "system",
+
+  // Static Files & Web Crawlers
   "favicon.ico",
   "robots.txt",
   "sitemap.xml",
-  "admin",
   "assets",
   "static",
-  "faq",
+  "public",
+  "images",
+  "fonts",
+  "css",
+  "js",
+  "manifest.json",
 ]);
 
 export const customAliasSchema = z
   .string()
   .trim()
   .min(3, "Custom alias must be at least 3 characters")
-  .max(30, "Custom alias cannot exceed 30 characters")
+  .max(50, "Custom alias cannot exceed 50 characters")
   .regex(
     /^[a-zA-Z0-9_-]+$/,
     "Only letters, numbers, hyphens, and underscores are allowed"

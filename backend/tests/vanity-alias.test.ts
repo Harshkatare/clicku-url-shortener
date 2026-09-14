@@ -1,4 +1,4 @@
-﻿import { describe, it, expect } from "vitest";
+import { describe, it, expect } from "vitest";
 import { customAliasSchema, createUrlSchema, RESERVED_SLUGS } from "../src/modules/url/url.schema.js";
 
 describe("Vanity Custom Alias & Reserved Slugs Schema Tests", () => {
@@ -21,12 +21,16 @@ describe("Vanity Custom Alias & Reserved Slugs Schema Tests", () => {
     }
   });
 
-  it("should reject aliases longer than 30 characters", () => {
-    const longAlias = "a".repeat(31);
-    const result = customAliasSchema.safeParse(longAlias);
-    expect(result.success).toBe(false);
-    if (!result.success) {
-      expect(result.error.issues[0].message).toContain("cannot exceed 30 characters");
+  it("should accept aliases up to 50 characters and reject > 50 characters", () => {
+    const valid50 = "a".repeat(50);
+    const validResult = customAliasSchema.safeParse(valid50);
+    expect(validResult.success).toBe(true);
+
+    const invalid51 = "a".repeat(51);
+    const invalidResult = customAliasSchema.safeParse(invalid51);
+    expect(invalidResult.success).toBe(false);
+    if (!invalidResult.success) {
+      expect(invalidResult.error.issues[0].message).toContain("cannot exceed 50 characters");
     }
   });
 
@@ -41,8 +45,26 @@ describe("Vanity Custom Alias & Reserved Slugs Schema Tests", () => {
     }
   });
 
-  it("should reject reserved slugs case-insensitively", () => {
-    const reservedSamples = ["dashboard", "DASHBOARD", "Login", "register", "API", "health", "faq"];
+  it("should reject reserved slugs case-insensitively across all 50+ system routes", () => {
+    const reservedSamples = [
+      "dashboard",
+      "DASHBOARD",
+      "Login",
+      "register",
+      "API",
+      "health",
+      "faq",
+      "pricing",
+      "PRICING",
+      "features",
+      "terms",
+      "privacy",
+      "docs",
+      "about",
+      "contact",
+      "app",
+      "status",
+    ];
     for (const slug of reservedSamples) {
       const result = customAliasSchema.safeParse(slug);
       expect(result.success).toBe(false);

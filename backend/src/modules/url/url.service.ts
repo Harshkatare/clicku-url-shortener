@@ -101,6 +101,10 @@ export async function redirectToOriginalUrl(slug: string) {
   return existingUrl.originalUrl;
 }
 
+function escapeLikePattern(input: string): string {
+  return input.replace(/[%_\\]/g, "\\$&");
+}
+
 export async function getUserUrls(
   userId: string,
   query: UrlQueryInput = DEFAULT_QUERY
@@ -112,7 +116,8 @@ export async function getUserUrls(
   }
 
   if (query.search) {
-    const searchPattern = `%${query.search}%`;
+    const sanitizedSearch = escapeLikePattern(query.search);
+    const searchPattern = `%${sanitizedSearch}%`;
     const searchClause = or(
       ilike(urls.originalUrl, searchPattern),
       ilike(urls.shortCode, searchPattern),
