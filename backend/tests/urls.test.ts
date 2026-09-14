@@ -152,6 +152,30 @@ describe("URLs API Integration Tests", () => {
       }
     });
 
+    it("should filter by combined search and status parameters", async () => {
+      // 1. Matches docs and is active -> 1 result
+      const activeRes = await request(app)
+        .get("/api/v1/urls?search=docs.shortlynk.in&status=active")
+        .set("Authorization", `Bearer ${authToken}`);
+
+      expect(activeRes.status).toBe(200);
+      expect(activeRes.body.success).toBe(true);
+      expect(activeRes.body.data.length).toBe(1);
+      expect(activeRes.body.data[0].originalUrl).toContain("docs.shortlynk.in");
+      expect(activeRes.body.data[0].status).toBe("active");
+      expect(activeRes.body.pagination.total).toBe(1);
+
+      // 2. Matches docs but is archived -> 0 results
+      const archivedRes = await request(app)
+        .get("/api/v1/urls?search=docs.shortlynk.in&status=archived")
+        .set("Authorization", `Bearer ${authToken}`);
+
+      expect(archivedRes.status).toBe(200);
+      expect(archivedRes.body.success).toBe(true);
+      expect(archivedRes.body.data.length).toBe(0);
+      expect(archivedRes.body.pagination.total).toBe(0);
+    });
+
     it("should paginate results correctly with limit and page", async () => {
       const page1Res = await request(app)
         .get("/api/v1/urls?page=1&limit=2")

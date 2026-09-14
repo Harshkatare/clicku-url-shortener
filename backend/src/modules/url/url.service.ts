@@ -6,11 +6,10 @@ import { urls } from "../../db/schema/urls.js";
 
 import { generateShortCode } from "../../lib/generate-short-code.js";
 
-import {
-  type CreateUrlInput,
-  type updateUrlInput,
-  type UrlQueryInput,
-  urlQuerySchema,
+import type {
+  CreateUrlInput,
+  updateUrlInput,
+  UrlQueryInput,
 } from "./url.schema.js";
 
 import { AppError, NotFoundError, ConflictError } from "../../lib/errors/index.js";
@@ -18,6 +17,15 @@ import { AppError, NotFoundError, ConflictError } from "../../lib/errors/index.j
 import { eq, sql, desc, asc, and, or, ilike } from "drizzle-orm";
 
 const MAX_COLLISION_RETRIES = 5;
+
+const DEFAULT_QUERY: UrlQueryInput = {
+  search: undefined,
+  page: 1,
+  limit: 10,
+  status: "all",
+  sortBy: "createdAt",
+  sortDir: "desc",
+};
 
 export async function createShortUrl(
   data: CreateUrlInput,
@@ -95,7 +103,7 @@ export async function redirectToOriginalUrl(slug: string) {
 
 export async function getUserUrls(
   userId: string,
-  query: UrlQueryInput = urlQuerySchema.parse({})
+  query: UrlQueryInput = DEFAULT_QUERY
 ) {
   const conditions = [eq(urls.userId, userId)];
 
@@ -105,13 +113,15 @@ export async function getUserUrls(
 
   if (query.search) {
     const searchPattern = `%${query.search}%`;
-    conditions.push(
-      or(
-        ilike(urls.originalUrl, searchPattern),
-        ilike(urls.shortCode, searchPattern),
-        ilike(urls.customAlias, searchPattern)
-      )!
+    const searchClause = or(
+      ilike(urls.originalUrl, searchPattern),
+      ilike(urls.shortCode, searchPattern),
+      ilike(urls.customAlias, searchPattern)
     );
+
+    if (searchClause) {
+      conditions.push(searchClause);
+    }
   }
 
   let sortColumn;
