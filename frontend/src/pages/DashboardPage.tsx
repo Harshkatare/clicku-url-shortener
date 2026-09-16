@@ -39,7 +39,7 @@ export function DashboardPage() {
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["urls"],
-    queryFn: getUrls,
+    queryFn: () => getUrls(),
   });
 
   const queryClient = useQueryClient();
