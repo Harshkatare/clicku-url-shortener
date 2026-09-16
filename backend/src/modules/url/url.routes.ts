@@ -41,6 +41,12 @@ router.delete(
 );
 
 router.patch(
+  "/:id/reorder",
+  protect,
+  asyncHandler(urlController.reorderUrl)
+);
+
+router.patch(
   "/:id",
   protect,
   asyncHandler(urlController.updateUrl)

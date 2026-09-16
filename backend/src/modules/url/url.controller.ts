@@ -7,6 +7,7 @@ import {
   urlParamsSchema,
   claimUrlSchema,
   urlQuerySchema,
+  reorderUrlSchema,
  } from "./url.schema.js";
 
 export async function createShortUrl(
@@ -162,3 +163,23 @@ export async function claimUrl(
     data: claimedUrl,
   });
 }
+
+export async function reorderUrl(
+  req: Request,
+  res: Response
+) {
+  const { id } = urlParamsSchema.parse(req.params);
+  const { newSortOrder } = reorderUrlSchema.parse(req.body);
+
+  const updatedUrl = await urlService.reorderUrl(
+    id,
+    req.user!.id,
+    newSortOrder
+  );
+
+  res.status(200).json({
+    success: true,
+    message: "Card reordered successfully",
+    data: updatedUrl,
+  });
+}

@@ -159,4 +159,13 @@ export const urlQuerySchema = z.object({
 });
 
 export type UrlQueryInput = z.infer<typeof urlQuerySchema>;
+
+export const reorderUrlSchema = z.object({
+  newSortOrder: z
+    .number({ message: "newSortOrder must be a valid number" })
+    .int("newSortOrder must be an integer")
+    .min(0, "newSortOrder cannot be negative"),
+});
+
+export type ReorderUrlInput = z.infer<typeof reorderUrlSchema>;
 

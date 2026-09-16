@@ -474,6 +474,188 @@ describe("URLs API Integration Tests", () => {
     });
   });
 
+  // 7. Test Card Reordering (PATCH /api/v1/urls/:id/reorder)
+  describe("Card Reordering Tests (PATCH /api/v1/urls/:id/reorder)", () => {
+    let reorderUserToken = "";
+    let reorderUrlIds: string[] = [];
+
+    beforeAll(async () => {
+      // Create dedicated user for reorder tests
+      const signupRes = await request(app)
+        .post("/api/v1/auth/signup")
+        .send({
+          name: "Reorder Test User",
+          email: `reorder_test_${Date.now()}@example.com`,
+          password: "password123",
+        });
+
+      reorderUserToken = signupRes.body.data.token;
+
+      // Create 4 URLs for this user
+      for (let i = 0; i < 4; i++) {
+        const createRes = await request(app)
+          .post("/api/v1/urls")
+          .set("Authorization", `Bearer ${reorderUserToken}`)
+          .send({
+            originalUrl: `https://reorder-item-${i}.example.com`,
+          });
+        reorderUrlIds.push(createRes.body.data.id);
+      }
+
+      // Explicitly initialize their sortOrders to 0, 1, 2, 3 in the database
+      for (let i = 0; i < 4; i++) {
+        await pool.query("UPDATE urls SET sort_order = $1 WHERE id = $2", [i, reorderUrlIds[i]]);
+      }
+    });
+
+    it("should successfully reorder a card by moving down (0 -> 2) and shift intervening items", async () => {
+      // Move Item 0 to index 2
+      const targetId = reorderUrlIds[0];
+      const res = await request(app)
+        .patch(`/api/v1/urls/${targetId}/reorder`)
+        .set("Authorization", `Bearer ${reorderUserToken}`)
+        .send({ newSortOrder: 2 });
+
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+      expect(res.body.message).toBe("Card reordered successfully");
+      expect(res.body.data.id).toBe(targetId);
+      expect(res.body.data.sortOrder).toBe(2);
+
+      // Verify list order via GET /api/v1/urls?sortBy=sortOrder&sortDir=asc
+      const listRes = await request(app)
+        .get("/api/v1/urls?sortBy=sortOrder&sortDir=asc")
+        .set("Authorization", `Bearer ${reorderUserToken}`);
+
+      expect(listRes.status).toBe(200);
+      const items = listRes.body.data;
+      // Original: [0, 1, 2, 3] -> Move 0 to 2 -> Expected: [1(now 0), 2(now 1), 0(now 2), 3(stay 3)]
+      expect(items.find((u: any) => u.id === reorderUrlIds[1]).sortOrder).toBe(0);
+      expect(items.find((u: any) => u.id === reorderUrlIds[2]).sortOrder).toBe(1);
+      expect(items.find((u: any) => u.id === reorderUrlIds[0]).sortOrder).toBe(2);
+      expect(items.find((u: any) => u.id === reorderUrlIds[3]).sortOrder).toBe(3);
+    });
+
+    it("should successfully reorder a card by moving up (2 -> 0) and shift intervening items", async () => {
+      // Move Item 0 (currently at 2) back to 0
+      const targetId = reorderUrlIds[0];
+      const res = await request(app)
+        .patch(`/api/v1/urls/${targetId}/reorder`)
+        .set("Authorization", `Bearer ${reorderUserToken}`)
+        .send({ newSortOrder: 0 });
+
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+      expect(res.body.data.sortOrder).toBe(0);
+
+      const listRes = await request(app)
+        .get("/api/v1/urls?sortBy=sortOrder&sortDir=asc")
+        .set("Authorization", `Bearer ${reorderUserToken}`);
+
+      const items = listRes.body.data;
+      // Expected: [0(now 0), 1(now 1), 2(now 2), 3(stay 3)]
+      expect(items.find((u: any) => u.id === reorderUrlIds[0]).sortOrder).toBe(0);
+      expect(items.find((u: any) => u.id === reorderUrlIds[1]).sortOrder).toBe(1);
+      expect(items.find((u: any) => u.id === reorderUrlIds[2]).sortOrder).toBe(2);
+      expect(items.find((u: any) => u.id === reorderUrlIds[3]).sortOrder).toBe(3);
+    });
+
+    it("should handle idempotent reorder when newSortOrder equals current sortOrder", async () => {
+      const targetId = reorderUrlIds[0];
+      const res = await request(app)
+        .patch(`/api/v1/urls/${targetId}/reorder`)
+        .set("Authorization", `Bearer ${reorderUserToken}`)
+        .send({ newSortOrder: 0 });
+
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+      expect(res.body.data.sortOrder).toBe(0);
+    });
+
+    it("should enforce tenant isolation and reject reordering another user's URL with 404", async () => {
+      const otherUserRes = await request(app)
+        .post("/api/v1/auth/signup")
+        .send({
+          name: "Other Reorder User",
+          email: `other_reorder_${Date.now()}@example.com`,
+          password: "password123",
+        });
+      const otherToken = otherUserRes.body.data.token;
+
+      const res = await request(app)
+        .patch(`/api/v1/urls/${reorderUrlIds[0]}/reorder`)
+        .set("Authorization", `Bearer ${otherToken}`)
+        .send({ newSortOrder: 5 });
+
+      expect(res.status).toBe(404);
+      expect(res.body.success).toBe(false);
+      expect(res.body.message).toBe("URL not found or unauthorized");
+    });
+
+    it("should return 404 when reordering non-existent URL UUID", async () => {
+      const nonExistentId = "00000000-0000-4000-8000-000000000000";
+      const res = await request(app)
+        .patch(`/api/v1/urls/${nonExistentId}/reorder`)
+        .set("Authorization", `Bearer ${reorderUserToken}`)
+        .send({ newSortOrder: 1 });
+
+      expect(res.status).toBe(404);
+      expect(res.body.success).toBe(false);
+      expect(res.body.message).toBe("URL not found or unauthorized");
+    });
+
+    it("should return 400 Bad Request when URL ID is not a valid UUID", async () => {
+      const res = await request(app)
+        .patch("/api/v1/urls/invalid-uuid-format/reorder")
+        .set("Authorization", `Bearer ${reorderUserToken}`)
+        .send({ newSortOrder: 1 });
+
+      expect(res.status).toBe(400);
+      expect(res.body.success).toBe(false);
+    });
+
+    it("should return 400 Bad Request when newSortOrder is negative or non-integer", async () => {
+      const targetId = reorderUrlIds[0];
+
+      // Negative
+      const negRes = await request(app)
+        .patch(`/api/v1/urls/${targetId}/reorder`)
+        .set("Authorization", `Bearer ${reorderUserToken}`)
+        .send({ newSortOrder: -5 });
+
+      expect(negRes.status).toBe(400);
+      expect(negRes.body.success).toBe(false);
+
+      // Float / non-integer
+      const floatRes = await request(app)
+        .patch(`/api/v1/urls/${targetId}/reorder`)
+        .set("Authorization", `Bearer ${reorderUserToken}`)
+        .send({ newSortOrder: 2.7 });
+
+      expect(floatRes.status).toBe(400);
+      expect(floatRes.body.success).toBe(false);
+
+      // Empty object
+      const emptyRes = await request(app)
+        .patch(`/api/v1/urls/${targetId}/reorder`)
+        .set("Authorization", `Bearer ${reorderUserToken}`)
+        .send({});
+
+      expect(emptyRes.status).toBe(400);
+      expect(emptyRes.body.success).toBe(false);
+    });
+
+    it("should return 401 Unauthorized when no auth token is provided", async () => {
+      const targetId = reorderUrlIds[0];
+      const res = await request(app)
+        .patch(`/api/v1/urls/${targetId}/reorder`)
+        .send({ newSortOrder: 1 });
+
+      expect(res.status).toBe(401);
+      expect(res.body.success).toBe(false);
+    });
+  });
+
   // 7. Test Deleting the URL
   it("should delete the URL with status 200", async () => {
     const res = await request(app)

@@ -14,7 +14,7 @@ import type {
 
 import { AppError, NotFoundError, ConflictError } from "../../lib/errors/index.js";
 
-import { eq, sql, desc, asc, and, or, ilike, not } from "drizzle-orm";
+import { eq, sql, desc, asc, and, or, ilike, not, gt, gte, lt, lte } from "drizzle-orm";
 
 const MAX_COLLISION_RETRIES = 5;
 
@@ -303,3 +303,65 @@ export async function claimUrl(shortCode: string, userId: string) {
 
   return updatedUrl;
 }
+
+export async function reorderUrl(
+  urlId: string,
+  userId: string,
+  newSortOrder: number
+) {
+  return await db.transaction(async (tx) => {
+    const existingUrl = await tx.query.urls.findFirst({
+      where: and(eq(urls.id, urlId), eq(urls.userId, userId)),
+    });
+
+    if (!existingUrl) {
+      throw new NotFoundError("URL not found or unauthorized");
+    }
+
+    const oldSortOrder = existingUrl.sortOrder;
+    if (oldSortOrder === newSortOrder) {
+      return existingUrl;
+    }
+
+    if (oldSortOrder < newSortOrder) {
+      // Moving down: shift intervening items UP by 1
+      await tx
+        .update(urls)
+        .set({
+          sortOrder: sql`${urls.sortOrder} - 1`,
+        })
+        .where(
+          and(
+            eq(urls.userId, userId),
+            gt(urls.sortOrder, oldSortOrder),
+            lte(urls.sortOrder, newSortOrder)
+          )
+        );
+    } else {
+      // Moving up: shift intervening items DOWN by 1
+      await tx
+        .update(urls)
+        .set({
+          sortOrder: sql`${urls.sortOrder} + 1`,
+        })
+        .where(
+          and(
+            eq(urls.userId, userId),
+            gte(urls.sortOrder, newSortOrder),
+            lt(urls.sortOrder, oldSortOrder)
+          )
+        );
+    }
+
+    const [updatedUrl] = await tx
+      .update(urls)
+      .set({
+        sortOrder: newSortOrder,
+        updatedAt: new Date(),
+      })
+      .where(and(eq(urls.id, urlId), eq(urls.userId, userId)))
+      .returning();
+
+    return updatedUrl;
+  });
+}
