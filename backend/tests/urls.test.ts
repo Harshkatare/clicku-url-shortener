@@ -280,29 +280,198 @@ describe("URLs API Integration Tests", () => {
     expect(res.body.message).toContain("Invalid URL ID format");
   });
 
-  // 5. Test Updating the URL
-  it("should update the original destination URL with status 200", async () => {
-    const res = await request(app)
-      .patch(`/api/v1/urls/${createdUrlId}`)
-      .set("Authorization", `Bearer ${authToken}`)
-      .send({
-        originalUrl: "https://github.com",
-      });
+  // 5. Test Updating the URL (PATCH /api/v1/urls/:id)
+  describe("PATCH /api/v1/urls/:id Comprehensive Tests", () => {
+    let secondUrlId = "";
+    let secondShortCode = "";
+    const testAlias = `custom-patch-${Date.now()}`;
 
-    expect(res.status).toBe(200);
-    expect(res.body.success).toBe(true);
-    expect(res.body.data.originalUrl).toBe("https://github.com");
-  });
+    beforeAll(async () => {
+      // Create a second URL to test collision scenarios against
+      const secondRes = await request(app)
+        .post("/api/v1/urls")
+        .set("Authorization", `Bearer ${authToken}`)
+        .send({
+          originalUrl: "https://second-target.example.com",
+          customAlias: `existing-alias-${Date.now()}`,
+          status: "active",
+        });
 
-  // 6. Test Updating with Empty Body (400 Bad Request)
-  it("should return 400 Bad Request when updating with an empty body", async () => {
-    const res = await request(app)
-      .patch(`/api/v1/urls/${createdUrlId}`)
-      .set("Authorization", `Bearer ${authToken}`)
-      .send({});
+      secondUrlId = secondRes.body.data.id;
+      secondShortCode = secondRes.body.data.shortCode;
+    });
 
-    expect(res.status).toBe(400);
-    expect(res.body.success).toBe(false);
+    it("should update the original destination URL with status 200", async () => {
+      const res = await request(app)
+        .patch(`/api/v1/urls/${createdUrlId}`)
+        .set("Authorization", `Bearer ${authToken}`)
+        .send({
+          originalUrl: "https://github.com",
+        });
+
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+      expect(res.body.data.originalUrl).toBe("https://github.com");
+    });
+
+    it("should update the custom vanity alias with status 200", async () => {
+      const res = await request(app)
+        .patch(`/api/v1/urls/${createdUrlId}`)
+        .set("Authorization", `Bearer ${authToken}`)
+        .send({
+          customAlias: testAlias,
+        });
+
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+      expect(res.body.data.customAlias).toBe(testAlias);
+    });
+
+    it("should allow resubmitting the same custom alias on the same URL idempotently", async () => {
+      const res = await request(app)
+        .patch(`/api/v1/urls/${createdUrlId}`)
+        .set("Authorization", `Bearer ${authToken}`)
+        .send({
+          customAlias: testAlias,
+          originalUrl: "https://github.com/updated",
+        });
+
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+      expect(res.body.data.customAlias).toBe(testAlias);
+      expect(res.body.data.originalUrl).toBe("https://github.com/updated");
+    });
+
+    it("should update the lifecycle status to archived with status 200", async () => {
+      const res = await request(app)
+        .patch(`/api/v1/urls/${createdUrlId}`)
+        .set("Authorization", `Bearer ${authToken}`)
+        .send({
+          status: "archived",
+        });
+
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+      expect(res.body.data.status).toBe("archived");
+    });
+
+    it("should update the lifecycle status back to active with status 200", async () => {
+      const res = await request(app)
+        .patch(`/api/v1/urls/${createdUrlId}`)
+        .set("Authorization", `Bearer ${authToken}`)
+        .send({
+          status: "active",
+        });
+
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+      expect(res.body.data.status).toBe("active");
+    });
+
+    it("should clear custom alias when sending null", async () => {
+      const res = await request(app)
+        .patch(`/api/v1/urls/${createdUrlId}`)
+        .set("Authorization", `Bearer ${authToken}`)
+        .send({
+          customAlias: null,
+        });
+
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+      expect(res.body.data.customAlias).toBeNull();
+    });
+
+    it("should reject same-column duplicate custom alias with 409 Conflict", async () => {
+      // Try to set createdUrlId's alias to secondUrl's existing alias
+      const secondUrlRes = await request(app)
+        .get("/api/v1/urls")
+        .set("Authorization", `Bearer ${authToken}`);
+      
+      const targetAlias = secondUrlRes.body.data.find(
+        (u: any) => u.id === secondUrlId
+      )?.customAlias;
+
+      const res = await request(app)
+        .patch(`/api/v1/urls/${createdUrlId}`)
+        .set("Authorization", `Bearer ${authToken}`)
+        .send({
+          customAlias: targetAlias,
+        });
+
+      expect(res.status).toBe(409);
+      expect(res.body.success).toBe(false);
+      expect(res.body.message).toBe("Custom alias already in use");
+    });
+
+    it("should reject cross-column collision when customAlias matches another URL's shortCode with 409 Conflict", async () => {
+      const res = await request(app)
+        .patch(`/api/v1/urls/${createdUrlId}`)
+        .set("Authorization", `Bearer ${authToken}`)
+        .send({
+          customAlias: secondShortCode,
+        });
+
+      expect(res.status).toBe(409);
+      expect(res.body.success).toBe(false);
+      expect(res.body.message).toBe("Custom alias already in use");
+    });
+
+    it("should reject reserved slug as custom alias with 400 Bad Request", async () => {
+      const res = await request(app)
+        .patch(`/api/v1/urls/${createdUrlId}`)
+        .set("Authorization", `Bearer ${authToken}`)
+        .send({
+          customAlias: "dashboard",
+        });
+
+      expect(res.status).toBe(400);
+      expect(res.body.success).toBe(false);
+    });
+
+    it("should reject invalid status with 400 Bad Request", async () => {
+      const res = await request(app)
+        .patch(`/api/v1/urls/${createdUrlId}`)
+        .set("Authorization", `Bearer ${authToken}`)
+        .send({
+          status: "non_existent_status",
+        });
+
+      expect(res.status).toBe(400);
+      expect(res.body.success).toBe(false);
+    });
+
+    it("should return 400 Bad Request when updating with an empty body", async () => {
+      const res = await request(app)
+        .patch(`/api/v1/urls/${createdUrlId}`)
+        .set("Authorization", `Bearer ${authToken}`)
+        .send({});
+
+      expect(res.status).toBe(400);
+      expect(res.body.success).toBe(false);
+    });
+
+    it("should reject unauthorized update of another user's URL with 404 Not Found", async () => {
+      const otherUserRes = await request(app)
+        .post("/api/v1/auth/signup")
+        .send({
+          name: "Other User For Patch",
+          email: `other_patch_${Date.now()}@example.com`,
+          password: "password123",
+        });
+      
+      const otherToken = otherUserRes.body.data.token;
+
+      const res = await request(app)
+        .patch(`/api/v1/urls/${createdUrlId}`)
+        .set("Authorization", `Bearer ${otherToken}`)
+        .send({
+          originalUrl: "https://malicious-hijack.com",
+        });
+
+      expect(res.status).toBe(404);
+      expect(res.body.success).toBe(false);
+      expect(res.body.message).toBe("URL not found or unauthorized");
+    });
   });
 
   // 7. Test Deleting the URL

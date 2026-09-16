@@ -14,7 +14,7 @@ import type {
 
 import { AppError, NotFoundError, ConflictError } from "../../lib/errors/index.js";
 
-import { eq, sql, desc, asc, and, or, ilike } from "drizzle-orm";
+import { eq, sql, desc, asc, and, or, ilike, not } from "drizzle-orm";
 
 const MAX_COLLISION_RETRIES = 5;
 
@@ -206,29 +206,61 @@ export async function updateUrl(
   userId: string,
   data: updateUrlInput
 ) {
-  const updatedUrls = await db
-    .update(urls)
-    .set({
-      ...data,
-      updatedAt: new Date(),
-    })
-    .where(
-      and(
-        eq(urls.id, urlId),
-        eq(urls.userId, userId)
-      )
-    )
-    .returning();
+  if (data.customAlias) {
+    const conflicting = await db.query.urls.findFirst({
+      where: and(
+        or(
+          eq(urls.shortCode, data.customAlias),
+          eq(urls.customAlias, data.customAlias)
+        ),
+        not(eq(urls.id, urlId))
+      ),
+    });
 
-  const updatedUrl = updatedUrls[0];
-
-  if (!updatedUrl) {
-    throw new NotFoundError(
-      "URL not found or unauthorized"
-    );
+    if (conflicting) {
+      throw new ConflictError("Custom alias already in use");
+    }
   }
 
-  return updatedUrl;
+  try {
+    const updatedUrls = await db
+      .update(urls)
+      .set({
+        ...data,
+        updatedAt: new Date(),
+      })
+      .where(
+        and(
+          eq(urls.id, urlId),
+          eq(urls.userId, userId)
+        )
+      )
+      .returning();
+
+    const updatedUrl = updatedUrls[0];
+
+    if (!updatedUrl) {
+      throw new NotFoundError(
+        "URL not found or unauthorized"
+      );
+    }
+
+    return updatedUrl;
+  } catch (error: any) {
+    if (error instanceof AppError) {
+      throw error;
+    }
+
+    const pgError = error?.cause || error;
+    const code = pgError?.code || error?.code;
+    const isUniqueViolation =
+      code === "23505" || error?.message?.includes("unique constraint");
+
+    if (isUniqueViolation) {
+      throw new ConflictError("Custom alias already in use");
+    }
+    throw error;
+  }
 }
 
 export async function claimUrl(shortCode: string, userId: string) {

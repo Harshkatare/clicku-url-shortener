@@ -102,6 +102,8 @@ export const updateUrlSchema = z
     originalUrl: z
       .url("Invalid URL")
       .optional(),
+    customAlias: customAliasSchema.nullable().optional(),
+    status: z.enum(["active", "expiring", "archived"]).optional(),
   })
   .refine(
     (data) =>
