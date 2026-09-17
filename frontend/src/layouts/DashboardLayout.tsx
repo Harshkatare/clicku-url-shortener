@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import { Navbar } from "../components/Navbar";
+import { AppShell } from "../components/layout/AppShell";
 import { PageContainer } from "../components/PageContainer";
 
 type DashboardLayoutProps = {
@@ -14,8 +14,8 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       <div className="pointer-events-none absolute top-1/3 right-10 h-[450px] w-[450px] rounded-full bg-purple-500/8 blur-3xl dark:bg-purple-500/10" />
       <div className="pointer-events-none absolute -bottom-20 left-1/3 h-[400px] w-[400px] rounded-full bg-pink-500/5 blur-3xl dark:bg-pink-500/8" />
 
-      <Navbar />
-      <div className="relative z-10">
+      <AppShell />
+      <div className="relative z-10 pt-16">
         <PageContainer>{children}</PageContainer>
       </div>
     </div>
