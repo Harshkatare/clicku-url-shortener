@@ -9,6 +9,7 @@ import { Analytics } from "@vercel/analytics/react";
 import axios from "axios";
 
 import { ErrorBoundary } from './components/ErrorBoundary.tsx';
+import { ToastProvider } from './context/ToastContext.tsx';
 import './index.css';
 import App from './App.tsx';
 
@@ -41,8 +42,10 @@ createRoot(document.getElementById('root')!).render(
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
         <BrowserRouter>
-          <App />
-          <Analytics />
+          <ToastProvider>
+            <App />
+            <Analytics />
+          </ToastProvider>
         </BrowserRouter>
       </QueryClientProvider>
     </ErrorBoundary>

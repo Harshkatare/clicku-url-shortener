@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import { DashboardLayout } from "../layouts/DashboardLayout";
 
@@ -21,13 +21,11 @@ import {
 import { env } from "../config/env";
 
 import { copyToClipboard } from "../utils/copy";
-
-import { 
-    Alert,
-    type AlertState,
-  } from "../components/Alert";
+import { useToastContext } from "../context/ToastContext";
 
 export function DashboardPage() {
+  const { showToast } = useToastContext();
+
   const {
     register,
     handleSubmit,
@@ -54,10 +52,7 @@ export function DashboardPage() {
 
       reset();
 
-      setAlert({
-        type: "success",
-        message: "Short URL created successfully.",
-      });
+      showToast("success", "Short URL created successfully.");
     },
   });
 
@@ -72,10 +67,7 @@ export function DashboardPage() {
       queryClient.invalidateQueries({
         queryKey: ["urls"],
       });
-      setAlert({
-        type: "success",
-        message: "Short URL deleted successfully.",
-      });
+      showToast("success", "Short URL deleted successfully.");
     },
   
     onSettled: () => {
@@ -87,31 +79,13 @@ export function DashboardPage() {
 
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
-  const [alert, setAlert] =
-  useState<AlertState | null>(null);
-
-  useEffect(() => {
-  if (!alert) {
-    return;
-  }
-
-  const timer = setTimeout(() => {
-    setAlert(null);
-  }, 3000);
-
-  return () => clearTimeout(timer);
-}, [alert]);
-
   const onSubmit = async (data: CreateUrlFormData) => {
     try {
       await createUrlMutation.mutateAsync(data);
     } catch {
-        setAlert({
-          type: "error",
-          message: "Failed to create short URL.",
-        });
-      }
-    };
+      showToast("error", "Failed to create short URL.");
+    }
+  };
 
   async function handleCopy(shortCode: string, id: string) {
     try {
@@ -120,16 +94,14 @@ export function DashboardPage() {
       await copyToClipboard(shortUrl);
 
       setCopiedId(id);
+      showToast("info", "Link copied to clipboard!");
 
       setTimeout(() => {
         setCopiedId(null);
       }, 2000);
     } catch {
-        setAlert({
-          type: "error",
-          message: "Failed to copy URL.",
-        });
-      }
+      showToast("error", "Failed to copy URL.");
+    }
   }
 
   async function handleDelete(
@@ -138,11 +110,8 @@ export function DashboardPage() {
     try {
       await deleteUrlMutation.mutateAsync(id);
     } catch {
-        setAlert({
-          type: "error",
-          message: "Failed to delete short URL.",
-        });
-      }
+      showToast("error", "Failed to delete short URL.");
+    }
   }
 
   if (isLoading) {
@@ -163,13 +132,6 @@ export function DashboardPage() {
 
   return (
     <DashboardLayout>
-      {alert && (
-        <Alert
-          type={alert.type}
-          message={alert.message}
-        />
-      )}
-
       <div className="mb-6 flex items-center justify-between">
         <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
           Dashboard
