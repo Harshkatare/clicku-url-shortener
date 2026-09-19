@@ -678,6 +678,60 @@ describe("URLs API Integration Tests", () => {
     expect(res.body.message).toBe("URL not found or unauthorized");
   });
 
+  // 9. Test User URL Aggregate Stats (GET /api/v1/urls/stats)
+  describe("User URL Aggregate Stats Tests", () => {
+    it("should return 200 and accurate user url stats for authenticated user", async () => {
+      const res = await request(app)
+        .get("/api/v1/urls/stats")
+        .set("Authorization", `Bearer ${authToken}`);
+
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+      expect(res.body.data).toBeDefined();
+      expect(typeof res.body.data.totalUrls).toBe("number");
+      expect(typeof res.body.data.totalClicks).toBe("number");
+      expect(typeof res.body.data.activeLinks).toBe("number");
+      expect(typeof res.body.data.expiringLinks).toBe("number");
+      expect(typeof res.body.data.archivedLinks).toBe("number");
+      expect(typeof res.body.data.avgClicksPerLink).toBe("number");
+      expect(res.body.data.totalUrls).toBeGreaterThanOrEqual(1);
+    });
+
+    it("should return 401 Unauthorized when no token is provided", async () => {
+      const res = await request(app).get("/api/v1/urls/stats");
+
+      expect(res.status).toBe(401);
+      expect(res.body.success).toBe(false);
+    });
+
+    it("should return zeroes for a fresh user with no URLs", async () => {
+      const freshSignup = await request(app)
+        .post("/api/v1/auth/signup")
+        .send({
+          name: "Zero URLs User",
+          email: `zero_urls_${Date.now()}@example.com`,
+          password: "password123",
+        });
+
+      const freshToken = freshSignup.body.data.token;
+
+      const res = await request(app)
+        .get("/api/v1/urls/stats")
+        .set("Authorization", `Bearer ${freshToken}`);
+
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+      expect(res.body.data).toEqual({
+        totalUrls: 0,
+        totalClicks: 0,
+        activeLinks: 0,
+        expiringLinks: 0,
+        archivedLinks: 0,
+        avgClicksPerLink: 0,
+      });
+    });
+  });
+
   // Clean up database connection
   afterAll(async () => {
     await pool.end();

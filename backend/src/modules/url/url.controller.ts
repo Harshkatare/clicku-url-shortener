@@ -104,6 +104,18 @@ export async function getUserUrls(
   });
 }
 
+export async function getUserUrlStats(
+  req: Request,
+  res: Response
+) {
+  const stats = await urlService.getUserUrlStats(req.user!.id);
+
+  res.status(200).json({
+    success: true,
+    data: stats,
+  });
+}
+
 export async function deleteUrl(
   req: Request,
   res: Response

@@ -28,6 +28,12 @@ router.get(
   asyncHandler(urlController.getUserUrls)
 );
 
+router.get(
+  "/stats",
+  protect,
+  asyncHandler(urlController.getUserUrlStats)
+);
+
 router.post(
   "/",
   protect,

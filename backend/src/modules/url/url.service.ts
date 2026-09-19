@@ -176,6 +176,36 @@ export async function getUserUrls(
   };
 }
 
+export async function getUserUrlStats(userId: string) {
+  const [result] = await db
+    .select({
+      totalUrls: sql<number>`count(*)::int`,
+      totalClicks: sql<number>`coalesce(sum(${urls.clicks}), 0)::int`,
+      activeLinks: sql<number>`count(*) filter (where ${urls.status} = 'active')::int`,
+      expiringLinks: sql<number>`count(*) filter (where ${urls.status} = 'expiring')::int`,
+      archivedLinks: sql<number>`count(*) filter (where ${urls.status} = 'archived')::int`,
+    })
+    .from(urls)
+    .where(eq(urls.userId, userId));
+
+  const totalUrls = result?.totalUrls ?? 0;
+  const totalClicks = result?.totalClicks ?? 0;
+  const activeLinks = result?.activeLinks ?? 0;
+  const expiringLinks = result?.expiringLinks ?? 0;
+  const archivedLinks = result?.archivedLinks ?? 0;
+  const avgClicksPerLink =
+    totalUrls > 0 ? Number((totalClicks / totalUrls).toFixed(1)) : 0;
+
+  return {
+    totalUrls,
+    totalClicks,
+    activeLinks,
+    expiringLinks,
+    archivedLinks,
+    avgClicksPerLink,
+  };
+}
+
 export async function deleteUrl(
   urlId: string,
   userId: string
