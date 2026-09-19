@@ -85,3 +85,17 @@ export type ClaimUrlResponse = {
   message?: string;
   data: Url;
 };
+
+export type UserUrlStats = {
+  totalUrls: number;
+  totalClicks: number;
+  activeLinks: number;
+  expiringLinks: number;
+  archivedLinks: number;
+  avgClicksPerLink: number;
+};
+
+export type GetUrlStatsResponse = {
+  success: boolean;
+  data: UserUrlStats;
+};

@@ -16,12 +16,14 @@ import {
     createUrl, 
     getUrls,
     deleteUrl,
+    getUrlStats,
 } from "../features/urls/urls.api";
 
 import { env } from "../config/env";
 
 import { copyToClipboard } from "../utils/copy";
 import { useToastContext } from "../context/ToastContext";
+import { StatCards } from "../components/dashboard/StatCards";
 
 export function DashboardPage() {
   const { showToast } = useToastContext();
@@ -38,6 +40,11 @@ export function DashboardPage() {
   const { data, isLoading, error } = useQuery({
     queryKey: ["urls"],
     queryFn: () => getUrls(),
+  });
+
+  const { data: statsData, isLoading: isStatsLoading } = useQuery({
+    queryKey: ["urls", "stats"],
+    queryFn: getUrlStats,
   });
 
   const queryClient = useQueryClient();
@@ -114,14 +121,6 @@ export function DashboardPage() {
     }
   }
 
-  if (isLoading) {
-    return (
-      <DashboardLayout>
-        <p className="text-gray-600 dark:text-slate-300">Loading...</p>
-      </DashboardLayout>
-    );
-  }
-
   if (error) {
     return (
       <DashboardLayout>
@@ -137,6 +136,9 @@ export function DashboardPage() {
           Dashboard
         </h2>
       </div>
+
+      {/* Summary Stat Cards */}
+      <StatCards stats={statsData?.data} isLoading={isStatsLoading} />
 
       <form onSubmit={handleSubmit(onSubmit)} className="rounded-2xl border border-slate-200/80 bg-white/80 p-6 shadow-xs backdrop-blur-xl dark:border-slate-800/80 dark:bg-slate-900/80 transition-colors duration-200">
         <h3 className="mb-4 text-xl font-semibold text-slate-900 dark:text-slate-100">Create Short URL</h3>
@@ -170,7 +172,9 @@ export function DashboardPage() {
       <section className="mt-8">
         <h3 className="mb-4 text-xl font-semibold text-slate-900 dark:text-slate-100">My URLs</h3>
 
-        {data?.data.length === 0 ? (
+        {isLoading ? (
+          <p className="text-gray-600 dark:text-slate-300">Loading...</p>
+        ) : data?.data.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-slate-300/80 bg-white/50 backdrop-blur-md dark:border-slate-800 dark:bg-slate-900/40 p-12 text-center transition-colors">
             <div className="mb-4 text-5xl">🔗</div>
 

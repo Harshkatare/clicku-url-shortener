@@ -12,6 +12,7 @@ import type {
   ClaimUrlInput,
   ClaimUrlResponse,
   UrlQueryFilters,
+  GetUrlStatsResponse,
 } from "./urls.types";
 
 export async function createUrl(
@@ -58,5 +59,10 @@ export async function claimUrl(
   data: ClaimUrlInput
 ): Promise<ClaimUrlResponse> {
   const response = await api.post<ClaimUrlResponse>("/urls/claim", data);
+  return response.data;
+}
+
+export async function getUrlStats(): Promise<GetUrlStatsResponse> {
+  const response = await api.get<GetUrlStatsResponse>("/urls/stats");
   return response.data;
 }
