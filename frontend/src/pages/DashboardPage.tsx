@@ -2,18 +2,9 @@ import { useState } from "react";
 
 import { DashboardLayout } from "../layouts/DashboardLayout";
 
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 
-import {
-  createUrlSchema,
-  type CreateUrlFormData,
-} from "../features/urls/urls.schemas";
-
 import { 
-    createUrl, 
     getUrls,
     deleteUrl,
     getUrlStats,
@@ -24,18 +15,10 @@ import { env } from "../config/env";
 import { copyToClipboard } from "../utils/copy";
 import { useToastContext } from "../context/ToastContext";
 import { StatCards } from "../components/dashboard/StatCards";
+import { CreateUrlBar } from "../components/dashboard/CreateUrlBar";
 
 export function DashboardPage() {
   const { showToast } = useToastContext();
-
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors },
-  } = useForm<CreateUrlFormData>({
-    resolver: zodResolver(createUrlSchema),
-  });
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["urls"],
@@ -49,19 +32,6 @@ export function DashboardPage() {
 
   const queryClient = useQueryClient();
 
-  const createUrlMutation = useMutation({
-    mutationFn: createUrl,
-
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ["urls"],
-      });
-
-      reset();
-
-      showToast("success", "Short URL created successfully.");
-    },
-  });
 
   const deleteUrlMutation = useMutation({
     mutationFn: deleteUrl,
@@ -85,14 +55,6 @@ export function DashboardPage() {
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
   const [deletingId, setDeletingId] = useState<string | null>(null);
-
-  const onSubmit = async (data: CreateUrlFormData) => {
-    try {
-      await createUrlMutation.mutateAsync(data);
-    } catch {
-      showToast("error", "Failed to create short URL.");
-    }
-  };
 
   async function handleCopy(shortCode: string, id: string) {
     try {
@@ -140,34 +102,8 @@ export function DashboardPage() {
       {/* Summary Stat Cards */}
       <StatCards stats={statsData?.data} isLoading={isStatsLoading} />
 
-      <form onSubmit={handleSubmit(onSubmit)} className="rounded-2xl border border-slate-200/80 bg-white/80 p-6 shadow-xs backdrop-blur-xl dark:border-slate-800/80 dark:bg-slate-900/80 transition-colors duration-200">
-        <h3 className="mb-4 text-xl font-semibold text-slate-900 dark:text-slate-100">Create Short URL</h3>
-
-        <div className="flex flex-col gap-4 md:flex-row">
-          <div className="flex-1">
-            <input
-              type="url"
-              placeholder="https://example.com"
-              {...register("originalUrl")}
-              className="w-full h-12 rounded-xl border border-slate-300 bg-white px-4 text-slate-900 placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:ring-blue-900/50 transition-colors duration-200"
-            />
-
-            {errors.originalUrl && (
-              <p className="mt-2 text-sm text-red-500">
-                {errors.originalUrl.message}
-              </p>
-            )}
-          </div>
-
-          <button
-            type="submit"
-            disabled={createUrlMutation.isPending}
-            className="h-12 rounded-xl bg-blue-600 px-6 font-medium text-white shadow-sm transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
-          >
-            {createUrlMutation.isPending ? "Creating..." : "Create"}
-          </button>
-        </div>
-      </form>
+      {/* Modern URL Creation Bar with Expandable Vanity Slug Drawer */}
+      <CreateUrlBar />
 
       <section className="mt-8">
         <h3 className="mb-4 text-xl font-semibold text-slate-900 dark:text-slate-100">My URLs</h3>
