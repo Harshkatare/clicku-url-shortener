@@ -122,32 +122,44 @@ export function DashboardPage() {
           </div>
         ) : (
           <ul className="space-y-4">
-            {data?.data.map((url) => (
-              <li key={url.id} className="card-hover rounded-2xl border border-slate-200/80 bg-white/85 p-5 shadow-xs backdrop-blur-xl dark:border-slate-800/80 dark:bg-slate-900/85 transition-colors duration-200">
-                <div className="flex items-center justify-between gap-4">
-                  <a
-                    href={`${env.SHORT_URL_BASE}/${url.shortCode}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="group inline-flex items-center gap-1.5 break-all text-lg font-semibold text-blue-600 transition hover:text-blue-700 hover:underline dark:text-blue-400 dark:hover:text-blue-300"
-                    title="Open short link in new tab"
-                  >
-                    <span>
-                      {env.SHORT_URL_BASE.replace(/^https?:\/\//, "")}/<span className="font-bold text-slate-900 dark:text-slate-100">{url.shortCode}</span>
-                    </span>
-                    <svg className="h-4 w-4 shrink-0 opacity-60 transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:opacity-100" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                    </svg>
-                  </a>
+            {data?.data.map((url) => {
+              const displaySlug = url.customAlias || url.shortCode;
+              const shortUrl = `${env.SHORT_URL_BASE}/${displaySlug}`;
 
-                  <button
-                    type="button"
-                    onClick={() => handleCopy(url.shortCode, url.id)}
-                    className="shrink-0 rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-1.5 text-xs font-semibold text-slate-700 shadow-xs transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700 cursor-pointer"
-                  >
-                    {copiedId === url.id ? "Copied!" : "Copy"}
-                  </button>
-                </div>
+              return (
+                <li key={url.id} className="card-hover rounded-2xl border border-slate-200/80 bg-white/85 p-5 shadow-xs backdrop-blur-xl dark:border-slate-800/80 dark:bg-slate-900/85 transition-colors duration-200">
+                  <div className="flex items-center justify-between gap-4">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <a
+                        href={shortUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="group inline-flex items-center gap-1.5 break-all text-lg font-semibold text-blue-600 transition hover:text-blue-700 hover:underline dark:text-blue-400 dark:hover:text-blue-300"
+                        title="Open short link in new tab"
+                      >
+                        <span>
+                          {env.SHORT_URL_BASE.replace(/^https?:\/\//, "")}/<span className="font-bold text-slate-900 dark:text-slate-100">{displaySlug}</span>
+                        </span>
+                        <svg className="h-4 w-4 shrink-0 opacity-60 transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:opacity-100" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        </svg>
+                      </a>
+
+                      {url.customAlias && (
+                        <span className="inline-flex items-center rounded-md bg-blue-50 px-2 py-0.5 text-[11px] font-semibold text-blue-600 ring-1 ring-inset ring-blue-700/10 select-none dark:bg-blue-950/50 dark:text-blue-300 dark:ring-blue-400/20">
+                          vanity alias
+                        </span>
+                      )}
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => handleCopy(displaySlug, url.id)}
+                      className="shrink-0 rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-1.5 text-xs font-semibold text-slate-700 shadow-xs transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700 cursor-pointer"
+                    >
+                      {copiedId === url.id ? "Copied!" : "Copy"}
+                    </button>
+                  </div>
 
                 <p className="mt-3 break-all text-sm text-slate-500 dark:text-slate-400">
                   {url.originalUrl}
@@ -188,7 +200,8 @@ export function DashboardPage() {
                   </button>
                 </div>
               </li>
-            ))}
+              );
+            })}
           </ul>
         )}
       </section>
