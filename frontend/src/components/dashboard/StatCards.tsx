@@ -74,6 +74,15 @@ const DEFAULT_EMPTY_STATS: UserUrlStats = {
 };
 
 export function StatCards({ stats, isLoading }: StatCardsProps) {
+  const activeStats = stats ?? DEFAULT_EMPTY_STATS;
+
+  const animatedUrls = useAnimateCounter(isLoading ? 0 : activeStats.totalUrls);
+  const animatedClicks = useAnimateCounter(isLoading ? 0 : activeStats.totalClicks);
+  const animatedActive = useAnimateCounter(isLoading ? 0 : activeStats.activeLinks);
+  const animatedCtrTenths = useAnimateCounter(
+    isLoading ? 0 : Math.round((activeStats.avgClicksPerLink || 0) * 10)
+  );
+
   if (isLoading) {
     return (
       <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -84,15 +93,6 @@ export function StatCards({ stats, isLoading }: StatCardsProps) {
       </div>
     );
   }
-
-  const activeStats = stats ?? DEFAULT_EMPTY_STATS;
-
-  const animatedUrls = useAnimateCounter(activeStats.totalUrls);
-  const animatedClicks = useAnimateCounter(activeStats.totalClicks);
-  const animatedActive = useAnimateCounter(activeStats.activeLinks);
-  const animatedCtrTenths = useAnimateCounter(
-    Math.round((activeStats.avgClicksPerLink || 0) * 10)
-  );
 
   const expiringCount = activeStats.expiringLinks;
   const archivedCount = activeStats.archivedLinks;

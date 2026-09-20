@@ -50,7 +50,8 @@ export function CreateUrlBar() {
     onError: (err: unknown) => {
       if (err instanceof AxiosError) {
         const status = err.response?.status;
-        const message = err.response?.data?.message;
+        const message =
+          err.response?.data?.message || err.response?.data?.error;
 
         if (status === 409) {
           setError("customAlias", {
@@ -58,17 +59,23 @@ export function CreateUrlBar() {
             message: message || "This custom alias is already taken.",
           });
           setIsAliasOpen(true);
-          showToast("error", "Custom alias already taken.");
+          showToast("error", message || "Custom alias already taken.");
           return;
         }
 
-        if (status === 422) {
+        const isReservedOrAliasError =
+          status === 422 ||
+          (status === 400 &&
+            typeof message === "string" &&
+            /alias|reserved|slug/i.test(message));
+
+        if (isReservedOrAliasError) {
           setError("customAlias", {
             type: "manual",
             message: message || "This alias is reserved by the platform.",
           });
           setIsAliasOpen(true);
-          showToast("error", "Reserved alias cannot be used.");
+          showToast("error", message || "Reserved alias cannot be used.");
           return;
         }
 

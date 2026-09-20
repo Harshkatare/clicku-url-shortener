@@ -52,7 +52,9 @@ export function DashboardPage() {
   const [prevUrlSearch, setPrevUrlSearch] = useState(urlSearch);
   if (prevUrlSearch !== urlSearch) {
     setPrevUrlSearch(urlSearch);
-    setSearchInput(urlSearch);
+    if (urlSearch !== debouncedSearch.trim()) {
+      setSearchInput(urlSearch);
+    }
   }
 
   // Synchronize debounced search to URL search params with history replacement
