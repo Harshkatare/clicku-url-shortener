@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useSearchParams } from "react-router-dom";
 
 import { DashboardLayout } from "../layouts/DashboardLayout";
@@ -17,19 +17,18 @@ import {
 } from "../features/urls/urls.api";
 
 import type { Url, UrlStatus } from "../features/urls/urls.types";
-import { env } from "../config/env";
 
-import { copyToClipboard } from "../utils/copy";
 import { useToastContext } from "../context/ToastContext";
 import { StatCards } from "../components/dashboard/StatCards";
 import { CreateUrlBar } from "../components/dashboard/CreateUrlBar";
 import { UrlToolbar } from "../components/dashboard/UrlToolbar";
 import { PaginationControls } from "../components/dashboard/PaginationControls";
 import { EditUrlModal } from "../components/dashboard/EditUrlModal";
+import { UrlCard } from "../components/dashboard/UrlCard";
 import { useDebounce } from "../hooks/useDebounce";
 
 export function DashboardPage() {
-  const { showToast } = useToastContext();
+  const { showToast, removeToast } = useToastContext();
   const queryClient = useQueryClient();
   const [searchParams, setSearchParams] = useSearchParams();
 
@@ -111,25 +110,106 @@ export function DashboardPage() {
     queryFn: getUrlStats,
   });
 
-  const [copiedId, setCopiedId] = useState<string | null>(null);
-  const [deletingId, setDeletingId] = useState<string | null>(null);
   const [editingUrl, setEditingUrl] = useState<Url | null>(null);
+
+  // Latency-Safe 5-Second Deletion Manager
+  const [pendingDeletionIds, setPendingDeletionIds] = useState<Set<string>>(new Set());
+  const pendingDeletionsRef = useRef<
+    Map<string, { timeoutId: ReturnType<typeof setTimeout>; toastId: number }>
+  >(new Map());
+  const isMountedRef = useRef(true);
+  const removeToastRef = useRef(removeToast);
+
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    removeToastRef.current = removeToast;
+  }, [removeToast]);
 
   const deleteUrlMutation = useMutation({
     mutationFn: deleteUrl,
-    onMutate: (id) => {
-      setDeletingId(id);
-    },
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ["urls"],
       });
-      showToast("success", "Short URL deleted successfully.");
-    },
-    onSettled: () => {
-      setDeletingId(null);
+      queryClient.invalidateQueries({
+        queryKey: ["urls", "stats"],
+      });
     },
   });
+
+  const handleDeleteRequest = useCallback(
+    (url: Url) => {
+      const displaySlug = url.customAlias || url.shortCode;
+
+      // Clear any prior pending deletion for this ID if re-triggered
+      const existing = pendingDeletionsRef.current.get(url.id);
+      if (existing) {
+        clearTimeout(existing.timeoutId);
+        removeToast(existing.toastId);
+      }
+
+      // 1. Optimistically hide card from UI
+      setPendingDeletionIds((prev) => new Set(prev).add(url.id));
+
+      // 2. Define Undo callback
+      const onUndo = () => {
+        const entry = pendingDeletionsRef.current.get(url.id);
+        if (!entry) return;
+        clearTimeout(entry.timeoutId);
+        pendingDeletionsRef.current.delete(url.id);
+        setPendingDeletionIds((prev) => {
+          const next = new Set(prev);
+          next.delete(url.id);
+          return next;
+        });
+        showToast("success", `Restored "${displaySlug}".`);
+      };
+
+      // 3. Schedule commit deletion after 5000ms
+      const timeoutId = setTimeout(async () => {
+        pendingDeletionsRef.current.delete(url.id);
+        try {
+          await deleteUrlMutation.mutateAsync(url.id);
+        } catch {
+          if (isMountedRef.current) {
+            showToast("error", `Failed to delete "${displaySlug}".`);
+          }
+        } finally {
+          if (isMountedRef.current) {
+            setPendingDeletionIds((prev) => {
+              const next = new Set(prev);
+              next.delete(url.id);
+              return next;
+            });
+          }
+        }
+      }, 5000);
+
+      // 4. Dispatch 5-second undo toast & register entry in ref map
+      const toastId = showToast("info", `Deleted "${displaySlug}".`, onUndo, 5000);
+      pendingDeletionsRef.current.set(url.id, { timeoutId, toastId });
+    },
+    [deleteUrlMutation, showToast, removeToast]
+  );
+
+  // Unmount Flush Effect: cancel timeouts, dismiss floating toasts, and flush deletions immediately
+  useEffect(() => {
+    const pendingDeletions = pendingDeletionsRef.current;
+    return () => {
+      pendingDeletions.forEach(({ timeoutId, toastId }, id) => {
+        clearTimeout(timeoutId);
+        removeToastRef.current(toastId);
+        deleteUrl(id).catch(console.error);
+      });
+      pendingDeletions.clear();
+    };
+  }, []);
 
   const handleStatusChange = (newStatus: UrlStatus | "all") => {
     setSearchParams((prev) => {
@@ -144,17 +224,34 @@ export function DashboardPage() {
     });
   };
 
-  const handlePageChange = (newPage: number) => {
-    setSearchParams((prev) => {
-      const next = new URLSearchParams(prev);
-      if (newPage > 1) {
-        next.set("page", String(newPage));
-      } else {
-        next.delete("page");
+  const handlePageChange = useCallback(
+    (newPage: number) => {
+      setSearchParams((prev) => {
+        const next = new URLSearchParams(prev);
+        if (newPage > 1) {
+          next.set("page", String(newPage));
+        } else {
+          next.delete("page");
+        }
+        return next;
+      });
+    },
+    [setSearchParams]
+  );
+
+  // Multi-Condition Pagination Fallback Effect
+  useEffect(() => {
+    if (!isPlaceholderData && data?.pagination && currentPage > 1) {
+      if (data.pagination.total === 0) {
+        handlePageChange(1);
+      } else if (
+        data.pagination.totalPages > 0 &&
+        currentPage > data.pagination.totalPages
+      ) {
+        handlePageChange(data.pagination.totalPages);
       }
-      return next;
-    });
-  };
+    }
+  }, [isPlaceholderData, data?.pagination, currentPage, handlePageChange]);
 
   const handleClearFilters = () => {
     setSearchInput("");
@@ -167,30 +264,16 @@ export function DashboardPage() {
     });
   };
 
-  async function handleCopy(shortCode: string, id: string) {
-    try {
-      const shortUrl = `${env.SHORT_URL_BASE}/${shortCode}`;
-      await copyToClipboard(shortUrl);
-      setCopiedId(id);
-      showToast("info", "Link copied to clipboard!");
-
-      setTimeout(() => {
-        setCopiedId(null);
-      }, 2000);
-    } catch {
-      showToast("error", "Failed to copy URL.");
-    }
-  }
-
-  async function handleDelete(id: string) {
-    try {
-      await deleteUrlMutation.mutateAsync(id);
-    } catch {
-      showToast("error", "Failed to delete short URL.");
-    }
-  }
-
   const hasActiveFilters = Boolean(debouncedSearch.trim() || currentStatus !== "all");
+
+  // Visible URLs filtered against pending deletion buffer
+  const visibleUrls = data?.data.filter((u) => !pendingDeletionIds.has(u.id)) ?? [];
+
+  // Inhibit empty state flash if an item is currently in the 5-second pending deletion window
+  const showEmptyState =
+    !isLoading &&
+    visibleUrls.length === 0 &&
+    pendingDeletionIds.size === 0;
 
   if (error) {
     return (
@@ -244,7 +327,7 @@ export function DashboardPage() {
               />
             ))}
           </div>
-        ) : data?.data.length === 0 ? (
+        ) : showEmptyState ? (
           hasActiveFilters ? (
             /* Context-Aware Filter Empty State */
             <div className="rounded-2xl border border-dashed border-slate-300/80 bg-white/50 backdrop-blur-md dark:border-slate-800 dark:bg-slate-900/40 p-10 text-center transition-colors">
@@ -285,150 +368,20 @@ export function DashboardPage() {
             }`}
           >
             <ul className="space-y-4">
-              {data?.data.map((url) => {
-                const displaySlug = url.customAlias || url.shortCode;
-                const shortUrl = `${env.SHORT_URL_BASE}/${displaySlug}`;
-
-                return (
-                  <li
-                    key={url.id}
-                    className="card-hover rounded-2xl border border-slate-200/80 bg-white/85 p-5 shadow-xs backdrop-blur-xl dark:border-slate-800/80 dark:bg-slate-900/85 transition-colors duration-200"
-                  >
-                    <div className="flex items-center justify-between gap-4">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <a
-                          href={shortUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="group inline-flex items-center gap-1.5 break-all text-lg font-semibold text-blue-600 transition hover:text-blue-700 hover:underline dark:text-blue-400 dark:hover:text-blue-300"
-                          title="Open short link in new tab"
-                        >
-                          <span>
-                            {env.SHORT_URL_BASE.replace(/^https?:\/\//, "")}/
-                            <span className="font-bold text-slate-900 dark:text-slate-100">
-                              {displaySlug}
-                            </span>
-                          </span>
-                          <svg
-                            className="h-4 w-4 shrink-0 opacity-60 transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:opacity-100"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                            strokeWidth={2}
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-                            />
-                          </svg>
-                        </a>
-
-                        {url.customAlias && (
-                          <span
-                            className="inline-flex items-center rounded-md bg-blue-50 px-2 py-0.5 text-[11px] font-semibold text-blue-600 ring-1 ring-inset ring-blue-700/10 select-none dark:bg-blue-950/50 dark:text-blue-300 dark:ring-blue-400/20"
-                            title={`Fallback system code: ${url.shortCode}`}
-                          >
-                            vanity alias
-                          </span>
-                        )}
-                      </div>
-
-                      <div className="flex items-center gap-2">
-                        <button
-                          type="button"
-                          onClick={() => setEditingUrl(url)}
-                          title="Edit short link"
-                          className="inline-flex shrink-0 items-center gap-1 rounded-xl border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-xs transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700 cursor-pointer"
-                        >
-                          <svg
-                            className="h-3.5 w-3.5"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                            strokeWidth={2}
-                          >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
-                            />
-                          </svg>
-                          <span>Edit</span>
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={() => handleCopy(displaySlug, url.id)}
-                          className="shrink-0 rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-1.5 text-xs font-semibold text-slate-700 shadow-xs transition hover:bg-slate-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700 cursor-pointer"
-                        >
-                          {copiedId === url.id ? "Copied!" : "Copy"}
-                        </button>
-                      </div>
-                    </div>
-
-                    <p className="mt-3 break-all text-sm text-slate-500 dark:text-slate-400">
-                      {url.originalUrl}
-                    </p>
-
-                    <div className="mt-3 flex items-center justify-between gap-2 border-t border-slate-100 pt-3 dark:border-slate-800/60">
-                      <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-xs sm:text-sm text-slate-500 dark:text-slate-400">
-                        <p>
-                          Clicks:{" "}
-                          <span className="font-semibold text-slate-700 dark:text-slate-300">
-                            {url.clicks}
-                          </span>
-                        </p>
-                        {Boolean(url.createdAt) && (
-                          <>
-                            <span className="text-slate-300 dark:text-slate-700">·</span>
-                            <span
-                              className="inline-flex items-center gap-1 text-xs text-slate-400 dark:text-slate-500"
-                              title={`Created: ${new Date(url.createdAt).toLocaleString()}`}
-                            >
-                              <svg
-                                className="h-3.5 w-3.5"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                                strokeWidth={2}
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                                />
-                              </svg>
-                              <span>
-                                {new Date(url.createdAt).toLocaleDateString("en-US", {
-                                  month: "short",
-                                  day: "numeric",
-                                  year: "numeric",
-                                })}{" "}
-                                at{" "}
-                                {new Date(url.createdAt).toLocaleTimeString("en-US", {
-                                  hour: "numeric",
-                                  minute: "2-digit",
-                                  hour12: true,
-                                })}
-                              </span>
-                            </span>
-                          </>
-                        )}
-                      </div>
-
-                      <button
-                        type="button"
-                        onClick={() => handleDelete(url.id)}
-                        disabled={deletingId === url.id}
-                        className="shrink-0 rounded-xl border border-red-200 bg-red-50 px-3.5 py-1.5 text-xs font-semibold text-red-600 shadow-xs transition hover:bg-red-100 dark:border-red-900/40 dark:bg-red-950/40 dark:text-red-300 dark:hover:bg-red-900/60 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
-                      >
-                        {deletingId === url.id ? "Deleting..." : "Delete"}
-                      </button>
-                    </div>
-                  </li>
-                );
-              })}
+              {visibleUrls.map((url) => (
+                <UrlCard
+                  key={url.id}
+                  url={url}
+                  onEdit={setEditingUrl}
+                  onDelete={handleDeleteRequest}
+                  onQrClick={(u) =>
+                    showToast(
+                      "info",
+                      `QR Studio for "${u.customAlias || u.shortCode}" coming in v0.7.0`
+                    )
+                  }
+                />
+              ))}
             </ul>
 
             {/* Pagination Controls */}
