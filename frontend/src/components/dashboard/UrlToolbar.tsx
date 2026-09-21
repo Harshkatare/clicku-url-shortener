@@ -6,8 +6,23 @@ interface UrlToolbarProps {
   onSearchChange: (value: string) => void;
   status: UrlStatus | "all";
   onStatusChange: (status: UrlStatus | "all") => void;
+  sortBy: "createdAt" | "clicks";
+  sortDir: "asc" | "desc";
+  onSortChange: (sortBy: "createdAt" | "clicks", sortDir: "asc" | "desc") => void;
   isFetching?: boolean;
 }
+
+const SORT_OPTIONS: Array<{
+  value: string;
+  sortBy: "createdAt" | "clicks";
+  sortDir: "asc" | "desc";
+  label: string;
+}> = [
+  { value: "createdAt:desc", sortBy: "createdAt", sortDir: "desc", label: "Newest First" },
+  { value: "createdAt:asc", sortBy: "createdAt", sortDir: "asc", label: "Oldest First" },
+  { value: "clicks:desc", sortBy: "clicks", sortDir: "desc", label: "Most Clicks" },
+  { value: "clicks:asc", sortBy: "clicks", sortDir: "asc", label: "Least Clicks" },
+];
 
 const STATUS_FILTERS: Array<{
   key: UrlStatus | "all";
@@ -25,6 +40,9 @@ export function UrlToolbar({
   onSearchChange,
   status,
   onStatusChange,
+  sortBy,
+  sortDir,
+  onSortChange,
   isFetching = false,
 }: UrlToolbarProps) {
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
@@ -89,41 +107,80 @@ export function UrlToolbar({
         )}
       </div>
 
-      {/* Status Filter Chips */}
-      <div
-        className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0"
-        role="tablist"
-        aria-label="Filter links by status"
-      >
-        {STATUS_FILTERS.map((item) => {
-          const isSelected = status === item.key;
+      {/* Controls Container: Status Filter Chips & Sort Dropdown */}
+      <div className="flex flex-wrap items-center justify-between gap-2.5 sm:justify-end">
+        <div
+          className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0"
+          role="tablist"
+          aria-label="Filter links by status"
+        >
+          {STATUS_FILTERS.map((item) => {
+            const isSelected = status === item.key;
 
-          return (
-            <button
-              key={item.key}
-              type="button"
-              role="tab"
-              aria-selected={isSelected}
-              aria-pressed={isSelected}
-              onClick={() => onStatusChange(item.key)}
-              className={`inline-flex shrink-0 items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-semibold transition-all cursor-pointer select-none ${
-                isSelected
-                  ? "bg-blue-600 text-white shadow-xs shadow-blue-600/20 dark:bg-blue-500 dark:text-white"
-                  : "border border-slate-200/80 bg-white/80 text-slate-600 shadow-2xs backdrop-blur-md hover:border-slate-300 hover:bg-slate-50/80 dark:border-slate-800/80 dark:bg-slate-900/80 dark:text-slate-400 dark:hover:border-slate-700 dark:hover:bg-slate-800/60"
-              }`}
+            return (
+              <button
+                key={item.key}
+                type="button"
+                role="tab"
+                aria-selected={isSelected}
+                aria-pressed={isSelected}
+                onClick={() => onStatusChange(item.key)}
+                className={`inline-flex shrink-0 items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-semibold transition-all cursor-pointer select-none ${
+                  isSelected
+                    ? "bg-blue-600 text-white shadow-xs shadow-blue-600/20 dark:bg-blue-500 dark:text-white"
+                    : "border border-slate-200/80 bg-white/80 text-slate-600 shadow-2xs backdrop-blur-md hover:border-slate-300 hover:bg-slate-50/80 dark:border-slate-800/80 dark:bg-slate-900/80 dark:text-slate-400 dark:hover:border-slate-700 dark:hover:bg-slate-800/60"
+                }`}
+              >
+                {item.dotColor && (
+                  <span
+                    className={`h-1.5 w-1.5 rounded-full ${
+                      isSelected ? "bg-white" : item.dotColor
+                    }`}
+                    aria-hidden="true"
+                  />
+                )}
+                <span>{item.label}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Dynamic Sort Selector Dropdown */}
+        <div className="relative inline-flex shrink-0 items-center">
+          <select
+            value={`${sortBy}:${sortDir}`}
+            onChange={(e) => {
+              const selected = SORT_OPTIONS.find((opt) => opt.value === e.target.value);
+              if (selected) {
+                onSortChange(selected.sortBy, selected.sortDir);
+              }
+            }}
+            aria-label="Sort links by"
+            className="cursor-pointer appearance-none rounded-xl border border-slate-200/80 bg-white/80 py-1.5 pl-3 pr-8 text-xs font-semibold text-slate-700 shadow-2xs backdrop-blur-md transition-all hover:border-slate-300 focus:border-blue-500 focus:outline-hidden focus:ring-3 focus:ring-blue-500/15 dark:border-slate-800/80 dark:bg-slate-900/80 dark:text-slate-200 dark:hover:border-slate-700 dark:focus:border-blue-400"
+          >
+            {SORT_OPTIONS.map((opt) => (
+              <option
+                key={opt.value}
+                value={opt.value}
+                className="bg-white text-slate-900 dark:bg-slate-900 dark:text-white"
+              >
+                {opt.label}
+              </option>
+            ))}
+          </select>
+          <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2.5 text-slate-400 dark:text-slate-500">
+            <svg
+              className="h-3.5 w-3.5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+              aria-hidden="true"
             >
-              {item.dotColor && (
-                <span
-                  className={`h-1.5 w-1.5 rounded-full ${
-                    isSelected ? "bg-white" : item.dotColor
-                  }`}
-                  aria-hidden="true"
-                />
-              )}
-              <span>{item.label}</span>
-            </button>
-          );
-        })}
+              <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
+        </div>
       </div>
     </div>
   );

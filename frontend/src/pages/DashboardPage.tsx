@@ -41,6 +41,12 @@ export function DashboardPage() {
       ? rawStatus
       : "all";
   const urlSearch = searchParams.get("search") || "";
+  const rawSortBy = searchParams.get("sortBy");
+  const sortBy: "createdAt" | "clicks" =
+    rawSortBy === "clicks" ? "clicks" : "createdAt";
+  const rawSortDir = searchParams.get("sortDir");
+  const sortDir: "asc" | "desc" =
+    rawSortDir === "asc" ? "asc" : "desc";
 
   // Local input for immediate keystroke feedback
   const [searchInput, setSearchInput] = useState(urlSearch);
@@ -92,6 +98,8 @@ export function DashboardPage() {
         status: currentStatus === "all" ? undefined : currentStatus,
         page: currentPage,
         limit: 10,
+        sortBy,
+        sortDir,
       },
     ],
     queryFn: () =>
@@ -100,6 +108,8 @@ export function DashboardPage() {
         status: currentStatus === "all" ? undefined : currentStatus,
         page: currentPage,
         limit: 10,
+        sortBy,
+        sortDir,
       }),
     placeholderData: keepPreviousData,
   });
@@ -239,6 +249,24 @@ export function DashboardPage() {
     [setSearchParams]
   );
 
+  const handleSortChange = useCallback(
+    (newSortBy: "createdAt" | "clicks", newSortDir: "asc" | "desc") => {
+      setSearchParams((prev) => {
+        const next = new URLSearchParams(prev);
+        if (newSortBy === "createdAt" && newSortDir === "desc") {
+          next.delete("sortBy");
+          next.delete("sortDir");
+        } else {
+          next.set("sortBy", newSortBy);
+          next.set("sortDir", newSortDir);
+        }
+        next.delete("page"); // Reset-to-page-1 invariant
+        return next;
+      });
+    },
+    [setSearchParams]
+  );
+
   // Multi-Condition Pagination Fallback Effect
   useEffect(() => {
     if (!isPlaceholderData && data?.pagination && currentPage > 1) {
@@ -260,6 +288,8 @@ export function DashboardPage() {
       next.delete("search");
       next.delete("status");
       next.delete("page");
+      next.delete("sortBy");
+      next.delete("sortDir");
       return next;
     });
   };
@@ -315,6 +345,9 @@ export function DashboardPage() {
           onSearchChange={setSearchInput}
           status={currentStatus}
           onStatusChange={handleStatusChange}
+          sortBy={sortBy}
+          sortDir={sortDir}
+          onSortChange={handleSortChange}
           isFetching={isFetching}
         />
 
