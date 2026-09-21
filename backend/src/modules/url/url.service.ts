@@ -112,7 +112,11 @@ export async function getUserUrls(
   const conditions = [eq(urls.userId, userId)];
 
   if (query.status && query.status !== "all") {
-    conditions.push(eq(urls.status, query.status));
+    if (query.status === "pinned") {
+      conditions.push(eq(urls.isPinned, true));
+    } else {
+      conditions.push(eq(urls.status, query.status));
+    }
   }
 
   if (query.search) {
@@ -153,7 +157,7 @@ export async function getUserUrls(
       .select()
       .from(urls)
       .where(and(...conditions))
-      .orderBy(orderExpression)
+      .orderBy(desc(urls.isPinned), orderExpression)
       .limit(query.limit)
       .offset(offset),
     db

@@ -104,6 +104,7 @@ export const updateUrlSchema = z
       .optional(),
     customAlias: customAliasSchema.nullable().optional(),
     status: z.enum(["active", "expiring", "archived"]).optional(),
+    isPinned: z.boolean().optional(),
   })
   .refine(
     (data) =>
@@ -142,7 +143,7 @@ export const urlQuerySchema = z.object({
     .max(100, "Search query cannot exceed 100 characters")
     .optional()
     .transform((val) => (val === "" ? undefined : val)),
-  status: z.enum(["active", "expiring", "archived", "all"]).default("all"),
+  status: z.enum(["active", "expiring", "archived", "pinned", "all"]).default("all"),
   page: z.coerce
     .number({ message: "Page must be a valid number" })
     .int("Page must be an integer")

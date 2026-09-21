@@ -732,6 +732,92 @@ describe("URLs API Integration Tests", () => {
     });
   });
 
+  describe("PATCH /api/v1/urls/:id (Pinned URLs) & Sticky Hoisting", () => {
+    let pinUserToken: string;
+    let urlAId: string;
+    let urlBId: string;
+
+    beforeAll(async () => {
+      const signupRes = await request(app)
+        .post("/api/v1/auth/signup")
+        .send({
+          name: "Pin Test User",
+          email: `pin_user_${Date.now()}@example.com`,
+          password: "password123",
+        });
+      pinUserToken = signupRes.body.data.token;
+
+      // Create URL A (older)
+      const resA = await request(app)
+        .post("/api/v1/urls")
+        .set("Authorization", `Bearer ${pinUserToken}`)
+        .send({ originalUrl: "https://example.com/url-a" });
+      urlAId = resA.body.data.id;
+
+      // Create URL B (newer)
+      const resB = await request(app)
+        .post("/api/v1/urls")
+        .set("Authorization", `Bearer ${pinUserToken}`)
+        .send({ originalUrl: "https://example.com/url-b" });
+      urlBId = resB.body.data.id;
+    });
+
+    it("should successfully pin a URL via PATCH with isPinned: true", async () => {
+      const res = await request(app)
+        .patch(`/api/v1/urls/${urlAId}`)
+        .set("Authorization", `Bearer ${pinUserToken}`)
+        .send({ isPinned: true });
+
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+      expect(res.body.data.isPinned).toBe(true);
+    });
+
+    it("should sticky-hoist pinned URLs to the top of the list", async () => {
+      // By default (createdAt desc), URL B would be first because it was created after URL A.
+      // But because URL A is pinned, it MUST be hoisted to index 0!
+      const res = await request(app)
+        .get("/api/v1/urls")
+        .set("Authorization", `Bearer ${pinUserToken}`);
+
+      expect(res.status).toBe(200);
+      expect(res.body.data.length).toBe(2);
+      expect(res.body.data[0].id).toBe(urlAId);
+      expect(res.body.data[0].isPinned).toBe(true);
+      expect(res.body.data[1].id).toBe(urlBId);
+      expect(res.body.data[1].isPinned).toBe(false);
+    });
+
+    it("should filter by status=pinned and return only pinned URLs", async () => {
+      const res = await request(app)
+        .get("/api/v1/urls?status=pinned")
+        .set("Authorization", `Bearer ${pinUserToken}`);
+
+      expect(res.status).toBe(200);
+      expect(res.body.data.length).toBe(1);
+      expect(res.body.data[0].id).toBe(urlAId);
+      expect(res.body.pagination.total).toBe(1);
+    });
+
+    it("should successfully unpin a URL with isPinned: false", async () => {
+      const res = await request(app)
+        .patch(`/api/v1/urls/${urlAId}`)
+        .set("Authorization", `Bearer ${pinUserToken}`)
+        .send({ isPinned: false });
+
+      expect(res.status).toBe(200);
+      expect(res.body.data.isPinned).toBe(false);
+
+      const filterRes = await request(app)
+        .get("/api/v1/urls?status=pinned")
+        .set("Authorization", `Bearer ${pinUserToken}`);
+
+      expect(filterRes.status).toBe(200);
+      expect(filterRes.body.data.length).toBe(0);
+      expect(filterRes.body.pagination.total).toBe(0);
+    });
+  });
+
   // Clean up database connection
   afterAll(async () => {
     await pool.end();
