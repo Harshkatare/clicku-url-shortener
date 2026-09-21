@@ -7,6 +7,7 @@ export type Url = {
   shortCode: string;
   customAlias: string | null;
   status: UrlStatus;
+  isPinned: boolean;
   sortOrder: number;
   clicks: number;
   createdAt: string;
@@ -22,7 +23,7 @@ export type UrlPagination = {
 
 export type UrlQueryFilters = {
   search?: string;
-  status?: UrlStatus | "all";
+  status?: UrlStatus | "pinned" | "all";
   page?: number;
   limit?: number;
   sortBy?: "createdAt" | "clicks" | "sortOrder";
@@ -39,6 +40,7 @@ export type UpdateUrlInput = {
   originalUrl?: string;
   customAlias?: string | null;
   status?: UrlStatus;
+  isPinned?: boolean;
 };
 
 export type ReorderUrlInput = {

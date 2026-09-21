@@ -1,11 +1,13 @@
 import type { KeyboardEvent } from "react";
 import type { UrlStatus } from "../../features/urls/urls.types";
 
+export type UrlFilterStatus = UrlStatus | "pinned" | "all";
+
 interface UrlToolbarProps {
   search: string;
   onSearchChange: (value: string) => void;
-  status: UrlStatus | "all";
-  onStatusChange: (status: UrlStatus | "all") => void;
+  status: UrlFilterStatus;
+  onStatusChange: (status: UrlFilterStatus) => void;
   sortBy: "createdAt" | "clicks";
   sortDir: "asc" | "desc";
   onSortChange: (sortBy: "createdAt" | "clicks", sortDir: "asc" | "desc") => void;
@@ -25,11 +27,12 @@ const SORT_OPTIONS: Array<{
 ];
 
 const STATUS_FILTERS: Array<{
-  key: UrlStatus | "all";
+  key: UrlFilterStatus;
   label: string;
   dotColor?: string;
 }> = [
   { key: "all", label: "All Links" },
+  { key: "pinned", label: "Pinned", dotColor: "bg-blue-500" },
   { key: "active", label: "Active", dotColor: "bg-emerald-500" },
   { key: "expiring", label: "Expiring", dotColor: "bg-amber-500" },
   { key: "archived", label: "Archived", dotColor: "bg-slate-400 dark:bg-slate-500" },

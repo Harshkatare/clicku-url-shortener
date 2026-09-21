@@ -9,6 +9,7 @@ export interface UrlCardProps {
   onEdit: (url: Url) => void;
   onDelete: (url: Url) => void;
   onQrClick?: (url: Url) => void;
+  onTogglePin?: (url: Url) => void;
 }
 
 /**
@@ -71,7 +72,7 @@ function formatDisplayDate(dateStr?: string): { formatted: string; full: string 
   };
 }
 
-export function UrlCard({ url, onEdit, onDelete, onQrClick }: UrlCardProps) {
+export function UrlCard({ url, onEdit, onDelete, onQrClick, onTogglePin }: UrlCardProps) {
   const { showToast } = useToastContext();
   const [isCopied, setIsCopied] = useState(false);
   const copyTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -118,8 +119,12 @@ export function UrlCard({ url, onEdit, onDelete, onQrClick }: UrlCardProps) {
   };
 
   return (
-    <li className="card-hover group rounded-2xl border border-slate-200/80 bg-white/85 p-5 shadow-xs backdrop-blur-xl dark:border-slate-800/80 dark:bg-slate-900/85 transition-colors duration-200">
-      {/* Top Row: Short URL link, Vanity pill, Status badge & Responsive Actions */}
+    <li className={`card-hover group rounded-2xl border p-5 shadow-xs backdrop-blur-xl transition-all duration-200 ${
+      url.isPinned
+        ? "border-blue-200/90 bg-blue-50/20 dark:border-blue-800/80 dark:bg-blue-950/20"
+        : "border-slate-200/80 bg-white/85 dark:border-slate-800/80 dark:bg-slate-900/85"
+    }`}>
+      {/* Top Row: Short URL link, Vanity pill, Pinned badge, Status badge & Responsive Actions */}
       <div className="flex items-start justify-between gap-4">
         <div className="flex flex-wrap items-center gap-2">
           <a
@@ -160,6 +165,18 @@ export function UrlCard({ url, onEdit, onDelete, onQrClick }: UrlCardProps) {
             </span>
           )}
 
+          {url.isPinned && (
+            <span
+              className="inline-flex items-center gap-1 rounded-md bg-blue-50 px-2 py-0.5 text-[11px] font-semibold text-blue-700 ring-1 ring-inset ring-blue-700/20 select-none dark:bg-blue-950/60 dark:text-blue-300 dark:ring-blue-400/30"
+              title="Pinned to top of dashboard"
+            >
+              <svg className="h-3 w-3 -rotate-45 fill-current" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5} aria-hidden="true">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19 13.5v-3a2 2 0 00-2-2V5a2 2 0 00-2-2H9a2 2 0 00-2 2v3.5a2 2 0 00-2 2v3a1 1 0 001 1h5v6a1 1 0 002 0v-6h5a1 1 0 001-1z" />
+              </svg>
+              pinned
+            </span>
+          )}
+
           <span
             className={`inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-semibold select-none ${statusInfo.badgeClass}`}
           >
@@ -169,6 +186,36 @@ export function UrlCard({ url, onEdit, onDelete, onQrClick }: UrlCardProps) {
 
         {/* Action buttons with responsive hover/focus-within disclosure and compliant touch targets */}
         <div className="flex items-center gap-1.5 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100 focus-visible:opacity-100 transition-opacity duration-150 shrink-0">
+          {onTogglePin && (
+            <button
+              type="button"
+              onClick={() => onTogglePin(url)}
+              aria-label={url.isPinned ? `Unpin ${displaySlug}` : `Pin ${displaySlug} to top`}
+              title={url.isPinned ? "Unpin link" : "Pin to top"}
+              className={`inline-flex min-h-[36px] min-w-[36px] sm:min-h-[32px] sm:min-w-[32px] items-center justify-center rounded-xl border transition cursor-pointer focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-slate-900 ${
+                url.isPinned
+                  ? "border-blue-300 bg-blue-50 text-blue-600 shadow-2xs dark:border-blue-700/60 dark:bg-blue-950/60 dark:text-blue-400"
+                  : "border-slate-200/80 bg-slate-50/80 text-slate-600 shadow-2xs hover:bg-slate-100 hover:text-slate-900 dark:border-slate-700/80 dark:bg-slate-800/80 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-white"
+              }`}
+            >
+              <svg
+                className={`h-4 w-4 transition-transform duration-150 ${
+                  url.isPinned ? "-rotate-45" : "hover:scale-110"
+                }`}
+                fill={url.isPinned ? "currentColor" : "none"}
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
+                aria-hidden="true"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M19 13.5v-3a2 2 0 00-2-2V5a2 2 0 00-2-2H9a2 2 0 00-2 2v3.5a2 2 0 00-2 2v3a1 1 0 001 1h5v6a1 1 0 002 0v-6h5a1 1 0 001-1z"
+                />
+              </svg>
+            </button>
+          )}
           {onQrClick && (
             <button
               type="button"

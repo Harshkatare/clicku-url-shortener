@@ -13,15 +13,16 @@ import {
 import {
   getUrls,
   deleteUrl,
+  updateUrl,
   getUrlStats,
 } from "../features/urls/urls.api";
 
-import type { Url, UrlStatus } from "../features/urls/urls.types";
+import type { Url } from "../features/urls/urls.types";
 
 import { useToastContext } from "../context/ToastContext";
 import { StatCards } from "../components/dashboard/StatCards";
 import { CreateUrlBar } from "../components/dashboard/CreateUrlBar";
-import { UrlToolbar } from "../components/dashboard/UrlToolbar";
+import { UrlToolbar, type UrlFilterStatus } from "../components/dashboard/UrlToolbar";
 import { PaginationControls } from "../components/dashboard/PaginationControls";
 import { EditUrlModal } from "../components/dashboard/EditUrlModal";
 import { UrlCard } from "../components/dashboard/UrlCard";
@@ -36,8 +37,11 @@ export function DashboardPage() {
   const pageParam = parseInt(searchParams.get("page") || "1", 10);
   const currentPage = Number.isFinite(pageParam) && pageParam > 0 ? pageParam : 1;
   const rawStatus = searchParams.get("status");
-  const currentStatus: UrlStatus | "all" =
-    rawStatus === "active" || rawStatus === "expiring" || rawStatus === "archived"
+  const currentStatus: UrlFilterStatus =
+    rawStatus === "active" ||
+    rawStatus === "expiring" ||
+    rawStatus === "archived" ||
+    rawStatus === "pinned"
       ? rawStatus
       : "all";
   const urlSearch = searchParams.get("search") || "";
@@ -221,7 +225,50 @@ export function DashboardPage() {
     };
   }, []);
 
-  const handleStatusChange = (newStatus: UrlStatus | "all") => {
+  const togglePinMutation = useMutation({
+    mutationFn: ({ id, isPinned }: { id: string; isPinned: boolean }) =>
+      updateUrl(id, { isPinned }),
+    onMutate: async ({ id, isPinned }) => {
+      await queryClient.cancelQueries({ queryKey: ["urls"] });
+      const previousUrls = queryClient.getQueriesData({ queryKey: ["urls"] });
+      queryClient.setQueriesData({ queryKey: ["urls"] }, (old: any) => {
+        if (!old?.data || !Array.isArray(old.data)) return old;
+        return {
+          ...old,
+          data: old.data.map((u: Url) => (u.id === id ? { ...u, isPinned } : u)),
+        };
+      });
+      return { previousUrls };
+    },
+    onError: (err: any, _vars, context) => {
+      console.error("Pin toggle mutation error:", err);
+      if (context?.previousUrls) {
+        context.previousUrls.forEach(([key, data]) => {
+          queryClient.setQueryData(key, data);
+        });
+      }
+      const message =
+        err?.response?.data?.message ||
+        err?.message ||
+        "Failed to update pin status.";
+      showToast("error", message);
+    },
+    onSuccess: (_data, { isPinned }) => {
+      showToast("info", isPinned ? "Link pinned to top." : "Link unpinned.");
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["urls"] });
+    },
+  });
+
+  const handleTogglePin = useCallback(
+    (url: Url) => {
+      togglePinMutation.mutate({ id: url.id, isPinned: !url.isPinned });
+    },
+    [togglePinMutation]
+  );
+
+  const handleStatusChange = (newStatus: UrlFilterStatus) => {
     setSearchParams((prev) => {
       const next = new URLSearchParams(prev);
       if (newStatus !== "all") {
@@ -407,6 +454,7 @@ export function DashboardPage() {
                   url={url}
                   onEdit={setEditingUrl}
                   onDelete={handleDeleteRequest}
+                  onTogglePin={handleTogglePin}
                   onQrClick={(u) =>
                     showToast(
                       "info",
