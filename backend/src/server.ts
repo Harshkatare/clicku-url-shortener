@@ -21,14 +21,25 @@ async function gracefulShutdown(
     `${signal} received. Shutting down gracefully...`
   );
 
+  const forceExitTimeout = setTimeout(() => {
+    logger.error("Graceful shutdown timed out after 10s. Forcing process exit.");
+    process.exit(1);
+  }, 10000);
+  forceExitTimeout.unref();
+
   server.close(async () => {
-    await pool.end();
+    try {
+      await pool.end();
 
-    logger.info(
-      "Database pool closed"
-    );
+      logger.info(
+        "Database pool closed"
+      );
 
-    process.exit(0);
+      process.exit(0);
+    } catch (error) {
+      logger.error({ error }, "Error encountered while closing database pool");
+      process.exit(1);
+    }
   });
 }
 
