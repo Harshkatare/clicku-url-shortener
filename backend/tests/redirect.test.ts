@@ -147,6 +147,57 @@ describe("Redirect API Integration Tests", () => {
     );
   });
 
+  // Test 8: Test that archived URLs reject redirection with HTTP 410 and preserve click analytics
+  it("should reject redirection with HTTP 410 Gone for archived URLs and preserve click metrics", async () => {
+    // 1. Archive the test URL via PATCH
+    const patchRes = await request(app)
+      .patch(`/api/v1/urls/${testUrlId}`)
+      .set("Authorization", `Bearer ${authToken}`)
+      .send({
+        status: "archived",
+      });
+
+    expect(patchRes.status).toBe(200);
+    expect(patchRes.body.data.status).toBe("archived");
+
+    const clicksBefore = patchRes.body.data.clicks;
+
+    // 2. Attempt to access archived shortlink
+    const redirectRes = await request(app).get(`/${testShortCode}`);
+
+    expect(redirectRes.status).toBe(410);
+    expect(redirectRes.body.success).toBe(false);
+    expect(redirectRes.body.message).toBe(
+      "This short link has been archived or deactivated by its owner."
+    );
+
+    // 3. Verify clicks were NOT incremented
+    const listRes = await request(app)
+      .get("/api/v1/urls?status=all")
+      .set("Authorization", `Bearer ${authToken}`);
+
+    const foundUrl = listRes.body.data.find(
+      (u: { id: string }) => u.id === testUrlId
+    );
+    expect(foundUrl).toBeDefined();
+    expect(foundUrl.clicks).toBe(clicksBefore);
+
+    // 4. Unarchive / reactivate and verify redirection works again
+    const reactivateRes = await request(app)
+      .patch(`/api/v1/urls/${testUrlId}`)
+      .set("Authorization", `Bearer ${authToken}`)
+      .send({
+        status: "active",
+      });
+
+    expect(reactivateRes.status).toBe(200);
+    expect(reactivateRes.body.data.status).toBe("active");
+
+    const validRedirectRes = await request(app).get(`/${testShortCode}`);
+    expect(validRedirectRes.status).toBe(302);
+    expect(validRedirectRes.headers.location).toBe("https://example.com");
+  });
+
   // Clean up database connection
   afterAll(async () => {
     await pool.end();

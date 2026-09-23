@@ -91,6 +91,13 @@ export async function redirectToOriginalUrl(slug: string) {
     );
   }
 
+  if (existingUrl.status === "archived") {
+    throw new AppError(
+      "This short link has been archived or deactivated by its owner.",
+      410
+    );
+  }
+
   await db
     .update(urls)
     .set({
