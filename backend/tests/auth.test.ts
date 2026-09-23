@@ -84,6 +84,18 @@ describe("Auth API Integration Tests", () => {
     expect(res.body.message).toBe("Unauthorized");
   });
 
+  // 7. Verify /me is decoupled from strict 10-request authRateLimit
+  it("should allow repeated /me requests without being throttled by authRateLimit", async () => {
+    for (let i = 0; i < 6; i++) {
+      const res = await request(app)
+        .get("/api/v1/auth/me")
+        .set("Authorization", `Bearer ${authToken}`);
+
+      expect(res.status).toBe(200);
+      expect(res.body.success).toBe(true);
+    }
+  });
+
   // Clean up database connection after tests finish
   afterAll(async () => {
     await pool.end();

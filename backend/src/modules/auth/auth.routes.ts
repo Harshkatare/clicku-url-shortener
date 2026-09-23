@@ -10,18 +10,20 @@ import { authRateLimit } from "../../lib/rate-limit/auth-rate-limit.js"
 
 const router = Router();
 
-router.use(authRateLimit);
-
+// Credential mutation routes - strictly protected against brute-force attacks (10 req / 15m)
 router.post(
   "/signup",
+  authRateLimit,
   asyncHandler(authController.signup)
 );
 
 router.post(
   "/login",
+  authRateLimit,
   asyncHandler(authController.login)
 );
 
+// Session profile retrieval - authenticated via JWT and protected by global apiRateLimit (100 req / 15m)
 router.get(
   "/me",
   protect,
