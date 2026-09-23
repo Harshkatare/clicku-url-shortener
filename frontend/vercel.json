@@ -5,8 +5,12 @@
       "destination": "https://clicku-url-shortener.onrender.com/api/:path*"
     },
     {
-      "source": "/:shortCode([A-Za-z0-9]{6})",
-      "destination": "https://clicku-url-shortener.onrender.com/:shortCode"
+      "source": "/(login|register|signup|dashboard|analytics|settings|deactivated|preview)",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/:slug([A-Za-z0-9_-]{3,50})",
+      "destination": "https://clicku-url-shortener.onrender.com/:slug"
     },
     {
       "source": "/(.*)",
