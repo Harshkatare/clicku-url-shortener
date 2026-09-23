@@ -4,6 +4,7 @@ import { LoginPage } from "../pages/LoginPage";
 import { RegisterPage } from "../pages/RegisterPage";
 import { DashboardPage } from "../pages/DashboardPage";
 import { LandingPage } from "../pages/LandingPage";
+import { DeactivatedPage } from "../pages/DeactivatedPage";
 
 import { ProtectedRoute } from "./ProtectedRoute";
 
@@ -23,6 +24,10 @@ export function AppRoutes() {
         path="/register" 
         element={<RegisterPage />} 
     />
+      <Route 
+        path="/deactivated" 
+        element={<DeactivatedPage />} 
+      />
 
       <Route element={<ProtectedRoute />}>
         <Route

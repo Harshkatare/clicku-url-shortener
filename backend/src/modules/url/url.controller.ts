@@ -9,6 +9,8 @@ import {
   urlQuerySchema,
   reorderUrlSchema,
  } from "./url.schema.js";
+import { ArchivedUrlError } from "../../lib/errors/index.js";
+import { env } from "../../config/env.js";
 
 export async function createShortUrl(
   req: Request,
@@ -52,10 +54,24 @@ export async function redirectToOriginalUrl(
 ) {
   const slug = (req.params.slug || req.params.shortCode) as string;
 
-  const originalUrl =
-    await urlService.redirectToOriginalUrl(
-      slug
-    );
+  let originalUrl: string;
+  try {
+    originalUrl = await urlService.redirectToOriginalUrl(slug);
+  } catch (error) {
+    if (error instanceof ArchivedUrlError) {
+      const isHtmlBrowser = Boolean(req.headers.accept?.includes("text/html"));
+      if (isHtmlBrowser) {
+        return res.redirect(
+          `${env.CLIENT_URL}/deactivated?code=${encodeURIComponent(slug)}`
+        );
+      }
+      return res.status(410).json({
+        success: false,
+        message: error.message,
+      });
+    }
+    throw error;
+  }
 
     const queryKeys = Object.keys(req.query);
     if (queryKeys.length > 0) {

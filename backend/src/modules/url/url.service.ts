@@ -12,7 +12,7 @@ import type {
   UrlQueryInput,
 } from "./url.schema.js";
 
-import { AppError, NotFoundError, ConflictError } from "../../lib/errors/index.js";
+import { AppError, NotFoundError, ConflictError, ArchivedUrlError } from "../../lib/errors/index.js";
 
 import { eq, sql, desc, asc, and, or, ilike, not, gt, gte, lt, lte } from "drizzle-orm";
 
@@ -92,10 +92,7 @@ export async function redirectToOriginalUrl(slug: string) {
   }
 
   if (existingUrl.status === "archived") {
-    throw new AppError(
-      "This short link has been archived or deactivated by its owner.",
-      410
-    );
+    throw new ArchivedUrlError(slug);
   }
 
   await db

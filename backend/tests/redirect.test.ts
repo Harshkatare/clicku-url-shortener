@@ -198,6 +198,33 @@ describe("Redirect API Integration Tests", () => {
     expect(validRedirectRes.headers.location).toBe("https://example.com");
   });
 
+  // Test 9: Test Dual-Resolution: Browser clients requesting HTML are redirected to /deactivated page
+  it("should redirect browser clients requesting text/html to /deactivated page when URL is archived", async () => {
+    // 1. Archive the test URL
+    await request(app)
+      .patch(`/api/v1/urls/${testUrlId}`)
+      .set("Authorization", `Bearer ${authToken}`)
+      .send({ status: "archived" });
+
+    // 2. Browser request with Accept: text/html
+    const browserRes = await request(app)
+      .get(`/${testShortCode}`)
+      .set(
+        "Accept",
+        "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+      );
+
+    expect(browserRes.status).toBe(302);
+    expect(browserRes.headers.location).toContain("/deactivated?code=");
+    expect(browserRes.headers.location).toContain(testShortCode);
+
+    // 3. Reactivate URL
+    await request(app)
+      .patch(`/api/v1/urls/${testUrlId}`)
+      .set("Authorization", `Bearer ${authToken}`)
+      .send({ status: "active" });
+  });
+
   // Clean up database connection
   afterAll(async () => {
     await pool.end();
