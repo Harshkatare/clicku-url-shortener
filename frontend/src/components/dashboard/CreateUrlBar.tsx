@@ -11,6 +11,7 @@ import {
 import { createUrl } from "../../features/urls/urls.api";
 import type { CreateUrlInput } from "../../features/urls/urls.types";
 import { useToastContext } from "../../context/ToastContext";
+import { env } from "../../config/env";
 
 export function CreateUrlBar() {
   const { showToast } = useToastContext();
@@ -23,6 +24,7 @@ export function CreateUrlBar() {
     setValue,
     getValues,
     setError,
+    watch,
     formState: { errors },
   } = useForm<CreateUrlFormData>({
     resolver: zodResolver(createUrlSchema),
@@ -31,6 +33,9 @@ export function CreateUrlBar() {
       customAlias: "",
     },
   });
+
+  const originalUrlValue = watch("originalUrl");
+  const isUrlEmpty = !originalUrlValue || originalUrlValue.trim() === "";
 
   const createUrlMutation = useMutation({
     mutationFn: createUrl,
@@ -90,6 +95,25 @@ export function CreateUrlBar() {
     }
   };
 
+  const handlePasteFromClipboard = async () => {
+    try {
+      if (!navigator.clipboard?.readText) {
+        showToast("info", "Clipboard access not supported in this browser.");
+        return;
+      }
+      const text = await navigator.clipboard.readText();
+      if (text) {
+        let val = text.trim();
+        if (val && !/^https?:\/\//i.test(val)) {
+          val = `https://${val}`;
+        }
+        setValue("originalUrl", val, { shouldValidate: true });
+      }
+    } catch {
+      showToast("info", "Please paste URL manually (clipboard permission restricted).");
+    }
+  };
+
   const onSubmit = async (data: CreateUrlFormData) => {
     let targetUrl = data.originalUrl.trim();
     if (!/^https?:\/\//i.test(targetUrl)) {
@@ -118,17 +142,19 @@ export function CreateUrlBar() {
     return handleSubmit(onSubmit)(e);
   };
 
-  return (
-    <div className="mb-6 rounded-2xl border border-slate-200/80 bg-white/80 p-4 sm:p-5 shadow-xs backdrop-blur-xl transition-colors duration-200 dark:border-slate-800/80 dark:bg-slate-900/80">
-      <h3 className="mb-3 text-lg font-semibold text-slate-900 dark:text-slate-100">
-        Create Short URL
-      </h3>
+  const domainDisplay =
+    (env.SHORT_URL_BASE || "shortlynk.in")
+      .replace(/^https?:\/\//, "")
+      .replace(/\/+$/, "") + "/";
 
-      <form onSubmit={handleFormSubmit} className="space-y-3">
-        <div className="flex flex-col gap-2.5 sm:flex-row sm:items-start">
-          {/* Primary Destination URL Input */}
-          <div className="relative flex-1">
-            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400 dark:text-slate-500">
+  return (
+    <div className="mb-6 rounded-2xl border border-slate-200/90 bg-white p-2.5 sm:p-3 shadow-xs transition-colors duration-150 dark:border-slate-800 dark:bg-slate-900 dark:shadow-none">
+      <form onSubmit={handleFormSubmit}>
+        <div className="flex flex-col gap-2.5 sm:flex-row sm:items-center">
+          {/* Destination URL Input Well */}
+          <div className="relative flex flex-1 items-center rounded-xl border border-slate-200 bg-slate-50/80 transition-colors duration-150 focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500 dark:border-slate-800 dark:bg-slate-950/70 dark:focus-within:border-blue-500">
+            {/* Permanent Link Icon on Left Edge (Anchors visual hierarchy & reading order) */}
+            <div className="pointer-events-none pl-3 pr-2 text-slate-400 dark:text-slate-500 shrink-0">
               <svg
                 className="h-4 w-4"
                 fill="none"
@@ -146,87 +172,129 @@ export function CreateUrlBar() {
 
             <input
               type="text"
+              autoComplete="on"
               placeholder="https://example.com/very-long-url-to-shorten"
               {...register("originalUrl")}
               onBlur={handleUrlBlur}
-              className="h-11 w-full rounded-xl border border-slate-300 bg-white pl-10 pr-3 text-sm text-slate-900 placeholder:text-slate-400 transition-colors duration-200 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:border-blue-400 dark:focus:ring-blue-900/50"
+              className="h-10 w-full bg-transparent pr-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none sm:h-11 dark:text-slate-100 dark:placeholder:text-slate-500"
             />
-            {errors.originalUrl && (
-              <p className="mt-1 text-xs font-medium text-red-500 dark:text-red-400">
-                {errors.originalUrl.message}
-              </p>
+
+            {/* 1-Click Clipboard Paste Badge on Inside Right Edge (Satisfies Fitts's Law next to Shorten CTA) */}
+            {isUrlEmpty && (
+              <div className="pr-1.5 shrink-0">
+                <button
+                  type="button"
+                  onClick={handlePasteFromClipboard}
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-700 shadow-2xs transition-colors hover:border-slate-300 hover:bg-slate-50 hover:text-slate-900 active:scale-95 cursor-pointer dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 dark:hover:text-white"
+                  title="Paste URL from clipboard"
+                >
+                  <svg
+                    className="h-3.5 w-3.5 shrink-0 transition-colors"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"
+                    />
+                  </svg>
+                  <span>Paste</span>
+                </button>
+              </div>
             )}
           </div>
 
-          {/* Inline Custom Vanity Alias Input */}
-          <div className="relative sm:w-44 md:w-52 shrink-0">
-            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-xs font-bold text-slate-400 select-none dark:text-slate-500">
-              /
-            </div>
+          {/* Custom Vanity Alias Well with Distinct Domain Prefix Badge */}
+          <div className="relative flex shrink-0 items-center overflow-hidden rounded-xl border border-slate-200 bg-slate-50/80 transition-colors duration-150 focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500 sm:w-56 md:w-64 dark:border-slate-800 dark:bg-slate-950/70 dark:focus-within:border-blue-500">
+            {/* Distinct Highlighted Domain Prefix Badge */}
+            <span className="inline-flex h-10 sm:h-11 items-center border-r border-slate-200 bg-slate-100 px-2.5 text-xs font-mono font-medium text-slate-600 select-none shrink-0 dark:border-slate-800 dark:bg-slate-800/80 dark:text-slate-400">
+              {domainDisplay}
+            </span>
             <input
               type="text"
-              placeholder="custom alias (opt)"
+              autoComplete="on"
+              placeholder="custom-slug"
               {...register("customAlias")}
-              className="h-11 w-full rounded-xl border border-slate-300 bg-white pl-6 pr-3 text-sm text-slate-900 placeholder:text-slate-400 transition-colors duration-200 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:border-blue-400 dark:focus:ring-blue-900/50"
+              className="h-10 w-full bg-transparent pl-2 pr-3 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none sm:h-11 dark:text-slate-100 dark:placeholder:text-slate-500"
               title="Custom vanity alias (optional)"
             />
-            {errors.customAlias && (
-              <p className="mt-1 text-xs font-medium text-red-500 dark:text-red-400">
-                {errors.customAlias.message}
-              </p>
-            )}
           </div>
 
-          {/* Submit Action */}
+          {/* Primary Shorten CTA (Grounded Physical Button, Zero Neon Shadow) */}
           <button
             type="submit"
             disabled={createUrlMutation.isPending}
-            className="inline-flex h-11 shrink-0 items-center justify-center gap-1.5 rounded-xl bg-blue-600 px-5 text-sm font-semibold text-white shadow-xs transition-all duration-150 hover:bg-blue-700 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer"
+            className="inline-flex h-10 sm:h-11 shrink-0 items-center justify-center gap-1.5 rounded-xl bg-blue-600 px-5 text-sm font-semibold text-white shadow-xs transition-all duration-150 hover:bg-blue-700 active:scale-[0.98] cursor-pointer disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {createUrlMutation.isPending ? (
-              <>
-                <svg
-                  className="h-4 w-4 animate-spin text-white"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
+              {createUrlMutation.isPending ? (
+                <>
+                  <svg
+                    className="h-4 w-4 animate-spin text-white"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    />
+                  </svg>
+                  <span>Shortening...</span>
+                </>
+              ) : (
+                <>
+                  <span>Shorten</span>
+                  <svg
+                    className="h-4 w-4"
+                    fill="none"
+                    viewBox="0 0 24 24"
                     stroke="currentColor"
-                    strokeWidth="4"
-                  />
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                  />
-                </svg>
-                <span>Shortening...</span>
-              </>
-            ) : (
-              <>
-                <span>Shorten</span>
-                <svg
-                  className="h-4 w-4"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M14 5l7 7m0 0l-7 7m7-7H3"
-                  />
-                </svg>
-              </>
-            )}
-          </button>
-        </div>
-      </form>
-    </div>
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M14 5l7 7m0 0l-7 7m7-7H3"
+                    />
+                  </svg>
+                </>
+              )}
+            </button>
+          </div>
+
+          {/* Validation Error Feedback Strip */}
+          {(errors.originalUrl || errors.customAlias) && (
+            <div className="mt-2.5 flex flex-wrap items-center gap-1.5 border-t border-slate-100 px-2 pt-2 text-xs font-medium text-red-500 dark:border-slate-800/80 dark:text-red-400">
+              <svg
+                className="h-3.5 w-3.5 shrink-0"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+              <span>
+                {errors.originalUrl?.message || errors.customAlias?.message}
+              </span>
+            </div>
+          )}
+        </form>
+      </div>
   );
 }
