@@ -29,13 +29,12 @@ const SORT_OPTIONS: Array<{
 const STATUS_FILTERS: Array<{
   key: UrlFilterStatus;
   label: string;
-  dotColor?: string;
 }> = [
   { key: "all", label: "All Links" },
-  { key: "pinned", label: "Pinned", dotColor: "bg-blue-500" },
-  { key: "active", label: "Active", dotColor: "bg-emerald-500" },
-  { key: "expiring", label: "Expiring", dotColor: "bg-amber-500" },
-  { key: "archived", label: "Archived", dotColor: "bg-slate-400 dark:bg-slate-500" },
+  { key: "pinned", label: "Pinned" },
+  { key: "active", label: "Active" },
+  { key: "expiring", label: "Expiring" },
+  { key: "archived", label: "Archived" },
 ];
 
 export function UrlToolbar({
@@ -128,20 +127,12 @@ export function UrlToolbar({
                 aria-selected={isSelected}
                 aria-pressed={isSelected}
                 onClick={() => onStatusChange(item.key)}
-                className={`inline-flex shrink-0 items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-semibold transition-all cursor-pointer select-none ${
+                className={`inline-flex shrink-0 items-center justify-center rounded-xl px-3 py-1.5 text-xs font-semibold transition-all cursor-pointer select-none ${
                   isSelected
                     ? "bg-blue-600 text-white shadow-xs shadow-blue-600/20 dark:bg-blue-500 dark:text-white"
                     : "border border-slate-200/80 bg-white/80 text-slate-600 shadow-2xs backdrop-blur-md hover:border-slate-300 hover:bg-slate-50/80 dark:border-slate-800/80 dark:bg-slate-900/80 dark:text-slate-400 dark:hover:border-slate-700 dark:hover:bg-slate-800/60"
                 }`}
               >
-                {item.dotColor && (
-                  <span
-                    className={`h-1.5 w-1.5 rounded-full ${
-                      isSelected ? "bg-white" : item.dotColor
-                    }`}
-                    aria-hidden="true"
-                  />
-                )}
                 <span>{item.label}</span>
               </button>
             );

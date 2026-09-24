@@ -156,15 +156,6 @@ export function UrlCard({ url, onEdit, onDelete, onQrClick, onTogglePin }: UrlCa
             </svg>
           </a>
 
-          {url.customAlias && (
-            <span
-              className="inline-flex items-center rounded-md bg-blue-50 px-2 py-0.5 text-[11px] font-semibold text-blue-600 ring-1 ring-inset ring-blue-700/10 select-none dark:bg-blue-950/50 dark:text-blue-300 dark:ring-blue-400/20"
-              title={`Fallback system code: ${url.shortCode}`}
-            >
-              vanity alias
-            </span>
-          )}
-
           {url.isPinned && (
             <span
               className="inline-flex items-center gap-1 rounded-md bg-blue-50 px-2 py-0.5 text-[11px] font-semibold text-blue-700 ring-1 ring-inset ring-blue-700/20 select-none dark:bg-blue-950/60 dark:text-blue-300 dark:ring-blue-400/30"
