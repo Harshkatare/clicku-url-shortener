@@ -25,23 +25,23 @@ function SingleStatCard({
   iconBgClass,
 }: SingleStatCardProps) {
   return (
-    <div className="glass card-hover relative overflow-hidden rounded-2xl border border-slate-200/80 bg-white/75 p-5 shadow-xs backdrop-blur-xl transition-all duration-200 dark:border-slate-800/80 dark:bg-slate-900/75">
+    <div className="glass card-hover relative overflow-hidden rounded-xl border border-slate-200/80 bg-white/75 p-3.5 sm:p-4 shadow-xs backdrop-blur-xl transition-all duration-200 dark:border-slate-800/80 dark:bg-slate-900/75">
       <div className="flex items-center justify-between">
-        <span className="text-xs font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
+        <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400">
           {label}
         </span>
         <div
-          className={`flex h-10 w-10 items-center justify-center rounded-xl border ${iconBgClass}`}
+          className={`flex h-7 w-7 sm:h-8 sm:w-8 items-center justify-center rounded-lg border ${iconBgClass}`}
         >
           {icon}
         </div>
       </div>
 
-      <div className="mt-3">
-        <p className="text-2xl font-bold tracking-tight text-slate-900 tabular-nums sm:text-3xl dark:text-slate-100">
+      <div className="mt-2 sm:mt-2.5">
+        <p className="text-xl font-bold tracking-tight text-slate-900 tabular-nums sm:text-2xl dark:text-slate-100">
           {displayValue}
         </p>
-        <p className={`mt-1 text-xs font-medium ${subtitleColorClass}`}>
+        <p className={`mt-0.5 text-[11px] font-medium truncate sm:text-xs ${subtitleColorClass}`}>
           {subtitle}
         </p>
       </div>
@@ -51,14 +51,14 @@ function SingleStatCard({
 
 function StatCardSkeleton() {
   return (
-    <div className="glass relative overflow-hidden rounded-2xl border border-slate-200/80 bg-white/60 p-5 shadow-xs backdrop-blur-xl dark:border-slate-800/80 dark:bg-slate-900/60">
+    <div className="glass relative overflow-hidden rounded-xl border border-slate-200/80 bg-white/60 p-3.5 sm:p-4 shadow-xs backdrop-blur-xl dark:border-slate-800/80 dark:bg-slate-900/60">
       <div className="flex items-center justify-between">
-        <div className="skeleton h-3.5 w-20 rounded-md" />
-        <div className="skeleton h-10 w-10 rounded-xl" />
+        <div className="skeleton h-3 w-16 rounded-md" />
+        <div className="skeleton h-7 w-7 sm:h-8 sm:w-8 rounded-lg" />
       </div>
-      <div className="mt-4">
-        <div className="skeleton h-8 w-24 rounded-lg" />
-        <div className="skeleton mt-2 h-3.5 w-32 rounded-md" />
+      <div className="mt-2 sm:mt-2.5">
+        <div className="skeleton h-6 sm:h-7 w-20 rounded-md" />
+        <div className="skeleton mt-1 h-3 w-24 rounded-md" />
       </div>
     </div>
   );
@@ -85,7 +85,7 @@ export function StatCards({ stats, isLoading }: StatCardsProps) {
 
   if (isLoading) {
     return (
-      <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mb-6 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         <StatCardSkeleton />
         <StatCardSkeleton />
         <StatCardSkeleton />
@@ -113,7 +113,7 @@ export function StatCards({ stats, isLoading }: StatCardsProps) {
     activeStats.totalUrls === 0 ? "0.0" : (animatedCtrTenths / 10).toFixed(1);
 
   return (
-    <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <div className="mb-6 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
       {/* 1. Total URLs */}
       <SingleStatCard
         label="Total URLs"
@@ -121,7 +121,7 @@ export function StatCards({ stats, isLoading }: StatCardsProps) {
         subtitle="Portfolio scale"
         icon={
           <svg
-            className="h-5 w-5"
+            className="h-3.5 w-3.5 sm:h-4 sm:w-4"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -145,7 +145,7 @@ export function StatCards({ stats, isLoading }: StatCardsProps) {
         subtitleColorClass="text-purple-600 dark:text-purple-400"
         icon={
           <svg
-            className="h-5 w-5"
+            className="h-3.5 w-3.5 sm:h-4 sm:w-4"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -169,7 +169,7 @@ export function StatCards({ stats, isLoading }: StatCardsProps) {
         subtitleColorClass={activeColorClass}
         icon={
           <svg
-            className="h-5 w-5"
+            className="h-3.5 w-3.5 sm:h-4 sm:w-4"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -193,7 +193,7 @@ export function StatCards({ stats, isLoading }: StatCardsProps) {
         subtitleColorClass="text-amber-600 dark:text-amber-400"
         icon={
           <svg
-            className="h-5 w-5"
+            className="h-3.5 w-3.5 sm:h-4 sm:w-4"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
