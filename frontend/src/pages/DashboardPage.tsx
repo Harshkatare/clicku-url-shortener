@@ -477,7 +477,7 @@ export function DashboardPage() {
                   onQrClick={(u) =>
                     showToast(
                       "info",
-                      `QR Studio for "${u.customAlias || u.shortCode}" coming in v0.7.0`
+                      `QR Studio for "${u.customAlias || u.shortCode}" coming soon`
                     )
                   }
                 />

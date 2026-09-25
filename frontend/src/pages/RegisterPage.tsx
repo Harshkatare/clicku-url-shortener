@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, Navigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
@@ -18,10 +18,11 @@ import {
   Alert,
   type AlertState,
 } from "../components/Alert";
-import { saveToken } from "../features/auth/auth.storage";
+import { saveToken, getToken } from "../features/auth/auth.storage";
 
 export function RegisterPage() {
   const navigate = useNavigate();
+  const token = getToken();
 
   const [alert, setAlert] = useState<AlertState | null>(null);
   const [demoCode, setDemoCode] = useState<string | null>(null);
@@ -54,6 +55,10 @@ export function RegisterPage() {
 
     return () => clearTimeout(timer);
   }, [alert]);
+
+  if (token) {
+    return <Navigate to="/dashboard" replace />;
+  }
 
   async function onSubmit(
     data: RegisterFormData

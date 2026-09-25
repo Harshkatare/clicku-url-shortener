@@ -1,10 +1,11 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 
 import { LoginPage } from "../pages/LoginPage";
 import { RegisterPage } from "../pages/RegisterPage";
 import { DashboardPage } from "../pages/DashboardPage";
 import { LandingPage } from "../pages/LandingPage";
 import { DeactivatedPage } from "../pages/DeactivatedPage";
+import { ComingSoonPage } from "../pages/ComingSoonPage";
 
 import { ProtectedRoute } from "./ProtectedRoute";
 
@@ -18,12 +19,12 @@ export function AppRoutes() {
       <Route 
         path="/login" 
         element={<LoginPage />} 
-    />
+      />
 
       <Route 
         path="/register" 
         element={<RegisterPage />} 
-    />
+      />
       <Route 
         path="/deactivated" 
         element={<DeactivatedPage />} 
@@ -34,7 +35,18 @@ export function AppRoutes() {
           path="/dashboard"
           element={<DashboardPage />}
         />
+        <Route
+          path="/analytics"
+          element={<ComingSoonPage />}
+        />
+        <Route
+          path="/settings"
+          element={<ComingSoonPage />}
+        />
       </Route>
+
+      {/* Fallback route for undefined paths */}
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 }

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, Navigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import axios from "axios";
@@ -10,7 +10,7 @@ import {
 } from "../features/auth/auth.schemas";
 
 import { login } from "../features/auth/auth.api";
-import { saveToken } from "../features/auth/auth.storage";
+import { saveToken, getToken } from "../features/auth/auth.storage";
 import { claimUrl } from "../features/urls/urls.api";
 import { AuthLayout } from "../layouts/AuthLayout";
 
@@ -21,6 +21,7 @@ import {
 
 export function LoginPage() {
   const navigate = useNavigate();
+  const token = getToken();
 
   const [alert, setAlert] = useState<AlertState | null>(null);
 
@@ -44,6 +45,10 @@ export function LoginPage() {
 
     return () => clearTimeout(timer);
   }, [alert]);
+
+  if (token) {
+    return <Navigate to="/dashboard" replace />;
+  }
 
   async function onSubmit(data: LoginFormData) {
     try {
