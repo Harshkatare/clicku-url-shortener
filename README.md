@@ -18,6 +18,7 @@
 </p>
 
 <p align="center">
+  <img src="https://img.shields.io/badge/version-v0.6.0-blue?style=flat-square" alt="Version v0.6.0" />
   <img src="https://img.shields.io/badge/TypeScript-strict-007ACC?style=flat-square&logo=typescript&logoColor=white" alt="TypeScript" />
   <img src="https://img.shields.io/badge/React_19-20232A?style=flat-square&logo=react&logoColor=61DAFB" alt="React 19" />
   <img src="https://img.shields.io/badge/Express_5-000000?style=flat-square&logo=express&logoColor=white" alt="Express 5" />

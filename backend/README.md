@@ -3,7 +3,8 @@
 [![Express 5](https://img.shields.io/badge/Express_5-000000?style=flat-square&logo=express&logoColor=white)](https://expressjs.com/)
 [![PostgreSQL 16](https://img.shields.io/badge/PostgreSQL_16-316192?style=flat-square&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
 [![Drizzle ORM](https://img.shields.io/badge/Drizzle_ORM-C5F74F?style=flat-square&logo=drizzle&logoColor=black)](https://orm.drizzle.team/)
-[![Vitest](https://img.shields.io/badge/Tests-28_Passing-brightgreen?style=flat-square&logo=vitest&logoColor=white)](https://vitest.dev/)
+[![Vitest](https://img.shields.io/badge/Tests-86_Passing-brightgreen?style=flat-square&logo=vitest&logoColor=white)](https://vitest.dev/)
+[![Version](https://img.shields.io/badge/version-0.6.0-blue?style=flat-square)](package.json)
 
 Production-grade, high-concurrency URL shortening and redirection API for **[Shortlynk](https://shortlynk.in)**. Engineered with Express 5, TypeScript (NodeNext), Drizzle ORM, and PostgreSQL 16.
 
@@ -12,13 +13,17 @@ Production-grade, high-concurrency URL shortening and redirection API for **[Sho
 ## 🌟 Key Architecture & Subsystems
 
 * **Express 5 Core:** Async route handling with native Promise support, Helmet security headers, CORS origin enforcement, and 10kb DoS payload limit.
-* **Collision-Resistant Redirect Engine:** 6-character Base62 short codes ($62^6 \approx 56.8\text{B}$ combinations) with automated unique constraint collision retry handling (5x loop) and atomic SQL click increments (`clicks + 1`).
+* **Custom Vanity Slugs & Dual-Resolution Ingress:** Custom vanity aliases (`shortlynk.in/:alias`, 3–50 chars) alongside 6-character Base62 short codes. Enforces reserved system slugs guard (`RESERVED_SLUGS` Set), dual-identity lookup (`or(eq(shortCode, slug), eq(customAlias, slug))`), and PostgreSQL unique constraint collision interception (`23505` ➔ HTTP 409 Conflict).
+* **Server-Side Search, Filter & Sort Pagination Engine:** Parameterized Drizzle query builder supporting case-insensitive `ilike` multi-field search (`originalUrl`, `shortCode`, `customAlias`), SQL LIKE wildcard sanitization (`%`, `_`, `\`), status filtering (`active`, `expiring`, `archived`, `pinned`), dynamic 4-way sorting (`createdAt`, `clicks`, `sortOrder`), and DoS-bounded pagination envelopes (max 50/page).
+* **Sticky Link Prioritization (Composite B-Tree Index):** Sticky hoisting of high-priority links via primary sorting `orderBy(desc(urls.isPinned), sortOrder)` backed by a composite B-tree index on `(user_id, is_pinned)` in PostgreSQL for rapid retrieval.
+* **RFC 9110 HTTP 410 Gone Deactivation Guards:** Strict HTTP 410 Gone lifecycle handling for archived links, dual-resolution content negotiation (`text/html` redirects browser requests to `/deactivated?code=:slug`, `application/json` returns 410 JSON), and click telemetry preservation shielding creator stats from automated web crawlers.
+* **UTM & Query Parameter Forwarding:** Transparent marketing attribution preservation across HTTP 302 redirects via native WHATWG URL parsing and query merging.
 * **Guest Demo Shortener & PLG Claiming:**
   - `POST /api/v1/urls/demo`: Public rate-limited guest shortening (3 links/IP/24h).
   - `POST /api/v1/urls/claim`: Atomic SQL ownership transfer (`WHERE userId IS NULL`) claiming guest links upon authentication.
-* **Observability & Logging:** Structured JSON logging via Pino and Pino-HTTP with request correlation IDs (`X-Request-ID` response headers).
-* **Enterprise Security:** Scrypt password hashing with 16-byte random salt and `timingSafeEqual` comparison, 7-day signed JWT tokens, and centralized `AppError` semantic error hierarchy.
-* **Integration Test Coverage:** 28 automated integration tests across 7 test suites powered by Vitest and Supertest.
+* **Connection Pool Resilience:** Tuned PostgreSQL pool (`max: 10`, `idleTimeoutMillis: 30000`, `connectionTimeoutMillis: 10000`), `pool.on('error')` crash defense interceptor for serverless Neon scale-to-zero handshakes, and 10s graceful shutdown force-kill fallback.
+* **Enterprise Security:** Scrypt password hashing with 16-byte random salt and `timingSafeEqual` comparison, 7-day signed JWT tokens, scoped rate limiters (credential-mutation routes strictly bounded to 10 req/15m while unblocking `/auth/me` session validation), and centralized `AppError` semantic error hierarchy.
+* **Integration Test Coverage:** 86 automated integration tests across 9 test suites powered by Vitest and Supertest (100% green pass rate).
 
 ---
 
@@ -34,7 +39,7 @@ backend/src/
 │   ├── auth/        # Auth controller, service, routes, Zod schemas
 │   ├── url/         # URL CRUD, demo shortening, link claiming
 │   └── stats/       # Platform telemetry and public metrics
-├── routes/          # Public redirect router (/:shortCode)
+├── routes/          # Public redirect router (/:slug dual-resolution)
 ├── types/           # Express namespace typing extensions
 └── server.ts        # HTTP server lifecycle and graceful shutdown handling
 ```
@@ -53,7 +58,7 @@ pnpm build
 # Start production server
 pnpm start
 
-# Run all 28 automated integration tests
+# Run all 86 automated integration tests
 pnpm test
 
 # Run tests in watch mode
