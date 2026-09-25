@@ -1,344 +1,486 @@
-# Shortlynk (ClickU)
+<p align="center">
+  <a href="https://shortlynk.in">
+    <img src="docs/images/hero-banner.jpg" alt="Shortlynk — Shorten. Analyze. Optimize." width="100%" />
+  </a>
+</p>
 
-[![Live Demo](https://img.shields.io/badge/Live_App-shortlynk.in-10B981?style=for-the-badge&logo=safari&logoColor=white)](https://shortlynk.in)
-[![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![React 19](https://img.shields.io/badge/React_19-20232A?style=flat-square&logo=react&logoColor=61DAFB)](https://react.dev/)
-[![Express 5](https://img.shields.io/badge/Express_5-000000?style=flat-square&logo=express&logoColor=white)](https://expressjs.com/)
-[![PostgreSQL 16](https://img.shields.io/badge/PostgreSQL_16-316192?style=flat-square&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
-[![Tailwind CSS v4](https://img.shields.io/badge/Tailwind_v4-38B2AC?style=flat-square&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
-[![Vitest](https://img.shields.io/badge/Tests-28_Passing-brightgreen?style=flat-square&logo=vitest&logoColor=white)](https://vitest.dev/)
+<h1 align="center">Shortlynk</h1>
 
-> 🌐 **Live Production Application:** [https://shortlynk.in](https://shortlynk.in)  
-> ⚡ **Architecture:** React 19 (Vercel) + Express 5 (Render) + PostgreSQL 16 (Neon DB)
+<p align="center">
+  <b>A production link management platform for branded short URLs, real-time click tracking, and developer-friendly API access.</b><br />
+  Built as a fullstack engineering project — deployed live, tested against real PostgreSQL, and handling real traffic.
+</p>
 
-A modern, production-oriented fullstack URL shortener built with TypeScript, Express 5, PostgreSQL, Drizzle ORM, Docker, React 19, and Tailwind CSS v4.
+<p align="center">
+  <a href="https://shortlynk.in">
+    <img src="https://img.shields.io/badge/Live_App-shortlynk.in-10B981?style=for-the-badge&logo=safari&logoColor=white" alt="Live Demo" />
+  </a>
+</p>
 
-Shortlynk allows authenticated users to create, manage, and track shortened URLs with real-time click counters, 1-click clipboard sharing, and atomic redirect telemetry.
+<p align="center">
+  <img src="https://img.shields.io/badge/TypeScript-strict-007ACC?style=flat-square&logo=typescript&logoColor=white" alt="TypeScript" />
+  <img src="https://img.shields.io/badge/React_19-20232A?style=flat-square&logo=react&logoColor=61DAFB" alt="React 19" />
+  <img src="https://img.shields.io/badge/Express_5-000000?style=flat-square&logo=express&logoColor=white" alt="Express 5" />
+  <img src="https://img.shields.io/badge/PostgreSQL_16-316192?style=flat-square&logo=postgresql&logoColor=white" alt="PostgreSQL 16" />
+  <img src="https://img.shields.io/badge/86_Tests_Passing-brightgreen?style=flat-square&logo=vitest&logoColor=white" alt="86 Tests Passing" />
+  <img src="https://img.shields.io/badge/Tailwind_v4-38B2AC?style=flat-square&logo=tailwind-css&logoColor=white" alt="Tailwind CSS v4" />
+</p>
 
----
+<p align="center">
+  <a href="https://shortlynk.in"><b>Try Live →</b></a>&ensp;·&ensp;
+  <a href="#-features"><b>Features</b></a>&ensp;·&ensp;
+  <a href="#%EF%B8%8F-architecture"><b>Architecture</b></a>&ensp;·&ensp;
+  <a href="#-key-engineering-decisions"><b>Engineering Decisions</b></a>&ensp;·&ensp;
+  <a href="#-quick-start"><b>Quick Start</b></a>&ensp;·&ensp;
+  <a href="#-api-reference"><b>API</b></a>
+</p>
 
-## 🚀 Live Features
+<br />
 
-### 🌟 Landing Page Rebuild, Public Demo & Unified Auth (v0.5.0)
-* **Rebuilt Public Landing Page:** Full high-conversion SaaS storefront with dynamic hero, PlatformStatsProof live telemetry strip, TechnicalMetricsStrip ribbon, 4-card FeaturesGrid, transparent Pricing tiers (Free vs Pro Coming Soon), interactive FAQ accordion with smooth CSS grid height animation, and conversion CTA banner with 420px tilted watermark branding.
-* **Public Guest Demo Shortener (`POST /api/v1/urls/demo`):** Unauthenticated visitors can create real shortlinks on `shortlynk.in/:shortCode` with a 3 links/IP/24h rate limit (`demoRateLimit`) and live 1-click clipboard copy.
-* **Anonymous Demo Link Claiming (`POST /api/v1/urls/claim`):** Seamless Product-Led Growth (PLG) conversion flow. Guest shortcodes stored in `sessionStorage` are automatically claimed upon registration or login with atomic SQL ownership transfer (`WHERE userId IS NULL`) and anti-hijack conflict guards.
-* **Frosted Glass AuthModal & Password Strength Meter:** Tabbed login/register modal overlay with Escape dismissal, native Windows scrollbar suppression (`.no-scrollbar`), centered brand geometry, and 4-segment reactive password entropy analysis (`PasswordStrengthMeter`).
-* **Visual Identity Parity Across Auth & Dashboard:** Pervasive atmospheric radial glow blobs, `.hero-grid` backgrounds, `<Logo variant="badge" />`, and upgraded dashboard cards with `.card-hover` physics, clickable external short links with micro-animated `↗` icons, and creation timestamp badges (`🕒 Mmm D, YYYY at h:mm A`).
-* **Automated Test Expansion:** Integration test suite expanded to 28 passing tests across 7 test suites covering demo shortening, platform telemetry, authenticated link claiming, auth, url management, redirect telemetry, and health monitoring.
+## Why I Built This
 
-### 📊 Product Analytics Baseline (v0.4.8)
-* **Vercel Web Analytics Integration:** Real-time web traffic, unique visitor counts, and pageview telemetry via `@vercel/analytics`
-* **Performance Telemetry:** Core Web Vitals speed monitoring across all public and authenticated routes
-* **Privacy-First Architecture:** 100% GDPR compliant with zero cookies and automatic local development auto-disable
+I wanted to build something that's **not a tutorial project** — a system deployed on a real domain, handling real traffic, with real infrastructure problems to solve.
 
-### 🌓 Dark Mode & Design System Infrastructure (v0.4.7)
-* **Tailwind CSS v4 Dark Mode Engine:** Class-based `@variant dark` architecture with instant reactive theme toggling
-* **Reactive `useTheme` Hook:** Custom React hook with `localStorage` persistence and automatic `prefers-color-scheme` OS detection
-* **Theme Switches Across Navbars:** Sun/Moon toggle buttons integrated into `LandingNavbar` and `Navbar` with smooth micro-interactions
-* **Design System Utility Suite:** Ported 20+ custom design tokens (`.glass`, `.card-hover`, `.hero-grid`, `.progress-bar`, `.skeleton`, `[data-tooltip]`, `.bg-grid`)
-* **Tailwind v4 `@theme` Keyframes:** 8 custom animation keyframes (`fadeIn`, `slideUp`, `slideDown`, `scaleIn`, `bounceIn`, `spinSlow`, `pulseSoft`, `wiggle`)
-* **Staggered Scroll Reveals:** Custom `useScrollReveal` hook powered by `IntersectionObserver`
-* **High-Contrast Surface Theme Alignment:** Complete dark slate surfaces (`#020617` / `#0f172a`) across Landing, Dashboard, Login, and Register
+URL shortening sounds simple. It's not. The moment you deploy it, you hit:
+- **Collision handling** at the database layer (what happens when two users generate the same 6-character code at the same instant?)
+- **Edge routing** (how does `shortlynk.in/my-brand` hit your backend redirect engine without exposing raw hosting domains, while also not intercepting `/dashboard`?)
+- **Analytics integrity** (how do you stop Google's crawler from inflating your click counts on archived links?)
+- **Touch ergonomics** (how do you show action buttons on iPads that have no hover state?)
 
-### 🛡️ Frontend Resilience, Identity & UX (v0.4.6)
-* **Instant Auto-Login:** User registration automatically saves JWT tokens and routes directly to `/dashboard`
-* **Real-Time Error Alerts:** Type-safe `axios.isAxiosError` error handling displaying specific server responses in auth forms
-* **User Identity Header:** Authenticated user's name and email profile badge displayed dynamically in the navbar via `GET /api/v1/auth/me`
-* **JWT Expiration Navigation Guard:** Automated client-side token lifetime check in `ProtectedRoute.tsx` with smooth session purge
-* **Universal Clipboard Fallback:** Dual-layer clipboard copy utility using `document.execCommand('copy')` ensuring 100% copy success on all devices and local networks
-* **React Crash Recovery:** Global `ErrorBoundary` shell preventing blank white-screen crashes with a 1-click **"Reload Application"** recovery card
-* **Smart Network Retry Telemetry:** `QueryClient` retry guards disabling redundant retries on 401/404 errors and preventing duplicate link creation
-* **Test Suite Expansion:** Automated integration test suite expanded with empty PATCH payload validation (17/17 passing tests)
+These are the problems that taught me the most — and the ones I document in the [Engineering Decisions](#-key-engineering-decisions) section below.
 
-### 🛡️ Schema & Security Hardening (v0.4.5)
-* **Catch-All 404 JSON Handler:** Consistent `{ success: false, message: "Route not found" }` error envelope preventing raw HTML leaks on unmatched routes
-* **DoS Payload Guard:** Strict 10kb body parser limit (`express.json({ limit: '10kb' })`) protecting against memory-exhaustion floods
-* **Full Error Observability:** Structured Pino logging (`logger.error`) across all 4xx validation and domain error branches with correlation request IDs
-* **Schema Foundations:** Added `role` (`'user' | 'admin'`), `is_active`, and `updated_at` columns to the PostgreSQL `users` table
-* **Configuration Reference:** Self-documenting `.env.example` templates for local developer setup
+> **Try it yourself** — go to [shortlynk.in](https://shortlynk.in), paste any URL, and click **Shorten**. No signup required.
 
-### 🌐 Edge Reverse Proxy Routing (v0.4.4)
-* Root-domain short URLs (`https://shortlynk.in/:shortCode`) proxied directly at Vercel's edge network to the Render backend redirect engine
-* Seamless HTTP 302 redirects with atomic SQL click telemetry without exposing raw backend hosting domains
-* Clean dashboard visual URL presentation (`shortlynk.in/a8X9q2`) with RFC-compliant clipboard copy
+<br />
 
-### 🌐 Public Landing Page & Identity (v0.4.3)
-* Modern public-facing landing page with interactive demo link preview card
-* Smart authentication guard: automatically redirects authenticated visitors from `/` to `/dashboard`
-* Brand identity with vector SVG logo integrated across navbar, landing page, and authentication forms
-* 4-stat metrics overview and responsive 3-card feature grid
+## 📸 The Product
 
-### 🔐 Authentication & Security
-* User registration (`/signup`) and secure login (`/login`)
-* JWT-based authentication with 7-day expiration
-* Scrypt password hashing with 16-byte random salt and `timingSafeEqual` comparison
-* Protected API routes and client-side authenticated navigation guards
-* Route-tier and global API rate limiting with `express-rate-limit`
-* Axios 401 response auto-logout interceptor (`v0.4.2`)
+<table>
+  <tr>
+    <td width="50%">
+      <a href="https://shortlynk.in">
+        <img src="docs/images/hero-demo-url.jpg" alt="Guest demo — shorten a URL without signing up" />
+      </a>
+      <p align="center"><b>Guest Demo</b> — shorten a URL without creating an account.<br />Sign up later and your links are automatically claimed.</p>
+    </td>
+    <td width="50%">
+      <a href="https://shortlynk.in">
+        <img src="docs/images/dashboard-dark.jpg" alt="Dashboard — manage, search, filter, and track all your links" />
+      </a>
+      <p align="center"><b>Dashboard</b> — real-time stats, search, status filtering,<br />pinning, custom aliases, 4-way sort, pagination.</p>
+    </td>
+  </tr>
+</table>
 
-### 🔗 URL Management & Redirects
-* 6-character collision-resistant short codes ($62^6 \approx 56.8\text{B}$ combinations)
-* Protected URL listing, creation, updating, and deletion
-* Query-level database ownership enforcement (`urls.id = :id AND urls.userId = :userId`)
-* Public redirect (`GET /:shortCode`) with atomic SQL click increments (`clicks + 1`)
-* Unique constraint collision retry handling (`23505`) with 5x loop (`v0.4.1`)
-* UUID route parameter validation with Zod (`urlParamsSchema`, `v0.4.1`)
+<!-- TODO: Add a 30-second demo GIF showing: create link → copy → paste in browser → watch click count increment -->
 
-### 💻 Frontend Dashboard
-* Built with React 19, Vite 8, TypeScript, and Tailwind CSS v4
-* TanStack React Query v5 for server state with automatic cache invalidation
-* React Hook Form with Zod schema validation
-* 1-click clipboard copy utility with temporary feedback state
-* Responsive layout and self-dismissing alerts
-* Deployed on Vercel with SPA routing rewrite configuration
+<br />
 
-### 🛡️ Observability & Infrastructure
-* Structured JSON logging via Pino and Pino-HTTP
-* Request correlation IDs (`X-Request-ID` in response headers)
-* Centralized semantic error handling (`AppError` hierarchy)
-* Graceful process lifecycle management (`SIGINT`, `SIGTERM`, unhandled rejections)
-* Automated integration test suite with Vitest and Supertest (28/28 tests passing across 7 test suites, `v0.5.0`)
-* Dockerized PostgreSQL and multi-container Docker Compose orchestration
+## ✨ Features
 
----
+<table>
+  <tr>
+    <td width="50%" valign="top">
+      <h3>🔗 Link Management</h3>
+      <ul>
+        <li><b>Custom branded aliases</b> — <code>shortlynk.in/my-brand</code> alongside auto-generated 6-char codes</li>
+        <li><b>Pin priority links</b> to the top of your dashboard</li>
+        <li><b>Archive & deactivate</b> — returns HTTP 410 Gone with a branded tombstone page</li>
+        <li><b>5-second undo buffer</b> — deletions feel instant; undo before permanent removal</li>
+      </ul>
+      <h3>🔍 Search, Filter & Sort</h3>
+      <ul>
+        <li><b>Server-side search</b> across URLs, short codes, and aliases (SQL injection-safe)</li>
+        <li><b>5 status filters:</b> All, Active, Expiring, Pinned, Archived</li>
+        <li><b>4-way sort:</b> Newest, Oldest, Most Clicks, Least Clicks</li>
+        <li><b>Paginated API</b> with DoS-bounded limits (max 50/page)</li>
+      </ul>
+    </td>
+    <td width="50%" valign="top">
+      <h3>📊 Analytics & Tracking</h3>
+      <ul>
+        <li><b>Atomic click counters</b> — every redirect increments via <code>sql\`clicks + 1\`</code></li>
+        <li><b>Dashboard stats</b> — total links, clicks, active links, avg velocity via <code>COUNT(*) FILTER</code></li>
+        <li><b>UTM preservation</b> — query params pass through to destination without stripping</li>
+        <li><b>Public platform telemetry</b> with 60-second in-memory cache</li>
+      </ul>
+      <h3>🛡️ Security</h3>
+      <ul>
+        <li><b>JWT auth</b> with client-side expiration guards and 401 auto-logout</li>
+        <li><b>3-tier rate limiting:</b> API (100/15m), auth (10/15m), demo (3/IP/day)</li>
+        <li><b>Zod validation</b> on every input — bodies, query params, route params</li>
+        <li><b>10kb body limit,</b> request correlation IDs, structured Pino logging</li>
+      </ul>
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2" valign="top">
+      <h3>🎨 Frontend</h3>
+      <ul>
+        <li><b>Dark mode</b> — OS preference detection, <code>color-scheme</code> synchronization (fixes Chromium scrollbar styling)</li>
+        <li><b>Optimistic mutations</b> via TanStack Query — UI updates instantly, rolls back on failure</li>
+        <li><b>Hardware-aware touch</b> — <code>@media (hover: hover) and (pointer: fine)</code> shows/hides action buttons based on device type</li>
+        <li><b>Guest-to-user conversion</b> — anonymous demo links are atomically claimed on signup (<code>WHERE userId IS NULL</code>)</li>
+        <li><b>Error boundary</b> — global crash recovery with 1-click reload, preventing white-screen failures</li>
+      </ul>
+    </td>
+  </tr>
+</table>
 
-## 📐 Architecture
+<br />
 
-```text
-┌─────────────────────────────────────────────────────────────┐
-│                 Frontend (React 19 + Vite 8)                │
-│   - Tailwind CSS v4, TanStack Query v5, React Router v7     │
-│   - Hosted / Deployed on Vercel                             │
-└──────────────────────────────┬──────────────────────────────┘
-                               │ HTTPS / JSON (Axios + Bearer JWT)
-                               ▼
-┌─────────────────────────────────────────────────────────────┐
-│                  Backend (Express 5 + Node 22)              │
-│   - TypeScript (NodeNext / ES2022)                          │
-│   - Rate Limiting, Helmet, CORS, Request Correlation IDs    │
-│   - Centralized AppError Semantic Error Flow & Pino Logging │
-└──────────────────────────────┬──────────────────────────────┘
-                               │ Drizzle ORM (node-postgres Pool)
-                               ▼
-┌─────────────────────────────────────────────────────────────┐
-│                   PostgreSQL 16 Database                    │
-│   - users table (UUID PK, email UK, role, is_active, ts)    │
-│   - urls table (UUID PK, FK users cascade, short_code UK)   │
-└─────────────────────────────────────────────────────────────┘
+## 🏗️ Architecture
+
+```mermaid
+flowchart TD
+    User(("🌐 End User"))
+
+    subgraph Vercel["Vercel Edge Network"]
+        direction TB
+        T1["Tier 1: /api/* → Render API"]
+        T2["Tier 2: /dashboard, /login → SPA"]
+        T3["Tier 3: /:slug — 3-50 chars → Render Redirect Engine"]
+        T4["Tier 4: /* → SPA Fallback"]
+    end
+
+    subgraph Frontend["Frontend — React 19 + Vite 8"]
+        SPA["Single-Page Application"]
+        TQ["TanStack Query v5\n(Server State Cache)"]
+        Axios["Axios Client\n(JWT Interceptor + 401 Auto-Logout)"]
+    end
+
+    subgraph Backend["Backend — Express 5 + Node 22"]
+        MW["Middleware Stack\nHelmet → CORS → 10kb Limit → Request ID → Pino"]
+        RL["Rate Limiters\nAPI: 100/15m · Auth: 10/15m · Demo: 3/day"]
+        Modules["Feature Modules\nAuth · URL · Stats · Redirect"]
+        Errors["Error Hierarchy\nAppError → BadRequest · Unauthorized\nNotFound · Conflict · ArchivedUrl(410)"]
+    end
+
+    subgraph Database["PostgreSQL 16 — Neon Serverless"]
+        Pool["pg Pool\nmax:10 · idle:30s · timeout:10s"]
+        Drizzle["Drizzle ORM\n6 SQL Migrations"]
+        Tables["users · urls\nComposite B-tree: (user_id, is_pinned)"]
+    end
+
+    User --> Vercel
+    T1 --> Axios
+    T2 --> SPA
+    T3 --> Modules
+    SPA --> TQ --> Axios
+    Axios -->|"HTTPS / Bearer JWT"| MW
+    MW --> RL --> Modules
+    Modules --> Errors
+    Modules --> Drizzle
+    Drizzle --> Pool --> Tables
 ```
 
----
+**Why this topology?** Shortlynk runs on a split deployment: the React SPA on Vercel's CDN edge, the API on Render, and the database on Neon serverless PostgreSQL. The critical piece is the **4-tier Vercel rewrite** in [`vercel.json`](frontend/vercel.json) — it routes `/api/*` calls and `/:slug` redirect traffic to the backend without exposing Render's raw hosting domain, while protecting SPA routes like `/dashboard` from being intercepted by the slug regex. Getting this wrong creates a "black hole" where custom vanity links silently route to the SPA instead of the redirect engine — a bug I caught and documented in [ADR #40](dev_team_internals/04_notes/40_vercel_edge_reverse_proxy_four_tier_routing_precedence.md).
+
+### Database Schema
+
+```mermaid
+erDiagram
+    users ||--o{ urls : creates
+    users {
+        uuid id PK
+        text name
+        text email UK
+        text password_hash
+        varchar role "default: user"
+        boolean is_active "default: true"
+        timestamp created_at
+        timestamp updated_at
+    }
+    urls {
+        uuid id PK
+        uuid user_id FK "nullable — anonymous demo links"
+        varchar short_code UK "6 chars, auto-generated"
+        text original_url
+        varchar custom_alias UK "3–50 chars, optional"
+        varchar status "active | expiring | archived"
+        boolean is_pinned "default: false"
+        integer sort_order "default: 0"
+        integer clicks "default: 0, atomic increment"
+        timestamp created_at
+        timestamp updated_at
+    }
+```
+
+**Key index:** `urls_user_pinned_idx` — composite B-tree on `(user_id, is_pinned)`. Dashboard queries always sort pinned links first; this index serves that ordering without a full-table sort.
+
+<br />
+
+## 🧠 Key Engineering Decisions
+
+These are the tradeoffs that shaped the system — not just what I chose, but **why**, and **what I rejected**.
+
+> Full Architecture Decision Records (40+ documents) are maintained in [`dev_team_internals/04_notes/`](dev_team_internals/04_notes/).
+
+<details open>
+<summary><b>Express 5 over Fastify</b></summary>
+
+**Chose:** Express 5 — native async error propagation lets you `throw` in route handlers without wrapper boilerplate. Helmet, CORS, and `express-rate-limit` are battle-tested middleware.
+
+**Rejected:** Fastify — faster raw throughput, but the middleware ecosystem is smaller and less mature for this use case.
+</details>
+
+<details open>
+<summary><b>Drizzle ORM over Prisma</b></summary>
+
+**Chose:** Drizzle — type-safe query builder with zero runtime overhead. Migrations are plain `.sql` files I can audit, version-control, and run in any environment.
+
+**Rejected:** Prisma — runtime client adds overhead, query generation is opaque (hard to debug slow queries), and the schema-first workflow adds friction for rapid iteration.
+</details>
+
+<details open>
+<summary><b>Offset pagination over cursor-based</b></summary>
+
+**Chose:** Offset — per-user link count is bounded (hundreds, not millions). Simpler, well-understood, and sufficient for the access pattern.
+
+**Rejected:** Cursor-based — better for unbounded social feeds, but adds complexity (opaque cursors, no "jump to page 5") for near-zero benefit at this scale.
+</details>
+
+<details open>
+<summary><b>HTTP 410 Gone over 404 for archived links</b></summary>
+
+**Chose:** RFC 9110 `410 Gone` — signals permanent decommission to search engines, triggering index removal. The status check runs *before* the click increment to immunize analytics from crawler traffic.
+
+**Rejected:** `404` (ambiguous — was it deleted or never existed?), `302` to error page (increments clicks, corrupting analytics).
+
+**Bonus:** Content negotiation — browsers (`Accept: text/html`) get redirected to a branded `/deactivated` tombstone page with signup CTAs. API clients get clean `410` JSON. Same endpoint, two experiences.
+</details>
+
+<details>
+<summary><b>Aborted drag-and-drop reordering — and why cutting a feature is an engineering decision</b></summary>
+
+I prototyped drag-and-drop link reordering with `@dnd-kit`. During architectural review, I found **three compounding hazards**:
+
+1. **O(N) database writes per drag** — gapless integer ordering required a bulk `UPDATE` on every sibling row. For a user with 10,000 links, one drag rewrites 10,000 rows (WAL bloat, row locks). The proper fix is LexoRank or fractional indexing — significant complexity.
+2. **`touch-action: none` broke mobile scrolling** — the drag handle consumed vertical touch gestures, locking the viewport on phones.
+3. **TanStack Query cache desync** — reordering while a card was in the 5-second deletion undo buffer caused `arrayMove` index mismatches, making cards glitch to wrong positions.
+
+**Decision:** Abort and amputate. Purged `@dnd-kit`, restored codebase via `git reset --hard HEAD`. URL shorteners deliver value through fast search and dynamic sorting, not manual card dragging.
+
+This is documented in full in [ADR #35](dev_team_internals/04_notes/35_ADR_drag_and_drop_abortion_and_scaling_hazards.md).
+</details>
+
+<details>
+<summary><b>Vercel edge routing — solving the vanity slug "black hole"</b></summary>
+
+When I added custom vanity aliases (3–50 chars), the original Vercel rewrite regex `/:shortCode([A-Za-z0-9]{6})` stopped matching them. Vanity links fell through to the SPA catch-all, creating a silent routing black hole — links were created successfully in the database but never redirected users.
+
+Expanding the regex naively to `{3,50}` would intercept SPA routes like `/dashboard` (9 chars, all alphanumeric).
+
+**Solution:** A 4-tier rewrite precedence:
+1. `/api/:path*` → backend API
+2. `/(login|register|dashboard|...)` → SPA (protected by the backend's 47-entry `RESERVED_SLUGS` blacklist)
+3. `/:slug([A-Za-z0-9_-]{3,50})` → redirect engine
+4. `/*` → SPA fallback
+
+Full analysis in [ADR #40](dev_team_internals/04_notes/40_vercel_edge_reverse_proxy_four_tier_routing_precedence.md).
+</details>
+
+<details>
+<summary><b>PostgreSQL pool hardening — why the server kept crashing at 3 AM</b></summary>
+
+Neon serverless PostgreSQL aggressively terminates idle TCP sockets when scaling down compute. With no pool configuration and no `error` listener, dropped idle clients emitted unhandled error events → `process.exit(1)` → Render container terminated → 30–60s production outage.
+
+**Solution:**
+- `max: 10` — avoids exhausting Neon's 20-connection starter cap
+- `idleTimeoutMillis: 30000` — reclaims clients before Neon drops them
+- `connectionTimeoutMillis: 10000` — fail-fast instead of infinite hang on cold start
+- `pool.on('error')` — catches idle disconnects, logs via Pino, lets the pool self-heal
+- Graceful shutdown with a 10-second `setTimeout.unref()` force-kill fallback
+
+Documented in [ADR #38](dev_team_internals/04_notes/38_postgresql_connection_pool_resilience_and_crash_defense_architecture.md).
+</details>
+
+<br />
 
 ## 🛠️ Tech Stack
 
-* **Backend:** Node.js 22, Express 5, TypeScript, Zod, Drizzle ORM, Pino
-* **Database:** PostgreSQL 16 (Docker)
-* **Frontend:** React 19, Vite 8, TypeScript, Tailwind CSS v4, TanStack Query v5, React Hook Form, React Router v7
-* **Deployment & Containers:** Docker, Docker Compose, Vercel
+| Layer | Technology | Why This Choice |
+|:---|:---|:---|
+| **Backend** | Node.js 22, Express 5, TypeScript 6 (strict) | LTS runtime · native async errors · end-to-end type safety |
+| **Database** | PostgreSQL 16 (Neon Serverless) | ACID transactions · `COUNT(*) FILTER` · composite B-tree indexes |
+| **ORM** | Drizzle 0.45 | Zero-overhead type-safe SQL · auditable `.sql` migration files |
+| **Validation** | Zod 4 | Runtime + compile-time schema safety from a single source of truth |
+| **Frontend** | React 19, Vite 8, Tailwind CSS v4 | Concurrent rendering · instant HMR · utility-first with `@theme` tokens |
+| **Server State** | TanStack Query v5 | Cache deduplication · optimistic mutations with automatic rollback |
+| **Forms** | React Hook Form + Zod resolvers | Performant uncontrolled inputs with schema-driven validation |
+| **Auth** | JWT (jsonwebtoken) | Stateless auth · client-side expiration guard · 401 auto-logout via Axios interceptor |
+| **Logging** | Pino + pino-http | Structured JSON logs · request correlation IDs · minimal runtime overhead |
+| **Testing** | Vitest + Supertest | Real-database integration tests · Zod schema unit tests · 86 total |
+| **Infrastructure** | Docker, Vercel Edge, Render, Neon | One-command local dev · CDN edge rewrites · auto-deploy · serverless DB |
 
----
+<br />
 
-## 📁 Project Structure
+## 🚀 Quick Start
 
-```text
-clicku-url/
-├── backend/
-│   ├── src/
-│   │   ├── config/          # Environment variable validation (Zod)
-│   │   ├── db/              # Drizzle ORM schemas & migrations
-│   │   ├── lib/             # Crypto, tokens, logger, rate-limit, errors
-│   │   ├── middleware/      # Auth, error handling, request-id
-│   │   ├── modules/         # Auth, URL, and Stats controllers, services, schemas, routes
-│   │   ├── routes/          # Public redirect routes
-│   │   └── types/           # Express namespace typing extensions
-│   ├── tests/               # Vitest + Supertest integration test suites (7 suites, 28 tests)
-│   ├── Dockerfile
-│   ├── docker-compose.yml
-│   └── package.json
-│
-├── frontend/
-│   ├── public/              # Brand SVG logo, favicon
-│   ├── src/
-│   │   ├── api/             # Axios client & request interceptors
-│   │   ├── components/      # Shared UI (Alert, ErrorBoundary, Navbar, auth, common, landing)
-│   │   ├── config/          # Client environment validation
-│   │   ├── features/        # Auth & URL feature queries, mutations, schemas, types
-│   │   ├── hooks/           # useTheme, useScrollReveal, useAnimateCounter
-│   │   ├── layouts/         # AuthLayout, DashboardLayout
-│   │   ├── pages/           # LandingPage, LoginPage, RegisterPage, DashboardPage
-│   │   ├── routes/          # AppRoutes and ProtectedRoute guard
-│   │   └── utils/           # Clipboard copy utility with HTTP fallback
-│   ├── vercel.json
-│   └── package.json
-│
-└── README.md
+**Prerequisites:** Node.js 22+, pnpm, Docker
+
+```bash
+# 1. Clone
+git clone https://github.com/Harshkatare/clicku-url-shortener.git
+cd clicku-url-shortener
+
+# 2. Start PostgreSQL (Docker)
+cd backend && docker compose up postgres -d
+
+# 3. Backend — install, configure, migrate, run
+cp .env.example .env
+pnpm install && pnpm db:migrate && pnpm dev
+
+# 4. Frontend (new terminal)
+cd frontend && cp .env.example .env
+pnpm install && pnpm dev
 ```
 
----
+**→ Open [localhost:5173](http://localhost:5173)**
 
-## 🔑 Environment Variables
+<details>
+<summary>Environment variables</summary>
 
-### Backend (`backend/.env`)
+**Backend** (`backend/.env`)
 ```env
 PORT=5000
 DATABASE_URL=postgresql://postgres:postgres@localhost:5432/shortlynk_db
-JWT_SECRET=your_jwt_super_secret_key_12345
+JWT_SECRET=<any-string-min-10-characters>
 CLIENT_URL=http://localhost:5173
 ```
 
-### Frontend (`frontend/.env`)
+**Frontend** (`frontend/.env`)
 ```env
 VITE_API_URL=http://localhost:5000/api/v1
 VITE_SHORT_URL_BASE=http://localhost:5000
 ```
 
----
+</details>
 
-## 🚀 Getting Started
+<br />
 
-### 1. Start PostgreSQL
+## 🔌 API Reference
+
+All endpoints return `{ success: boolean, message?: string, data?: T }`.
+
+| Method | Endpoint | Auth | Description |
+|:---|:---|:---|:---|
+| `GET` | `/health` | — | Server liveness |
+| `GET` | `/:slug` | — | **Redirect engine** — HTTP 302 with atomic click tracking, UTM pass-through, HTTP 410 for archived |
+
+**Auth** (`/api/v1/auth`)
+
+| Method | Endpoint | Rate Limit | Description |
+|:---|:---|:---|:---|
+| `POST` | `/auth/signup` | 10 / 15 min | Register → JWT |
+| `POST` | `/auth/login` | 10 / 15 min | Login → JWT |
+| `GET` | `/auth/me` | Standard | Current user profile |
+
+**URLs** (`/api/v1/urls`) — all require `Bearer` JWT
+
+| Method | Endpoint | Description |
+|:---|:---|:---|
+| `POST` | `/urls` | Create short link (optional vanity alias) |
+| `POST` | `/urls/demo` | Anonymous guest link (3/IP/day, no auth) |
+| `POST` | `/urls/claim` | Claim anonymous link ownership |
+| `GET` | `/urls` | Search, filter, sort, paginate |
+| `GET` | `/urls/stats` | Portfolio stats (totals, active, avg clicks) |
+| `PATCH` | `/urls/:id` | Update destination, alias, status, pin |
+| `PATCH` | `/urls/:id/reorder` | Transactional sort-order update |
+| `DELETE` | `/urls/:id` | Delete link |
+
+**Platform** (`/api/v1/stats`)
+
+| Method | Endpoint | Description |
+|:---|:---|:---|
+| `GET` | `/stats/public` | Platform-wide telemetry (60s cache) |
+
+<br />
+
+## 🧪 Testing
+
+**86 tests** · **9 suites** · runs against a **real PostgreSQL database** — no mocks.
+
 ```bash
-cd backend
-docker compose up postgres -d
+pnpm test        # Run all
+pnpm test:watch  # Watch mode
 ```
 
-### 2. Run Database Migrations
-```bash
-# In backend/
-pnpm db:migrate
+| Suite | Tests | What It Validates |
+|:---|:---:|:---|
+| `urls` | 43 | Full CRUD · query engine (search, filter, sort, pagination) · vanity alias conflicts · reordering transactions · tenant isolation · pinning · portfolio stats |
+| `redirect` | 9 | 302 redirect · atomic click increment · UTM forwarding · HTTP 410 for archived · content negotiation |
+| `url-query` | 8 | Zod query schema: defaults, coercion, DoS limit cap (50), sanitization |
+| `auth` | 7 | Registration · login · duplicate rejection · JWT · `/me` profile · rate-limit decoupling |
+| `vanity-alias` | 7 | Length bounds · character regex · reserved slug blocking (47 slugs) |
+| `claim` | 6 | Guest → user ownership · idempotency · anti-hijack guards |
+| `demo` | 3 | Anonymous link creation · redirect · validation |
+| `health` | 2 | `/health` and `/api/health` liveness |
+| `stats` | 1 | Public platform telemetry aggregation |
+
+**Why real-database tests?** Mocks don't catch Postgres-specific behavior — constraint violations (`23505`), `COUNT(*) FILTER` syntax, `IS NULL` atomicity in concurrent claims, or connection pool crash recovery. Sequential execution (`fileParallelism: false`) prevents connection contention against serverless Neon.
+
+<br />
+
+## 📁 Project Structure
+
+```
+clicku-url/
+├── backend/
+│   ├── src/
+│   │   ├── config/        # Zod-validated env vars — fail-fast on boot
+│   │   ├── db/            # Drizzle schemas, pg pool, 6 SQL migrations
+│   │   ├── lib/           # Crypto, JWT, logger, rate limiters, error classes
+│   │   ├── middleware/     # Auth guard, error handler, request-id correlation
+│   │   ├── modules/       # auth · url · stats — controller/service/schema/routes each
+│   │   ├── routes/        # Public redirect engine (/:slug)
+│   │   └── types/         # Express namespace extensions
+│   ├── tests/             # 9 suites, 86 tests (Vitest + Supertest)
+│   ├── Dockerfile         # Node 22 Alpine
+│   └── docker-compose.yml # PostgreSQL 16 + backend
+├── frontend/
+│   ├── src/
+│   │   ├── api/           # Axios + JWT interceptor + 401 auto-logout
+│   │   ├── components/    # Dashboard, landing, layout, shared UI
+│   │   ├── features/      # auth · urls — API clients, Zod schemas, types
+│   │   ├── hooks/         # useTheme, useDebounce, useScrollReveal, useToast
+│   │   ├── pages/         # 6 pages: Landing, Login, Register, Dashboard, Deactivated, ComingSoon
+│   │   ├── routes/        # AppRoutes + ProtectedRoute (JWT expiry guard)
+│   │   └── context/       # Toast system with undo action support
+│   └── vercel.json        # 4-tier edge reverse proxy
+├── docs/images/           # Product screenshots
+└── README.md
 ```
 
-### 3. Start Backend Server
-```bash
-# In backend/
-pnpm dev
-# Server listens on http://localhost:5000
-```
+<br />
 
-### 4. Start Frontend Client
-```bash
-# In frontend/
-pnpm dev
-# Client runs on http://localhost:5173
-```
+## 🗺️ Roadmap
 
-### 5. Run Automated Tests
-```bash
-# In backend/
-pnpm test
+- [x] **v0.4** — Live MVP: auth, URL shortening, redirect engine, React 19 dashboard
+- [x] **v0.5** — Landing page rebuild, guest demo shortener, anonymous link claiming (PLG funnel)
+- [x] **v0.6** — Vanity aliases, server-side query engine, pinning, RFC 9110 tombstones, hardware-aware touch UX
+- [ ] **v0.7** — Analytics studio: geo-location, device breakdowns, UTM campaign tracking, downloadable QR codes
+- [ ] **v0.8** — Custom branded domains (CNAME + auto-SSL), developer API keys, webhook events
+- [ ] **v0.9** — Team workspaces, RBAC, HttpOnly secure cookie migration
+- [ ] **v1.0** — Enterprise readiness: Redis edge caching, SSO/SAML, SLA guarantees
 
-# Run in watch mode during development
-pnpm test:watch
-```
+<br />
 
----
+## 📄 License
 
-## 🔌 API Endpoints Reference
+Proprietary — all rights reserved.
+© 2026 [Harsh Katare](https://github.com/Harshkatare).
 
-### Health & Redirects
-* `GET /health` — Server liveness & health check
-* `GET /api/health` — Pre-rate-limiter server keepalive & warmup alias
-* `GET /:shortCode` — Public redirect to destination with atomic click increment
+<br />
 
-### Authentication (`/api/v1/auth`)
-* `POST /api/v1/auth/signup` — Register new user account
-* `POST /api/v1/auth/login` — Authenticate and receive JWT token
-* `GET /api/v1/auth/me` — Retrieve current user profile (Protected)
+## 👤 Author
 
-### URLs (`/api/v1/urls`)
-* `POST /api/v1/urls/demo` — Create anonymous guest demo shortlink (Public, rate-limited to 3/IP/24h)
-* `POST /api/v1/urls/claim` — Claim anonymous demo shortlink ownership upon login/signup (Protected)
-* `POST /api/v1/urls` — Create a new shortened link (Protected)
-* `GET /api/v1/urls` — List all links for authenticated user (Protected)
-* `PATCH /api/v1/urls/:id` — Update link destination URL (Protected)
-* `DELETE /api/v1/urls/:id` — Delete a shortened link (Protected)
-
-### Platform Statistics (`/api/v1/stats`)
-* `GET /api/v1/stats/public` — Real-time platform telemetry (total links & clicks, 60s in-memory cache)
-
----
-
-### 📌 Project Status & Roadmap
-
-### ✅ Completed (v0.4.0 Live MVP)
-* End-to-end user authentication & authorization
-* URL creation, atomic click tracking, and redirection
-* Query-level authorization enforcement
-* Structured logging & request correlation IDs
-* React 19 Frontend Dashboard with TanStack Query
-* Dockerized backend and PostgreSQL
-* Production Vercel deployment
-
-### ✅ Completed (v0.4.1 Backend Hardening & Testing)
-* Centralized error handling unification through Pino `logger.error`
-* Route parameter UUID validation with Zod (`urlParamsSchema`)
-* Unique constraint collision retry handling (`23505`) with 5x loop
-* Automated integration test suite (Vitest + Supertest, 16/16 tests passing)
-
-### ✅ Completed (v0.4.2 Frontend Client Resilience)
-* Axios 401 response auto-logout interceptor
-* Strict TypeScript generic return types (`AuthResponse`)
-
-### ✅ Completed (v0.4.3 Landing Page & Product Identity)
-* Public-facing landing page with interactive demo link preview
-* Smart authentication guard (Gap #24) routing logged-in users from `/` to `/dashboard`
-* Shortlynk branding and vector SVG logo integrated across the application
-* Modern sticky `LandingNavbar` and standalone `LandingLayout`
-
-### ✅ Completed (v0.4.4 Edge Reverse Proxy Routing)
-* Vercel edge reverse proxy configuration (`vercel.json`) proxying Base62 6-character shortcodes to Render backend
-* Root custom domain short link resolution (`shortlynk.in/:shortcode`)
-* Dashboard short URL visual display styling and clipboard copy alignment
-
-### ✅ Completed (v0.4.5 Schema & Security Hardening)
-* Catch-all 404 JSON response handler on backend (`{ success: false, message: "Route not found" }`)
-* 10kb body payload protection against DoS floods (`express.json({ limit: '10kb' })`)
-* Structured Pino error logging across all 4xx client and validation error paths with request IDs
-* Database schema foundations (`role`, `is_active`, `updated_at` on `users` table) with Drizzle migration
-* Comprehensive `.env.example` templates for backend and frontend developer onboarding
-
-### ✅ Completed (v0.4.6 Frontend Resilience & Test Expansion)
-* User registration auto-login persistence and direct dashboard routing (`RegisterPage.tsx`)
-* Type-safe `axios.isAxiosError` dynamic server error messages in login and signup forms
-* Authenticated user identity display (name & email) in dashboard navbar via `GET /api/v1/auth/me`
-* Client-side JWT `exp` timestamp validation and auto-purge redirect guard in `ProtectedRoute.tsx`
-* Full URL domain feature parity (`updateUrl()` API client, Zod schema, and `userId` type interface)
-* Universal clipboard fallback utility using `document.execCommand('copy')` for non-HTTPS environments
-* Global React `ErrorBoundary` crash recovery shell with 1-click reload recovery
-* TanStack `QueryClient` retry guards (disabled retries on 401/404 errors and mutations)
-* Automated integration test expansion for empty PATCH payload validation (17/17 tests passing)
-* Workspace package manifests updated to `0.4.6` with production metadata and ATS-optimized keywords
-
-### ✅ Completed (v0.4.7 Dark Mode & Design System Infrastructure)
-* Tailwind CSS v4 class-based dark mode engine (`@variant dark`) with instant reactive theme toggling
-* Custom `useTheme` hook with `localStorage` persistence and automatic OS color-scheme preference fallback
-* Sun/Moon theme toggle switches integrated into `LandingNavbar` and `Navbar` with smooth micro-interactions
-* 20+ custom design system utility classes (`.glass`, `.card-hover`, `.hero-grid`, `.progress-bar`, `.skeleton`, `[data-tooltip]`, `.bg-grid`)
-* 8 custom `@theme` keyframe animations (`fadeIn`, `slideUp`, `slideDown`, `scaleIn`, `bounceIn`, `spinSlow`, `pulseSoft`, `wiggle`)
-* `useScrollReveal` hook powered by `IntersectionObserver` for staggered scroll animations
-* Complete dark slate surface styling (`#020617` / `#0f172a`) across Landing, Dashboard, Login, and Register pages
-* Workspace package manifests aligned to version `0.4.7`
-
-### ✅ Completed (v0.4.8 Product Analytics Baseline)
-* Vercel Web Analytics client integrated into React 19 root application tree
-* Real-time visitor, pageview, referrer, and Core Web Vitals performance tracking enabled on `shortlynk.in`
-* Privacy-first, zero-cookie telemetry architecture with automatic local dev exclusion
-* Workspace package manifests aligned to version `0.4.8`
-
-### ✅ Completed (v0.5.0 Landing Page Rebuild, Public Demo & Unified Auth)
-* High-conversion SaaS storefront with dynamic hero, PlatformStatsProof live telemetry strip, TechnicalMetricsStrip ribbon, 4-card FeaturesGrid, transparent Pricing tiers (Free vs Pro Coming Soon), interactive FAQ accordion with smooth CSS grid height animation, and conversion CTA banner with 420px tilted watermark branding.
-* Public Guest Demo Shortener (`POST /api/v1/urls/demo`) with strict 3 links/IP/24h rate limiting (`demoRateLimit`).
-* Product-Led Growth (PLG) Anonymous Demo Link Claiming (`POST /api/v1/urls/claim`) with atomic SQL ownership transfer (`WHERE userId IS NULL`) and anti-hijack conflict guards.
-* Tabbed Frosted Glass `AuthModal` overlay and 4-segment reactive `PasswordStrengthMeter` entropy analysis.
-* Pervasive design system parity across Landing, Auth, and Dashboard (`.hero-grid`, `.card-hover`, `<Logo variant="badge" />`, clickable external short links with micro-animated `↗` icons, and creation timestamp badges).
-* Expanded integration test suite to 28 passing tests across 7 test suites (Demo, Claim, Stats, Auth, URLs, Redirects, Health).
-* Deprecated and deleted legacy prototypes (`HomePage.tsx`, `LandingNavbar.tsx`, `LandingLayout.tsx`), mounted `LandingPage.tsx` at `/`, and reduced production JS bundle size to 488 kB.
-* Bumped backend and frontend package manifests to `0.5.0`.
-
-### 🔮 Upcoming (v0.6.0 Enhanced Dashboard & Advanced URL Management)
-* URL search, status filtering (`active`, `expiring`, `archived`), and paginated link queries (`GET /api/v1/urls?search=&status=&page=&limit=`).
-* Custom alias support (`customAlias`) and link expiration dates.
-* HTML5 drag-and-drop card reordering (`PATCH /api/v1/urls/:id/reorder`).
-* Floating interactive toast notifications with 1-click "Undo" deletion callback.
-
+<a href="https://github.com/Harshkatare">
+  <img src="https://img.shields.io/badge/GitHub-Harshkatare-181717?style=flat-square&logo=github" alt="GitHub" />
+</a>
+<a href="https://linkedin.com/in/harshkatare">
+  <img src="https://img.shields.io/badge/LinkedIn-harshkatare-0A66C2?style=flat-square&logo=linkedin" alt="LinkedIn" />
+</a>
+<a href="https://shortlynk.in">
+  <img src="https://img.shields.io/badge/Product-shortlynk.in-10B981?style=flat-square&logo=safari&logoColor=white" alt="Shortlynk" />
+</a>

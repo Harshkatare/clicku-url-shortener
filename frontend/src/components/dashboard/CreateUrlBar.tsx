@@ -153,7 +153,7 @@ export function CreateUrlBar() {
         <div className="flex flex-col gap-2.5 sm:flex-row sm:items-center">
           {/* Destination URL Input Well */}
           <div className="relative flex flex-1 items-center rounded-xl border border-slate-200 bg-slate-50/80 transition-colors duration-150 focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500 dark:border-slate-800 dark:bg-slate-950/70 dark:focus-within:border-blue-500">
-            {/* Permanent Link Icon on Left Edge (Anchors visual hierarchy & reading order) */}
+            {/* Permanent Link Icon on Left Edge */}
             <div className="pointer-events-none pl-3 pr-2 text-slate-400 dark:text-slate-500 shrink-0">
               <svg
                 className="h-4 w-4"
@@ -179,7 +179,7 @@ export function CreateUrlBar() {
               className="h-10 w-full bg-transparent pr-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none sm:h-11 dark:text-slate-100 dark:placeholder:text-slate-500"
             />
 
-            {/* 1-Click Clipboard Paste Badge on Inside Right Edge (Satisfies Fitts's Law next to Shorten CTA) */}
+            {/* 1-Click Clipboard Paste Badge on Inside Right Edge next to Shorten CTA */}
             {isUrlEmpty && (
               <div className="pr-1.5 shrink-0">
                 <button
@@ -223,7 +223,7 @@ export function CreateUrlBar() {
             />
           </div>
 
-          {/* Primary Shorten CTA (Grounded Physical Button, Zero Neon Shadow) */}
+          {/* Primary Shorten CTA */}
           <button
             type="submit"
             disabled={createUrlMutation.isPending}

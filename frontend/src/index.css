@@ -290,7 +290,7 @@ body {
    Replaces chunky default OS scrollbars with a sleek, non-intrusive, theme-adaptive floating thumb.
    - Track is completely transparent (eliminating white gutter stripes across all themes)
    - Thumb uses modern rounded pill geometry with subtle slate palette matching design tokens
-   - Responsive hover feedback for tactile ergonomics */
+   - Responsive hover feedback */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
