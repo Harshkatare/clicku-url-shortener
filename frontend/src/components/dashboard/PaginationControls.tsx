@@ -19,7 +19,7 @@ export function PaginationControls({
     return null;
   }
 
-  const startItem = (currentPage - 1) * limit + 1;
+  const startItem = totalItems === 0 ? 0 : Math.min((currentPage - 1) * limit + 1, totalItems);
   const endItem = Math.min(currentPage * limit, totalItems);
 
   const canGoPrevious = currentPage > 1 && !isPlaceholderData;

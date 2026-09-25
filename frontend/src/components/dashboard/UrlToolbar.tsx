@@ -112,7 +112,7 @@ export function UrlToolbar({
       {/* Controls Container: Status Filter Chips & Sort Dropdown */}
       <div className="flex flex-wrap items-center justify-between gap-2.5 sm:justify-end">
         <div
-          className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0"
+          className="no-scrollbar flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
           role="tablist"
           aria-label="Filter links by status"
         >

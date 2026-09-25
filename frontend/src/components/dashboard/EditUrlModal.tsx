@@ -1,4 +1,5 @@
 import { useEffect, useCallback, type FocusEvent, type FormEvent } from "react";
+import { createPortal } from "react-dom";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -123,7 +124,7 @@ export function EditUrlModal({ url, isOpen, onClose }: EditUrlModalProps) {
     };
   }, [isOpen, handleKeyDown, reset, url]);
 
-  if (!isOpen || !url) return null;
+  if (!isOpen || !url || typeof document === "undefined") return null;
 
   const handleUrlBlur = (e: FocusEvent<HTMLInputElement>) => {
     let val = e.target.value.trim();
@@ -179,7 +180,7 @@ export function EditUrlModal({ url, isOpen, onClose }: EditUrlModalProps) {
   const inputClass =
     "h-11 w-full rounded-xl border border-slate-300 bg-white px-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-500 dark:focus:border-blue-400 dark:focus:ring-blue-900/30";
 
-  return (
+  return createPortal(
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-4 backdrop-blur-xs transition-opacity duration-200"
       onClick={onClose}
@@ -337,6 +338,7 @@ export function EditUrlModal({ url, isOpen, onClose }: EditUrlModalProps) {
           </div>
         </form>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

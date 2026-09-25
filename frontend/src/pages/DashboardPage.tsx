@@ -17,7 +17,8 @@ import {
   getUrlStats,
 } from "../features/urls/urls.api";
 
-import type { Url } from "../features/urls/urls.types";
+import { AxiosError } from "axios";
+import type { Url, GetUrlsResponse } from "../features/urls/urls.types";
 
 import { useToastContext } from "../context/ToastContext";
 import { StatCards } from "../components/dashboard/StatCards";
@@ -231,7 +232,7 @@ export function DashboardPage() {
     onMutate: async ({ id, isPinned }) => {
       await queryClient.cancelQueries({ queryKey: ["urls"] });
       const previousUrls = queryClient.getQueriesData({ queryKey: ["urls"] });
-      queryClient.setQueriesData({ queryKey: ["urls"] }, (old: any) => {
+      queryClient.setQueriesData<GetUrlsResponse>({ queryKey: ["urls"] }, (old) => {
         if (!old?.data || !Array.isArray(old.data)) return old;
         return {
           ...old,
@@ -240,17 +241,19 @@ export function DashboardPage() {
       });
       return { previousUrls };
     },
-    onError: (err: any, _vars, context) => {
+    onError: (err: unknown, _vars, context) => {
       console.error("Pin toggle mutation error:", err);
       if (context?.previousUrls) {
         context.previousUrls.forEach(([key, data]) => {
           queryClient.setQueryData(key, data);
         });
       }
-      const message =
-        err?.response?.data?.message ||
-        err?.message ||
-        "Failed to update pin status.";
+      let message = "Failed to update pin status.";
+      if (err instanceof AxiosError) {
+        message = err.response?.data?.message || err.message || message;
+      } else if (err instanceof Error) {
+        message = err.message;
+      }
       showToast("error", message);
     },
     onSuccess: (_data, { isPinned }) => {
@@ -314,19 +317,38 @@ export function DashboardPage() {
     [setSearchParams]
   );
 
-  // Multi-Condition Pagination Fallback Effect
+  // Effective totals incorporating local pending deletion buffer
+  const serverTotal = data?.pagination?.total ?? 0;
+  const effectiveTotal = Math.max(0, serverTotal - pendingDeletionIds.size);
+  const paginationLimit = data?.pagination?.limit ?? 10;
+  const effectiveTotalPages = Math.max(1, Math.ceil(effectiveTotal / paginationLimit));
+
+  // Visible URLs filtered against pending deletion buffer
+  const visibleUrls = data?.data.filter((u) => !pendingDeletionIds.has(u.id)) ?? [];
+
+  // Multi-Condition Pagination Fallback Effect (with Optimistic Ghost-Page Protection)
   useEffect(() => {
     if (!isPlaceholderData && data?.pagination && currentPage > 1) {
-      if (data.pagination.total === 0) {
+      const allCurrentPageItemsPending =
+        (data.data?.length ?? 0) > 0 && visibleUrls.length === 0 && pendingDeletionIds.size > 0;
+
+      if (effectiveTotal === 0) {
         handlePageChange(1);
-      } else if (
-        data.pagination.totalPages > 0 &&
-        currentPage > data.pagination.totalPages
-      ) {
-        handlePageChange(data.pagination.totalPages);
+      } else if (currentPage > effectiveTotalPages || allCurrentPageItemsPending) {
+        handlePageChange(Math.min(currentPage - 1, effectiveTotalPages));
       }
     }
-  }, [isPlaceholderData, data?.pagination, currentPage, handlePageChange]);
+  }, [
+    isPlaceholderData,
+    data?.pagination,
+    data?.data?.length,
+    visibleUrls.length,
+    pendingDeletionIds.size,
+    currentPage,
+    effectiveTotal,
+    effectiveTotalPages,
+    handlePageChange,
+  ]);
 
   const handleClearFilters = () => {
     setSearchInput("");
@@ -342,9 +364,6 @@ export function DashboardPage() {
   };
 
   const hasActiveFilters = Boolean(debouncedSearch.trim() || currentStatus !== "all");
-
-  // Visible URLs filtered against pending deletion buffer
-  const visibleUrls = data?.data.filter((u) => !pendingDeletionIds.has(u.id)) ?? [];
 
   // Inhibit empty state flash if an item is currently in the 5-second pending deletion window
   const showEmptyState =
@@ -379,9 +398,9 @@ export function DashboardPage() {
           <h3 className="text-xl font-semibold text-slate-900 dark:text-slate-100">
             My URLs
           </h3>
-          {data?.pagination && data.pagination.total > 0 && (
+          {data?.pagination && effectiveTotal > 0 && (
             <span className="text-xs font-medium text-slate-500 dark:text-slate-400">
-              {data.pagination.total} total {data.pagination.total === 1 ? "link" : "links"}
+              {effectiveTotal} total {effectiveTotal === 1 ? "link" : "links"}
             </span>
           )}
         </div>
@@ -468,9 +487,9 @@ export function DashboardPage() {
             {/* Pagination Controls */}
             {data?.pagination && (
               <PaginationControls
-                currentPage={data.pagination.page}
-                totalPages={data.pagination.totalPages}
-                totalItems={data.pagination.total}
+                currentPage={Math.min(currentPage, effectiveTotalPages)}
+                totalPages={effectiveTotalPages}
+                totalItems={effectiveTotal}
                 limit={data.pagination.limit}
                 onPageChange={handlePageChange}
                 isPlaceholderData={isPlaceholderData}
