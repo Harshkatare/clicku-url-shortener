@@ -186,7 +186,7 @@ export function EditUrlModal({ url, isOpen, onClose }: EditUrlModalProps) {
       onClick={onClose}
     >
       <div
-        className="no-scrollbar relative max-h-[90vh] w-full max-w-md overflow-y-auto rounded-3xl border border-slate-200/80 bg-white p-6 shadow-2xl transition-all sm:p-7 dark:border-slate-800 dark:bg-slate-900 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+        className="no-scrollbar relative max-h-[90vh] w-full max-w-md overflow-y-auto rounded-3xl border border-slate-200/80 bg-white p-5 shadow-2xl transition-all sm:p-7 dark:border-slate-800 dark:bg-slate-900 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Close Button (Pinned to Top-Right Corner) */}
@@ -246,15 +246,15 @@ export function EditUrlModal({ url, isOpen, onClose }: EditUrlModalProps) {
             <label className="mb-1 block text-xs font-semibold text-slate-700 dark:text-slate-300">
               Custom Vanity Alias (Optional)
             </label>
-            <div className="flex items-center">
-              <span className="inline-flex h-11 items-center rounded-l-xl border border-r-0 border-slate-300 bg-slate-100 px-3.5 text-xs font-semibold text-slate-500 select-none dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400">
+            <div className="flex w-full items-center">
+              <span className="inline-flex h-11 shrink-0 items-center rounded-l-xl border border-r-0 border-slate-300 bg-slate-100 px-3 text-xs font-semibold text-slate-500 select-none dark:border-slate-700 dark:bg-slate-800 dark:text-slate-400">
                 {domainDisplay}
               </span>
               <input
                 type="text"
                 placeholder="my-custom-link"
                 {...register("customAlias")}
-                className="h-11 flex-1 rounded-r-xl border border-slate-300 bg-white px-3 text-sm text-slate-900 placeholder:text-slate-400 transition-colors focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:border-blue-400 dark:focus:ring-blue-900/50"
+                className="h-11 min-w-0 flex-1 rounded-r-xl border border-slate-300 bg-white px-3 text-sm text-slate-900 placeholder:text-slate-400 transition-colors focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:placeholder:text-slate-500 dark:focus:border-blue-400 dark:focus:ring-blue-900/50"
               />
             </div>
             {errors.customAlias ? (

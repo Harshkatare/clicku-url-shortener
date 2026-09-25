@@ -289,3 +289,17 @@ body {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+/* Touch-Screen Aware Hover Disclosure
+   Only hide action buttons on devices with true mouse/pointer hover capability.
+   Touch devices (iPads, tablets, phones) keep actions permanently visible and accessible. */
+@media (hover: hover) and (pointer: fine) {
+  .hover-actions {
+    opacity: 0;
+    transition: opacity 150ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .group:hover .hover-actions,
+  .group:focus-within .hover-actions {
+    opacity: 1;
+  }
+}

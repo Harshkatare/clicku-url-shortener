@@ -124,9 +124,9 @@ export function UrlCard({ url, onEdit, onDelete, onQrClick, onTogglePin }: UrlCa
         ? "border-blue-200/90 bg-blue-50/20 dark:border-blue-800/80 dark:bg-blue-950/20"
         : "border-slate-200/80 bg-white/85 dark:border-slate-800/80 dark:bg-slate-900/85"
     }`}>
-      {/* Top Row: Short URL link, Vanity pill, Pinned badge, Status badge & Responsive Actions */}
-      <div className="flex items-start justify-between gap-4">
-        <div className="flex flex-wrap items-center gap-2">
+      {/* Top Row: Short URL link, Pinned badge, Status badge & Responsive Actions */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+        <div className="flex flex-wrap items-center gap-2 min-w-0">
           <a
             href={shortUrl}
             target="_blank"
@@ -175,8 +175,8 @@ export function UrlCard({ url, onEdit, onDelete, onQrClick, onTogglePin }: UrlCa
           </span>
         </div>
 
-        {/* Action buttons with responsive hover/focus-within disclosure and compliant touch targets */}
-        <div className="flex items-center gap-1.5 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100 focus-visible:opacity-100 transition-opacity duration-150 shrink-0">
+        {/* Action buttons with hardware-aware touch/hover disclosure and compliant touch targets */}
+        <div className="hover-actions flex items-center gap-1.5 self-start sm:self-auto shrink-0 focus-visible:opacity-100">
           {onTogglePin && (
             <button
               type="button"

@@ -100,7 +100,7 @@ export function AppShell() {
         {/* Right Section: Notifications + Theme + Avatar + Logout */}
         <div className="flex items-center gap-2.5 sm:gap-3">
           {/* Notification Popover */}
-          <div className="relative">
+          <div className="sm:relative">
             <button
               type="button"
               onClick={() => setNotifOpen((v) => !v)}
@@ -127,7 +127,7 @@ export function AppShell() {
                   onClick={() => setNotifOpen(false)}
                   aria-hidden="true"
                 />
-                <div className="absolute right-0 mt-2 w-72 z-50 rounded-2xl border border-slate-200/80 bg-white/95 p-4 shadow-xl backdrop-blur-xl dark:border-slate-800/80 dark:bg-slate-900/95 transition-all">
+                <div className="fixed inset-x-4 top-16 mt-2 max-w-sm mx-auto sm:mx-0 sm:max-w-none sm:absolute sm:inset-x-auto sm:top-full sm:right-0 sm:mt-2 sm:w-72 z-50 rounded-2xl border border-slate-200/80 bg-white/95 p-4 shadow-xl backdrop-blur-xl dark:border-slate-800/80 dark:bg-slate-900/95 transition-all">
                   <div className="mb-2 flex items-center justify-between">
                     <p className="text-xs font-bold uppercase tracking-wider text-slate-500 dark:text-slate-400">
                       Notifications
