@@ -55,6 +55,19 @@ describe("URLs API Integration Tests", () => {
     expect(res.body.message).toBe("Custom alias already in use");
   });
 
+  // 1c. Test rejecting non-http/https protocols (such as javascript:)
+  it("should reject creating URL with non-http/https protocols with 400 Bad Request", async () => {
+    const res = await request(app)
+      .post("/api/v1/urls")
+      .set("Authorization", `Bearer ${authToken}`)
+      .send({
+        originalUrl: "javascript:alert('xss')",
+      });
+
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+  });
+
   // 2. Test Listing URLs for the User
   it("should list all URLs for authenticated user with status 200", async () => {
     const res = await request(app)

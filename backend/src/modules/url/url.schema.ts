@@ -87,8 +87,15 @@ export const customAliasSchema = z
     }
   );
 
+const destinationUrlSchema = z
+  .url("Invalid URL")
+  .refine(
+    (val) => /^https?:\/\//i.test(val),
+    "URL must start with http:// or https://"
+  );
+
 export const createUrlSchema = z.object({
-  originalUrl: z.url("Invalid URL"),
+  originalUrl: destinationUrlSchema,
   customAlias: customAliasSchema.optional(),
   status: z.enum(["active", "expiring", "archived"]).default("active"),
 });
@@ -99,9 +106,7 @@ export type CreateUrlInput = z.infer<
 
 export const updateUrlSchema = z
   .object({
-    originalUrl: z
-      .url("Invalid URL")
-      .optional(),
+    originalUrl: destinationUrlSchema.optional(),
     customAlias: customAliasSchema.nullable().optional(),
     status: z.enum(["active", "expiring", "archived"]).optional(),
     isPinned: z.boolean().optional(),
