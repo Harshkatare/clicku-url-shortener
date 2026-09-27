@@ -31,6 +31,19 @@ export async function createShortUrl(
   data: CreateUrlInput,
   userId: string | null = null
 ) {
+  if (data.customAlias) {
+    const conflicting = await db.query.urls.findFirst({
+      where: or(
+        eq(urls.shortCode, data.customAlias),
+        eq(urls.customAlias, data.customAlias)
+      ),
+    });
+
+    if (conflicting) {
+      throw new ConflictError("Custom alias already in use");
+    }
+  }
+
   for (let attempt = 1; attempt <= MAX_COLLISION_RETRIES; attempt++) {
     const shortCode = generateShortCode();
     const urlId = crypto.randomUUID();

@@ -40,6 +40,21 @@ describe("URLs API Integration Tests", () => {
     createdShortCode = res.body.data.shortCode;
   });
 
+  // 1b. Test rejecting custom alias that collides with an existing short code
+  it("should reject creating URL with custom alias colliding with existing shortCode with 409 Conflict", async () => {
+    const res = await request(app)
+      .post("/api/v1/urls")
+      .set("Authorization", `Bearer ${authToken}`)
+      .send({
+        originalUrl: "https://example.com/collision-test",
+        customAlias: createdShortCode,
+      });
+
+    expect(res.status).toBe(409);
+    expect(res.body.success).toBe(false);
+    expect(res.body.message).toBe("Custom alias already in use");
+  });
+
   // 2. Test Listing URLs for the User
   it("should list all URLs for authenticated user with status 200", async () => {
     const res = await request(app)
