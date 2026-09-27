@@ -1,6 +1,8 @@
 import request from "supertest";
 import app from "../src/app.js";
-import { pool } from "../src/db/index.js";
+import { db, pool } from "../src/db/index.js";
+import { users } from "../src/db/schema/users.js";
+import { eq } from "drizzle-orm";
 import { describe, it, expect, afterAll } from "vitest";
 
 describe("Auth API Integration Tests", () => {
@@ -94,6 +96,40 @@ describe("Auth API Integration Tests", () => {
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
     }
+  });
+
+  // 8. Test Login Rejection for Deactivated Account
+  it("should reject login for deactivated user with 401 Invalid credentials", async () => {
+    await db
+      .update(users)
+      .set({ isActive: false })
+      .where(eq(users.email, testEmail));
+
+    const res = await request(app).post("/api/v1/auth/login").send({
+      email: testEmail,
+      password: testPassword,
+    });
+
+    expect(res.status).toBe(401);
+    expect(res.body.success).toBe(false);
+    expect(res.body.message).toBe("Invalid credentials");
+  });
+
+  // 9. Test Protected Route Rejection for Deactivated Account Token
+  it("should reject /me request for deactivated user with 401 Account is deactivated", async () => {
+    const res = await request(app)
+      .get("/api/v1/auth/me")
+      .set("Authorization", `Bearer ${authToken}`);
+
+    expect(res.status).toBe(401);
+    expect(res.body.success).toBe(false);
+    expect(res.body.message).toBe("Account is deactivated");
+
+    // Restore active status
+    await db
+      .update(users)
+      .set({ isActive: true })
+      .where(eq(users.email, testEmail));
   });
 
   // Clean up database connection after tests finish

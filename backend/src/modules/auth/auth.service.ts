@@ -60,6 +60,12 @@ export async function login(data: LoginInput) {
     );
   }
 
+  if (!existingUser.isActive) {
+    throw new UnauthorizedError(
+      "Invalid credentials"
+    );
+  }
+
   const isPasswordValid =
     await verifyPassword(
       data.password,
