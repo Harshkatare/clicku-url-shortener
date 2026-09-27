@@ -10,15 +10,23 @@ export const customAliasSchema = z
     "Custom alias can only contain letters, numbers, hyphens, and underscores"
   );
 
+const destinationUrlSchema = z
+  .string()
+  .url("Please enter a valid URL")
+  .refine(
+    (val) => /^https?:\/\//i.test(val),
+    "URL must start with http:// or https://"
+  );
+
 export const createUrlSchema = z.object({
-  originalUrl: z.string().url("Please enter a valid URL"),
+  originalUrl: destinationUrlSchema,
   customAlias: customAliasSchema.optional().or(z.literal("")),
   status: z.enum(["active", "expiring", "archived"]).default("active").optional(),
 });
 
 export const updateUrlSchema = z
   .object({
-    originalUrl: z.string().url("Please enter a valid URL").optional(),
+    originalUrl: destinationUrlSchema.optional(),
     customAlias: customAliasSchema.nullable().optional().or(z.literal("")),
     status: z.enum(["active", "expiring", "archived"]).optional(),
   })
