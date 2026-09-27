@@ -7,8 +7,8 @@
 <h1 align="center">Shortlynk</h1>
 
 <p align="center">
-  <b>A production link management platform for branded short URLs, real-time click tracking, and developer-friendly API access.</b><br />
-  Built as a fullstack engineering project — deployed live, tested against real PostgreSQL, and handling real traffic.
+  <b>A URL shortener for branded short URLs, real-time click tracking, and developer-friendly API access.</b><br />
+  Built as a fullstack engineering project — deployed live and tested against PostgreSQL.
 </p>
 
 <p align="center">
@@ -40,11 +40,11 @@
 
 ## Why I Built This
 
-I wanted to build something that's **not a tutorial project** — a system deployed on a real domain, handling real traffic, with real infrastructure problems to solve.
+I wanted to build something that's **not a tutorial project** — a system deployed on a real domain with real infrastructure problems to solve.
 
 URL shortening sounds simple. It's not. The moment you deploy it, you hit:
 - **Collision handling** at the database layer (what happens when two users generate the same 6-character code at the same instant?)
-- **Edge routing** (how does `shortlynk.in/my-brand` hit your backend redirect engine without exposing raw hosting domains, while also not intercepting `/dashboard`?)
+- **Edge routing** (how does `shortlynk.in/my-brand` hit your backend redirect endpoint without exposing raw hosting domains, while also not intercepting `/dashboard`?)
 - **Analytics integrity** (how do you stop Google's crawler from inflating your click counts on archived links?)
 - **Touch ergonomics** (how do you show action buttons on iPads that have no hover state?)
 
@@ -86,31 +86,31 @@ These are the problems that taught me the most — and the ones I document in th
       <ul>
         <li><b>Custom branded aliases</b> — <code>shortlynk.in/my-brand</code> alongside auto-generated 6-char codes</li>
         <li><b>Pin priority links</b> to the top of your dashboard</li>
-        <li><b>Archive & deactivate</b> — returns HTTP 410 Gone with a branded tombstone page</li>
-        <li><b>5-second undo buffer</b> — deletions feel instant; undo before permanent removal</li>
+        <li><b>Archive & deactivate</b> — returns HTTP 410 Gone with a /deactivated page</li>
+        <li><b>5-second undo window</b> — deletions feel instant; undo before permanent removal</li>
       </ul>
       <h3>🔍 Search, Filter & Sort</h3>
       <ul>
-        <li><b>Server-side search</b> across URLs, short codes, and aliases (SQL injection-safe)</li>
+        <li><b>Server-side search</b> across URLs, short codes, and aliases</li>
         <li><b>5 status filters:</b> All, Active, Expiring, Pinned, Archived</li>
         <li><b>4-way sort:</b> Newest, Oldest, Most Clicks, Least Clicks</li>
-        <li><b>Paginated API</b> with DoS-bounded limits (max 50/page)</li>
+        <li><b>Paginated API</b> with max 50 per page limits</li>
       </ul>
     </td>
     <td width="50%" valign="top">
       <h3>📊 Analytics & Tracking</h3>
       <ul>
-        <li><b>Atomic click counters</b> — every redirect increments via <code>sql\`clicks + 1\`</code></li>
-        <li><b>Dashboard stats</b> — total links, clicks, active links, avg velocity via <code>COUNT(*) FILTER</code></li>
+        <li><b>Click counting</b> — every redirect increments via <code>sql\`clicks + 1\`</code></li>
+        <li><b>Dashboard stats</b> — total links, clicks, active links, avg clicks per link</li>
         <li><b>UTM preservation</b> — query params pass through to destination without stripping</li>
-        <li><b>Public platform telemetry</b> with 60-second in-memory cache</li>
+        <li><b>Public stats endpoint (cached 60s)</b> with 60-second in-memory cache</li>
       </ul>
       <h3>🛡️ Security</h3>
       <ul>
         <li><b>JWT auth</b> with client-side expiration guards and 401 auto-logout</li>
-        <li><b>3-tier rate limiting:</b> API (100/15m), auth (10/15m), demo (3/IP/day)</li>
+        <li><b>Rate limiting: API (100/15m), auth (10/15m), demo (3/day)</b></li>
         <li><b>Zod validation</b> on every input — bodies, query params, route params</li>
-        <li><b>10kb body limit,</b> request correlation IDs, structured Pino logging</li>
+        <li><b>10kb body limit,</b> request correlation IDs</li>
       </ul>
     </td>
   </tr>
@@ -120,8 +120,8 @@ These are the problems that taught me the most — and the ones I document in th
       <ul>
         <li><b>Dark mode</b> — OS preference detection, <code>color-scheme</code> synchronization (fixes Chromium scrollbar styling)</li>
         <li><b>Optimistic mutations</b> via TanStack Query — UI updates instantly, rolls back on failure</li>
-        <li><b>Hardware-aware touch</b> — <code>@media (hover: hover) and (pointer: fine)</code> shows/hides action buttons based on device type</li>
-        <li><b>Guest-to-user conversion</b> — anonymous demo links are atomically claimed on signup (<code>WHERE userId IS NULL</code>)</li>
+        <li><b>Touch-friendly action buttons</b> — <code>@media (hover: hover) and (pointer: fine)</code> shows/hides action buttons based on device type</li>
+        <li><b>Guest-to-user conversion</b> — anonymous demo links are claimed on signup (<code>WHERE userId IS NULL</code>)</li>
         <li><b>Error boundary</b> — global crash recovery with 1-click reload, preventing white-screen failures</li>
       </ul>
     </td>
@@ -136,12 +136,12 @@ These are the problems that taught me the most — and the ones I document in th
 flowchart TD
     User(("🌐 End User"))
 
-    subgraph Vercel["Vercel Edge Network"]
+    subgraph Vercel["Vercel"]
         direction TB
-        T1["Tier 1: /api/* → Render API"]
-        T2["Tier 2: /dashboard, /login → SPA"]
-        T3["Tier 3: /:slug — 3-50 chars → Render Redirect Engine"]
-        T4["Tier 4: /* → SPA Fallback"]
+        T1["/api/* → Backend API"]
+        T2["/dashboard, /login → SPA"]
+        T3["/:slug — 3-50 chars → Backend API (Redirect)"]
+        T4["/* → SPA Fallback"]
     end
 
     subgraph Frontend["Frontend — React 19 + Vite 8"]
@@ -175,7 +175,7 @@ flowchart TD
     Drizzle --> Pool --> Tables
 ```
 
-**Why this topology?** Shortlynk runs on a split deployment: the React SPA on Vercel's CDN edge, the API on Render, and the database on Neon serverless PostgreSQL. The critical piece is the **4-tier Vercel rewrite** in [`vercel.json`](frontend/vercel.json) — it routes `/api/*` calls and `/:slug` redirect traffic to the backend without exposing Render's raw hosting domain, while protecting SPA routes like `/dashboard` from being intercepted by the slug regex. Getting this wrong creates a "black hole" where custom vanity links silently route to the SPA instead of the redirect engine — a bug I caught and documented in [ADR #40](dev_team_internals/04_notes/40_vercel_edge_reverse_proxy_four_tier_routing_precedence.md).
+**Why this topology?** Shortlynk runs on a split deployment: the React SPA on Vercel, the API on Render, and the database on Neon serverless PostgreSQL. The critical piece is the **Vercel rewrites in vercel.json** — it routes `/api/*` calls and `/:slug` redirect traffic to the backend without exposing Render's raw hosting domain, while protecting SPA routes like `/dashboard` from being intercepted by the slug regex. Getting this wrong routes custom vanity links to the SPA instead of the redirect endpoint.
 
 ### Database Schema
 
@@ -201,13 +201,13 @@ erDiagram
         varchar status "active | expiring | archived"
         boolean is_pinned "default: false"
         integer sort_order "default: 0"
-        integer clicks "default: 0, atomic increment"
+        integer clicks "default: 0"
         timestamp created_at
         timestamp updated_at
     }
 ```
 
-**Key index:** `urls_user_pinned_idx` — composite B-tree on `(user_id, is_pinned)`. Dashboard queries always sort pinned links first; this index serves that ordering without a full-table sort.
+**Key index:** `urls_user_pinned_idx` — composite B-tree on `(user_id, is_pinned)`.
 
 <br />
 
@@ -220,7 +220,7 @@ These are the tradeoffs that shaped the system — not just what I chose, but **
 <details open>
 <summary><b>Express 5 over Fastify</b></summary>
 
-**Chose:** Express 5 — native async error propagation lets you `throw` in route handlers without wrapper boilerplate. Helmet, CORS, and `express-rate-limit` are battle-tested middleware.
+**Chose:** Express 5 — chosen for its mature ecosystem. Since we wrap route handlers in `asyncHandler()`, we get consistent async error handling. Helmet, CORS, and `express-rate-limit` are battle-tested middleware.
 
 **Rejected:** Fastify — faster raw throughput, but the middleware ecosystem is smaller and less mature for this use case.
 </details>
@@ -242,47 +242,41 @@ These are the tradeoffs that shaped the system — not just what I chose, but **
 </details>
 
 <details open>
-<summary><b>HTTP 410 Gone over 404 for archived links</b></summary>
+<summary><b>Handling archived links</b></summary>
 
-**Chose:** RFC 9110 `410 Gone` — signals permanent decommission to search engines, triggering index removal. The status check runs *before* the click increment to immunize analytics from crawler traffic.
+**Implementation:** API clients get 410 JSON, browsers get redirected to /deactivated page. The status check runs *before* the click increment to immunize analytics from crawler traffic.
 
 **Rejected:** `404` (ambiguous — was it deleted or never existed?), `302` to error page (increments clicks, corrupting analytics).
-
-**Bonus:** Content negotiation — browsers (`Accept: text/html`) get redirected to a branded `/deactivated` tombstone page with signup CTAs. API clients get clean `410` JSON. Same endpoint, two experiences.
 </details>
 
 <details>
-<summary><b>Aborted drag-and-drop reordering — and why cutting a feature is an engineering decision</b></summary>
+<summary><b>Reconsidering drag-and-drop reordering</b></summary>
 
 I prototyped drag-and-drop link reordering with `@dnd-kit`. During architectural review, I found **three compounding hazards**:
 
 1. **O(N) database writes per drag** — gapless integer ordering required a bulk `UPDATE` on every sibling row. For a user with 10,000 links, one drag rewrites 10,000 rows (WAL bloat, row locks). The proper fix is LexoRank or fractional indexing — significant complexity.
 2. **`touch-action: none` broke mobile scrolling** — the drag handle consumed vertical touch gestures, locking the viewport on phones.
-3. **TanStack Query cache desync** — reordering while a card was in the 5-second deletion undo buffer caused `arrayMove` index mismatches, making cards glitch to wrong positions.
+3. **TanStack Query cache desync** — reordering while a card was in the 5-second deletion undo window caused `arrayMove` index mismatches, making cards glitch to wrong positions.
 
-**Decision:** Abort and amputate. Purged `@dnd-kit`, restored codebase via `git reset --hard HEAD`. URL shorteners deliver value through fast search and dynamic sorting, not manual card dragging.
-
-This is documented in full in [ADR #35](dev_team_internals/04_notes/35_ADR_drag_and_drop_abortion_and_scaling_hazards.md).
+**Decision:** The frontend UI was removed but the backend endpoint remains. URL shorteners deliver value through fast search and dynamic sorting, not manual card dragging.
 </details>
 
 <details>
-<summary><b>Vercel edge routing — solving the vanity slug "black hole"</b></summary>
+<summary><b>Vercel edge routing</b></summary>
 
-When I added custom vanity aliases (3–50 chars), the original Vercel rewrite regex `/:shortCode([A-Za-z0-9]{6})` stopped matching them. Vanity links fell through to the SPA catch-all, creating a silent routing black hole — links were created successfully in the database but never redirected users.
+When I added custom vanity aliases (3–50 chars), the original Vercel rewrite regex `/:shortCode([A-Za-z0-9]{6})` stopped matching them. Vanity links fell through to the SPA catch-all, meaning links were created successfully in the database but never redirected users.
 
 Expanding the regex naively to `{3,50}` would intercept SPA routes like `/dashboard` (9 chars, all alphanumeric).
 
 **Solution:** A 4-tier rewrite precedence:
 1. `/api/:path*` → backend API
 2. `/(login|register|dashboard|...)` → SPA (protected by the backend's 47-entry `RESERVED_SLUGS` blacklist)
-3. `/:slug([A-Za-z0-9_-]{3,50})` → redirect engine
+3. `/:slug([A-Za-z0-9_-]{3,50})` → redirect endpoint
 4. `/*` → SPA fallback
-
-Full analysis in [ADR #40](dev_team_internals/04_notes/40_vercel_edge_reverse_proxy_four_tier_routing_precedence.md).
 </details>
 
 <details>
-<summary><b>PostgreSQL pool hardening — why the server kept crashing at 3 AM</b></summary>
+<summary><b>PostgreSQL connection pool configuration</b></summary>
 
 Neon serverless PostgreSQL aggressively terminates idle TCP sockets when scaling down compute. With no pool configuration and no `error` listener, dropped idle clients emitted unhandled error events → `process.exit(1)` → Render container terminated → 30–60s production outage.
 
@@ -292,27 +286,25 @@ Neon serverless PostgreSQL aggressively terminates idle TCP sockets when scaling
 - `connectionTimeoutMillis: 10000` — fail-fast instead of infinite hang on cold start
 - `pool.on('error')` — catches idle disconnects, logs via Pino, lets the pool self-heal
 - Graceful shutdown with a 10-second `setTimeout.unref()` force-kill fallback
-
-Documented in [ADR #38](dev_team_internals/04_notes/38_postgresql_connection_pool_resilience_and_crash_defense_architecture.md).
 </details>
 
 <br />
 
 ## 🛠️ Tech Stack
 
-| Layer | Technology | Why This Choice |
-|:---|:---|:---|
-| **Backend** | Node.js 22, Express 5, TypeScript 6 (strict) | LTS runtime · native async errors · end-to-end type safety |
-| **Database** | PostgreSQL 16 (Neon Serverless) | ACID transactions · `COUNT(*) FILTER` · composite B-tree indexes |
-| **ORM** | Drizzle 0.45 | Zero-overhead type-safe SQL · auditable `.sql` migration files |
-| **Validation** | Zod 4 | Runtime + compile-time schema safety from a single source of truth |
-| **Frontend** | React 19, Vite 8, Tailwind CSS v4 | Concurrent rendering · instant HMR · utility-first with `@theme` tokens |
-| **Server State** | TanStack Query v5 | Cache deduplication · optimistic mutations with automatic rollback |
-| **Forms** | React Hook Form + Zod resolvers | Performant uncontrolled inputs with schema-driven validation |
-| **Auth** | JWT (jsonwebtoken) | Stateless auth · client-side expiration guard · 401 auto-logout via Axios interceptor |
-| **Logging** | Pino + pino-http | Structured JSON logs · request correlation IDs · minimal runtime overhead |
-| **Testing** | Vitest + Supertest | Real-database integration tests · Zod schema unit tests · 86 total |
-| **Infrastructure** | Docker, Vercel Edge, Render, Neon | One-command local dev · CDN edge rewrites · auto-deploy · serverless DB |
+| Layer | Technology |
+|:---|:---|
+| **Backend** | Node.js 22, Express 5, TypeScript 6 (strict) |
+| **Database** | PostgreSQL 16 (Neon Serverless) |
+| **ORM** | Drizzle 0.45 |
+| **Validation** | Zod 4 |
+| **Frontend** | React 19, Vite 8, Tailwind CSS v4 |
+| **Server State** | TanStack Query v5 |
+| **Forms** | React Hook Form + Zod resolvers |
+| **Auth** | JWT (jsonwebtoken) |
+| **Logging** | Pino + pino-http |
+| **Testing** | Vitest + Supertest |
+| **Infrastructure** | Docker, Vercel, Render, Neon |
 
 <br />
 
@@ -367,7 +359,7 @@ All endpoints return `{ success: boolean, message?: string, data?: T }`.
 | Method | Endpoint | Auth | Description |
 |:---|:---|:---|:---|
 | `GET` | `/health` | — | Server liveness |
-| `GET` | `/:slug` | — | **Redirect engine** — HTTP 302 with atomic click tracking, UTM pass-through, HTTP 410 for archived |
+| `GET` | `/:slug` | — | **Redirect** — HTTP 302 with click tracking, UTM pass-through, HTTP 410 for archived |
 
 **Auth** (`/api/v1/auth`)
 
@@ -385,7 +377,7 @@ All endpoints return `{ success: boolean, message?: string, data?: T }`.
 | `POST` | `/urls/demo` | Anonymous guest link (3/IP/day, no auth) |
 | `POST` | `/urls/claim` | Claim anonymous link ownership |
 | `GET` | `/urls` | Search, filter, sort, paginate |
-| `GET` | `/urls/stats` | Portfolio stats (totals, active, avg clicks) |
+| `GET` | `/urls/stats` | User stats (totals, active, avg clicks) |
 | `PATCH` | `/urls/:id` | Update destination, alias, status, pin |
 | `PATCH` | `/urls/:id/reorder` | Transactional sort-order update |
 | `DELETE` | `/urls/:id` | Delete link |
@@ -394,7 +386,7 @@ All endpoints return `{ success: boolean, message?: string, data?: T }`.
 
 | Method | Endpoint | Description |
 |:---|:---|:---|
-| `GET` | `/stats/public` | Platform-wide telemetry (60s cache) |
+| `GET` | `/stats/public` | Public stats (60s cache) |
 
 <br />
 
@@ -409,17 +401,17 @@ pnpm test:watch  # Watch mode
 
 | Suite | Tests | What It Validates |
 |:---|:---:|:---|
-| `urls` | 43 | Full CRUD · query engine (search, filter, sort, pagination) · vanity alias conflicts · reordering transactions · tenant isolation · pinning · portfolio stats |
-| `redirect` | 9 | 302 redirect · atomic click increment · UTM forwarding · HTTP 410 for archived · content negotiation |
-| `url-query` | 8 | Zod query schema: defaults, coercion, DoS limit cap (50), sanitization |
+| `urls` | 43 | Full CRUD · search, filter, sort, pagination · vanity alias conflicts · reordering transactions · tenant isolation · pinning · user stats |
+| `redirect` | 9 | 302 redirect · click tracking · UTM forwarding · HTTP 410 for archived · content negotiation |
+| `url-query` | 8 | Zod query schema: defaults, coercion, max per page (50), sanitization |
 | `auth` | 7 | Registration · login · duplicate rejection · JWT · `/me` profile · rate-limit decoupling |
 | `vanity-alias` | 7 | Length bounds · character regex · reserved slug blocking (47 slugs) |
 | `claim` | 6 | Guest → user ownership · idempotency · anti-hijack guards |
 | `demo` | 3 | Anonymous link creation · redirect · validation |
 | `health` | 2 | `/health` and `/api/health` liveness |
-| `stats` | 1 | Public platform telemetry aggregation |
+| `stats` | 1 | Public stats |
 
-**Why real-database tests?** Mocks don't catch Postgres-specific behavior — constraint violations (`23505`), `COUNT(*) FILTER` syntax, `IS NULL` atomicity in concurrent claims, or connection pool crash recovery. Sequential execution (`fileParallelism: false`) prevents connection contention against serverless Neon.
+**Why real-database tests?** Mocks don't catch Postgres-specific behavior — constraint violations (`23505`), `COUNT(*) FILTER` syntax, concurrent claim handling, or connection pool crash recovery. Sequential execution (`fileParallelism: false`) prevents connection contention against serverless Neon.
 
 <br />
 
@@ -434,7 +426,7 @@ clicku-url/
 │   │   ├── lib/           # Crypto, JWT, logger, rate limiters, error classes
 │   │   ├── middleware/     # Auth guard, error handler, request-id correlation
 │   │   ├── modules/       # auth · url · stats — controller/service/schema/routes each
-│   │   ├── routes/        # Public redirect engine (/:slug)
+│   │   ├── routes/        # Public redirect route (/:slug)
 │   │   └── types/         # Express namespace extensions
 │   ├── tests/             # 9 suites, 86 tests (Vitest + Supertest)
 │   ├── Dockerfile         # Node 22 Alpine
@@ -448,7 +440,7 @@ clicku-url/
 │   │   ├── pages/         # 6 pages: Landing, Login, Register, Dashboard, Deactivated, ComingSoon
 │   │   ├── routes/        # AppRoutes + ProtectedRoute (JWT expiry guard)
 │   │   └── context/       # Toast system with undo action support
-│   └── vercel.json        # 4-tier edge reverse proxy
+│   └── vercel.json        # Vercel rewrites
 ├── docs/images/           # Product screenshots
 └── README.md
 ```
@@ -457,19 +449,19 @@ clicku-url/
 
 ## 🗺️ Roadmap
 
-- [x] **v0.4** — Live MVP: auth, URL shortening, redirect engine, React 19 dashboard
-- [x] **v0.5** — Landing page rebuild, guest demo shortener, anonymous link claiming (PLG funnel)
-- [x] **v0.6** — Vanity aliases, server-side query engine, pinning, RFC 9110 tombstones, hardware-aware touch UX
+- [x] **v0.4** — Live MVP: auth, URL shortening, redirect endpoint, React 19 dashboard
+- [x] **v0.5** — Landing page rebuild, guest demo shortener, anonymous link claiming
+- [x] **v0.6** — Vanity aliases, search/filter/sort, pinning, HTTP 410 for archived links, touch-friendly UI
 - [ ] **v0.7** — Analytics studio: geo-location, device breakdowns, UTM campaign tracking, downloadable QR codes
 - [ ] **v0.8** — Custom branded domains (CNAME + auto-SSL), developer API keys, webhook events
 - [ ] **v0.9** — Team workspaces, RBAC, HttpOnly secure cookie migration
-- [ ] **v1.0** — Enterprise readiness: Redis edge caching, SSO/SAML, SLA guarantees
+- [ ] **v1.0** — Enterprise readiness: Redis edge caching, SSO/SAML
 
 <br />
 
 ## 📄 License
 
-Proprietary — all rights reserved.
+MIT License.
 © 2026 [Harsh Katare](https://github.com/Harshkatare).
 
 <br />

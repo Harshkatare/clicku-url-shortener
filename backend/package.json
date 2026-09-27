@@ -1,7 +1,7 @@
 {
   "name": "shortlynk-backend",
   "version": "0.6.0",
-  "description": "Production-grade, high-concurrency URL shortening API engineered with Express 5, TypeScript, Drizzle ORM, and PostgreSQL. Features robust DoS defenses, distributed rate limiting, structured Pino telemetry, and automated schema migrations.",
+  "description": "URL shortening API built with Express 5, TypeScript, Drizzle ORM, and PostgreSQL. Includes rate limiting, JWT auth, Zod validation, and Drizzle migrations.",
   "main": "index.js",
   "scripts": {
     "dev": "tsx src/server.ts",
@@ -20,13 +20,11 @@
     "postgresql",
     "neon-db",
     "rate-limiting",
-    "dos-mitigation",
     "structured-logging",
     "pino",
     "zod-validation",
     "jwt-authentication",
     "vitest-integration-tests",
-    "clean-architecture",
     "shortlynk"
   ],
   "author": "Harsh Katare <https://github.com/Harshkatare>",
