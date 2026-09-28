@@ -132,8 +132,44 @@ describe("Auth API Integration Tests", () => {
       .where(eq(users.email, testEmail));
   });
 
+  // 10. Test Rejecting Oversized Name on Signup (400 Bad Request)
+  it("should reject signup when name exceeds 100 characters with 400 Bad Request", async () => {
+    const res = await request(app).post("/api/v1/auth/signup").send({
+      name: "A".repeat(101),
+      email: `toolong_${Date.now()}@example.com`,
+      password: "securePassword123",
+    });
+
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+  });
+
+  // 11. Test Rejecting Oversized Password on Signup (400 Bad Request)
+  it("should reject signup when password exceeds 128 characters with 400 Bad Request", async () => {
+    const res = await request(app).post("/api/v1/auth/signup").send({
+      name: "Test User",
+      email: `toolongpw_${Date.now()}@example.com`,
+      password: "A".repeat(129),
+    });
+
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+  });
+
+  // 12. Test Rejecting Oversized Password on Login (400 Bad Request)
+  it("should reject login when password exceeds 128 characters with 400 Bad Request", async () => {
+    const res = await request(app).post("/api/v1/auth/login").send({
+      email: testEmail,
+      password: "A".repeat(129),
+    });
+
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+  });
+
   // Clean up database connection after tests finish
   afterAll(async () => {
     await pool.end();
   });
 });
+

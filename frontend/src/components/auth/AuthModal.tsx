@@ -80,6 +80,10 @@ export function AuthModal({
       setErrorMessage("Please enter both email and password.");
       return;
     }
+    if (loginPassword.length > 128) {
+      setErrorMessage("Password cannot exceed 128 characters.");
+      return;
+    }
 
     try {
       setLoading(true);
@@ -130,12 +134,20 @@ export function AuthModal({
       setErrorMessage("Name must be at least 2 characters.");
       return;
     }
+    if (registerName.trim().length > 100) {
+      setErrorMessage("Name cannot exceed 100 characters.");
+      return;
+    }
     if (!registerEmail.trim()) {
       setErrorMessage("Please enter a valid email address.");
       return;
     }
     if (registerPassword.length < 8) {
       setErrorMessage("Password must be at least 8 characters long.");
+      return;
+    }
+    if (registerPassword.length > 128) {
+      setErrorMessage("Password cannot exceed 128 characters.");
       return;
     }
 
