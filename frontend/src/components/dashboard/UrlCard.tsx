@@ -317,7 +317,10 @@ export function UrlCard({ url, onEdit, onDelete, onQrClick, onTogglePin }: UrlCa
       </div>
 
       {/* Middle Row: Destination URL */}
-      <p className="mt-2.5 break-all text-sm text-slate-500 dark:text-slate-400">
+      <p
+        className="mt-2.5 line-clamp-2 break-all text-sm text-slate-500 dark:text-slate-400"
+        title={url.originalUrl}
+      >
         {url.originalUrl}
       </p>
 
