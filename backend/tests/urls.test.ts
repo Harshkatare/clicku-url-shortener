@@ -68,6 +68,21 @@ describe("URLs API Integration Tests", () => {
     expect(res.body.success).toBe(false);
   });
 
+  // 1d. Test rejecting custom alias on demo endpoint with 400 Bad Request
+  it("should reject custom alias submissions on demo endpoint with 400 Bad Request", async () => {
+    const res = await request(app)
+      .post("/api/v1/urls/demo")
+      .send({
+        originalUrl: "https://example.com/demo-alias-test",
+        customAlias: "squat-slug",
+      });
+
+    expect(res.status).toBe(400);
+    expect(res.body.success).toBe(false);
+    expect(res.body.message).toContain("Custom aliases are not permitted on demo links");
+  });
+
+
   // 2. Test Listing URLs for the User
   it("should list all URLs for authenticated user with status 200", async () => {
     const res = await request(app)

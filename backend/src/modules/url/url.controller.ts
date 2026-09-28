@@ -3,6 +3,7 @@ import { Request, Response } from "express";
 import * as urlService from "./url.service.js";
 import { 
   createUrlSchema, 
+  createDemoUrlSchema,
   updateUrlSchema,
   urlParamsSchema,
   claimUrlSchema,
@@ -35,10 +36,13 @@ export async function createDemoUrl(
   req: Request,
   res: Response
 ) {
-  const validatedData = createUrlSchema.parse(req.body);
+  const validatedData = createDemoUrlSchema.parse(req.body);
 
   const createdUrl = await urlService.createShortUrl(
-    validatedData,
+    {
+      originalUrl: validatedData.originalUrl,
+      status: "active",
+    },
     null
   );
 

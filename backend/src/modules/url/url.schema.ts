@@ -104,6 +104,20 @@ export type CreateUrlInput = z.infer<
   typeof createUrlSchema
 >;
 
+export const createDemoUrlSchema = z
+  .object({
+    originalUrl: destinationUrlSchema,
+    customAlias: z.string().optional(),
+  })
+  .refine((data) => data.customAlias === undefined, {
+    message: "Custom aliases are not permitted on demo links",
+    path: ["customAlias"],
+  });
+
+export type CreateDemoUrlInput = z.infer<
+  typeof createDemoUrlSchema
+>;
+
 export const updateUrlSchema = z
   .object({
     originalUrl: destinationUrlSchema.optional(),
