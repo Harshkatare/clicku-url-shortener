@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Navigate } from "react-router-dom";
-import { getToken } from "../features/auth/auth.storage";
+import { getToken, removeToken, isTokenExpired } from "../features/auth/auth.storage";
 import { HeroSection } from "../components/landing/HeroSection";
 import { PlatformStatsProof } from "../components/landing/PlatformStatsProof";
 import { TechnicalMetricsStrip } from "../components/landing/TechnicalMetricsStrip";
@@ -21,7 +21,13 @@ export function LandingPage() {
     tab: "register",
   });
 
-  if (token) {
+  useEffect(() => {
+    if (token && isTokenExpired(token)) {
+      removeToken();
+    }
+  }, [token]);
+
+  if (token && !isTokenExpired(token)) {
     return <Navigate to="/dashboard" replace />;
   }
 
