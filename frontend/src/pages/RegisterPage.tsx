@@ -18,7 +18,7 @@ import {
   Alert,
   type AlertState,
 } from "../components/Alert";
-import { saveToken, getToken } from "../features/auth/auth.storage";
+import { saveToken, getToken, removeToken, isTokenExpired } from "../features/auth/auth.storage";
 
 export function RegisterPage() {
   const navigate = useNavigate();
@@ -42,6 +42,12 @@ export function RegisterPage() {
   const watchedPassword = watch("password") || "";
 
   useEffect(() => {
+    if (token && isTokenExpired(token)) {
+      removeToken();
+    }
+  }, [token]);
+
+  useEffect(() => {
     const code = sessionStorage.getItem("shortlynk_demo_code");
     setDemoCode(code);
   }, []);
@@ -56,7 +62,7 @@ export function RegisterPage() {
     return () => clearTimeout(timer);
   }, [alert]);
 
-  if (token) {
+  if (token && !isTokenExpired(token)) {
     return <Navigate to="/dashboard" replace />;
   }
 

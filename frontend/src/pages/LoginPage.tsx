@@ -10,7 +10,7 @@ import {
 } from "../features/auth/auth.schemas";
 
 import { login } from "../features/auth/auth.api";
-import { saveToken, getToken } from "../features/auth/auth.storage";
+import { saveToken, getToken, removeToken, isTokenExpired } from "../features/auth/auth.storage";
 import { claimUrl } from "../features/urls/urls.api";
 import { AuthLayout } from "../layouts/AuthLayout";
 
@@ -37,6 +37,12 @@ export function LoginPage() {
   });
 
   useEffect(() => {
+    if (token && isTokenExpired(token)) {
+      removeToken();
+    }
+  }, [token]);
+
+  useEffect(() => {
     if (!alert) return;
 
     const timer = setTimeout(() => {
@@ -46,7 +52,7 @@ export function LoginPage() {
     return () => clearTimeout(timer);
   }, [alert]);
 
-  if (token) {
+  if (token && !isTokenExpired(token)) {
     return <Navigate to="/dashboard" replace />;
   }
 
