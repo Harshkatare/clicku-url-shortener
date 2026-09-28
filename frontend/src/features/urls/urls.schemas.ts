@@ -1,5 +1,76 @@
 import { z } from "zod";
 
+export const RESERVED_SLUGS = new Set([
+  // Core Auth & Accounts
+  "login",
+  "signin",
+  "logout",
+  "signout",
+  "register",
+  "signup",
+  "auth",
+  "account",
+  "profile",
+  "user",
+  "users",
+
+  // Dashboard & Application
+  "dashboard",
+  "analytics",
+  "links",
+  "urls",
+  "settings",
+  "preview",
+  "overview",
+  "app",
+
+  // Marketing & Informational Pages
+  "pricing",
+  "features",
+  "faq",
+  "about",
+  "contact",
+  "support",
+  "help",
+  "docs",
+  "documentation",
+  "blog",
+  "news",
+  "status",
+
+  // Legal & Compliance
+  "terms",
+  "privacy",
+  "legal",
+  "security",
+  "cookie-policy",
+  "dmca",
+
+  // System, API & Infrastructure
+  "api",
+  "health",
+  "metrics",
+  "stats",
+  "demo",
+  "claim",
+  "admin",
+  "root",
+  "system",
+
+  // Static Files & Web Crawlers
+  "favicon.ico",
+  "robots.txt",
+  "sitemap.xml",
+  "assets",
+  "static",
+  "public",
+  "images",
+  "fonts",
+  "css",
+  "js",
+  "manifest.json",
+]);
+
 export const customAliasSchema = z
   .string()
   .trim()
@@ -8,6 +79,12 @@ export const customAliasSchema = z
   .regex(
     /^[a-zA-Z0-9_-]+$/,
     "Custom alias can only contain letters, numbers, hyphens, and underscores"
+  )
+  .refine(
+    (val) => !RESERVED_SLUGS.has(val.toLowerCase()),
+    {
+      message: "This alias is reserved for system use. Please choose another.",
+    }
   );
 
 const destinationUrlSchema = z
