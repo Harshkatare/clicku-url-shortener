@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { removeToken } from "../../features/auth/auth.storage";
 import { getMe } from "../../features/auth/auth.api";
@@ -11,6 +11,7 @@ export function AppShell() {
   const location = useLocation();
   const navigate = useNavigate();
   const { dark, toggle } = useTheme();
+  const queryClient = useQueryClient();
 
   const [mobileOpen, setMobileOpen] = useState(false);
   const [notifOpen, setNotifOpen] = useState(false);
@@ -22,6 +23,7 @@ export function AppShell() {
 
   function handleLogout() {
     removeToken();
+    queryClient.clear();
     navigate("/login", { replace: true });
   }
 
