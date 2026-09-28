@@ -1,4 +1,4 @@
-import { useEffect, useCallback, type FocusEvent, type FormEvent } from "react";
+import { useEffect, useCallback, useRef, type FocusEvent, type FormEvent } from "react";
 import { createPortal } from "react-dom";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -23,6 +23,7 @@ export interface EditUrlModalProps {
 export function EditUrlModal({ url, isOpen, onClose }: EditUrlModalProps) {
   const { showToast } = useToastContext();
   const queryClient = useQueryClient();
+  const isBackdropMouseDown = useRef(false);
 
   const {
     register,
@@ -180,10 +181,22 @@ export function EditUrlModal({ url, isOpen, onClose }: EditUrlModalProps) {
   const inputClass =
     "h-11 w-full rounded-xl border border-slate-300 bg-white px-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100 dark:border-slate-700 dark:bg-slate-800 dark:text-white dark:placeholder:text-slate-500 dark:focus:border-blue-400 dark:focus:ring-blue-900/30";
 
+  const handleBackdropMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    isBackdropMouseDown.current = e.target === e.currentTarget;
+  };
+
+  const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (e.target === e.currentTarget && isBackdropMouseDown.current) {
+      onClose();
+    }
+    isBackdropMouseDown.current = false;
+  };
+
   return createPortal(
     <div
       className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-4 backdrop-blur-xs transition-opacity duration-200"
-      onClick={onClose}
+      onMouseDown={handleBackdropMouseDown}
+      onClick={handleBackdropClick}
     >
       <div
         className="no-scrollbar relative max-h-[90vh] w-full max-w-md overflow-y-auto rounded-3xl border border-slate-200/80 bg-white p-5 shadow-2xl transition-all sm:p-7 dark:border-slate-800 dark:bg-slate-900 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"

@@ -59,7 +59,7 @@ export function ToastContainer({ toasts, onRemove }: ToastContainerProps) {
   return (
     <aside
       aria-label="Notifications"
-      className="pointer-events-none fixed top-20 right-4 sm:right-6 z-[100] flex max-w-sm flex-col gap-2.5"
+      className="pointer-events-none fixed top-20 left-4 right-4 sm:left-auto sm:right-6 sm:max-w-sm z-[100] flex flex-col gap-2.5"
     >
       {toasts.map((t) => (
         <div
