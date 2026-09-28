@@ -1,15 +1,57 @@
 const TOKEN_KEY = "token";
 
-export function getToken() {
-  return localStorage.getItem(TOKEN_KEY);
+// In-memory fallback if localStorage is restricted (e.g., Safari private browsing)
+let inMemoryToken: string | null = null;
+let isStorageAvailable: boolean | null = null;
+
+function hasStorage(): boolean {
+  try {
+    const testKey = "__storage_test__";
+    window.localStorage.setItem(testKey, "1");
+    window.localStorage.removeItem(testKey);
+    return true;
+  } catch {
+    return false;
+  }
 }
 
-export function saveToken(token: string) {
-  localStorage.setItem(TOKEN_KEY, token);
+function checkStorage(): boolean {
+  if (isStorageAvailable === null) {
+    isStorageAvailable =
+      typeof window !== "undefined" && "localStorage" in window && hasStorage();
+  }
+  return isStorageAvailable;
 }
 
-export function removeToken() {
-  localStorage.removeItem(TOKEN_KEY);
+export function getToken(): string | null {
+  if (!checkStorage()) {
+    return inMemoryToken;
+  }
+  try {
+    return window.localStorage.getItem(TOKEN_KEY) ?? inMemoryToken;
+  } catch {
+    return inMemoryToken;
+  }
+}
+
+export function saveToken(token: string): void {
+  inMemoryToken = token;
+  if (!checkStorage()) return;
+  try {
+    window.localStorage.setItem(TOKEN_KEY, token);
+  } catch {
+    // Storage restricted or quota exceeded
+  }
+}
+
+export function removeToken(): void {
+  inMemoryToken = null;
+  if (!checkStorage()) return;
+  try {
+    window.localStorage.removeItem(TOKEN_KEY);
+  } catch {
+    // Storage restricted
+  }
 }
 
 export function isTokenExpired(token: string): boolean {

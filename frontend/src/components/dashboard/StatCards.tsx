@@ -98,14 +98,18 @@ export function StatCards({ stats, isLoading }: StatCardsProps) {
   const archivedCount = activeStats.archivedLinks;
 
   const activeSubtitle =
-    expiringCount > 0
+    activeStats.totalUrls === 0
+      ? "No links created yet"
+      : expiringCount > 0
       ? `${expiringCount} expiring soon`
       : archivedCount > 0
       ? `${archivedCount} archived`
-      : "100% active operational";
+      : "All links active";
 
   const activeColorClass =
-    expiringCount > 0
+    activeStats.totalUrls === 0
+      ? "text-slate-500 dark:text-slate-400"
+      : expiringCount > 0
       ? "text-amber-600 dark:text-amber-400"
       : "text-emerald-600 dark:text-emerald-400";
 
@@ -118,7 +122,7 @@ export function StatCards({ stats, isLoading }: StatCardsProps) {
       <SingleStatCard
         label="Total URLs"
         displayValue={animatedUrls.toLocaleString()}
-        subtitle="Portfolio scale"
+        subtitle="All links"
         icon={
           <svg
             className="h-3.5 w-3.5 sm:h-4 sm:w-4"
@@ -141,7 +145,7 @@ export function StatCards({ stats, isLoading }: StatCardsProps) {
       <SingleStatCard
         label="Total Clicks"
         displayValue={animatedClicks.toLocaleString()}
-        subtitle="Cumulative engagements"
+        subtitle="All time"
         subtitleColorClass="text-purple-600 dark:text-purple-400"
         icon={
           <svg
@@ -185,11 +189,11 @@ export function StatCards({ stats, isLoading }: StatCardsProps) {
         iconBgClass="bg-emerald-500/10 text-emerald-600 border-emerald-500/20 dark:bg-emerald-500/15 dark:text-emerald-400 dark:border-emerald-500/30"
       />
 
-      {/* 4. Avg Velocity */}
+      {/* 4. Avg Clicks / Link */}
       <SingleStatCard
-        label="Avg. Velocity"
+        label="Avg. Clicks / Link"
         displayValue={formattedVelocity}
-        subtitle="Clicks per link"
+        subtitle="Across all links"
         subtitleColorClass="text-amber-600 dark:text-amber-400"
         icon={
           <svg
