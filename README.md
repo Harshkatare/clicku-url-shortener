@@ -18,7 +18,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-v0.6.0-blue?style=flat-square" alt="Version v0.6.0" />
+  <img src="https://img.shields.io/badge/version-v0.6.1-blue?style=flat-square" alt="Version v0.6.1" />
   <img src="https://img.shields.io/badge/TypeScript-strict-007ACC?style=flat-square&logo=typescript&logoColor=white" alt="TypeScript" />
   <img src="https://img.shields.io/badge/React_19-20232A?style=flat-square&logo=react&logoColor=61DAFB" alt="React 19" />
   <img src="https://img.shields.io/badge/Express_5-000000?style=flat-square&logo=express&logoColor=white" alt="Express 5" />
@@ -108,7 +108,7 @@ These are the problems that taught me the most — and the ones I document in th
       <h3>🛡️ Security</h3>
       <ul>
         <li><b>JWT auth</b> with client-side expiration guards and 401 auto-logout</li>
-        <li><b>Rate limiting: API (100/15m), auth (10/15m), demo (3/day)</b></li>
+        <li><b>Rate limiting: API (100/15m), auth (10/15m), demo (3/day), redirects (500/min)</b></li>
         <li><b>Zod validation</b> on every input — bodies, query params, route params</li>
         <li><b>10kb body limit,</b> request correlation IDs</li>
       </ul>
@@ -152,7 +152,7 @@ flowchart TD
 
     subgraph Backend["Backend — Express 5 + Node 22"]
         MW["Middleware Stack\nHelmet → CORS → 10kb Limit → Request ID → Pino"]
-        RL["Rate Limiters\nAPI: 100/15m · Auth: 10/15m · Demo: 3/day"]
+        RL["Rate Limiters\nAPI: 100/15m · Auth: 10/15m · Demo: 3/day · Redirects: 500/min"]
         Modules["Feature Modules\nAuth · URL · Stats · Redirect"]
         Errors["Error Hierarchy\nAppError → BadRequest · Unauthorized\nNotFound · Conflict · ArchivedUrl(410)"]
     end
