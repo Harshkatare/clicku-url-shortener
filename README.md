@@ -23,7 +23,7 @@
   <img src="https://img.shields.io/badge/React_19-20232A?style=flat-square&logo=react&logoColor=61DAFB" alt="React 19" />
   <img src="https://img.shields.io/badge/Express_5-000000?style=flat-square&logo=express&logoColor=white" alt="Express 5" />
   <img src="https://img.shields.io/badge/PostgreSQL_16-316192?style=flat-square&logo=postgresql&logoColor=white" alt="PostgreSQL 16" />
-  <img src="https://img.shields.io/badge/86_Tests_Passing-brightgreen?style=flat-square&logo=vitest&logoColor=white" alt="86 Tests Passing" />
+  <img src="https://img.shields.io/badge/94_Tests_Passing-brightgreen?style=flat-square&logo=vitest&logoColor=white" alt="94 Tests Passing" />
   <img src="https://img.shields.io/badge/Tailwind_v4-38B2AC?style=flat-square&logo=tailwind-css&logoColor=white" alt="Tailwind CSS v4" />
 </p>
 
@@ -392,7 +392,7 @@ All endpoints return `{ success: boolean, message?: string, data?: T }`.
 
 ## 🧪 Testing
 
-**86 tests** · **9 suites** · runs against a **real PostgreSQL database** — no mocks.
+**94 tests** · **9 suites** · runs against a **real PostgreSQL database** — no mocks.
 
 ```bash
 pnpm test        # Run all
@@ -401,10 +401,10 @@ pnpm test:watch  # Watch mode
 
 | Suite | Tests | What It Validates |
 |:---|:---:|:---|
-| `urls` | 43 | Full CRUD · search, filter, sort, pagination · vanity alias conflicts · reordering transactions · tenant isolation · pinning · user stats |
+| `urls` | 46 | Full CRUD · search, filter, sort, pagination · vanity alias conflicts · reordering transactions · tenant isolation · pinning · user stats |
 | `redirect` | 9 | 302 redirect · click tracking · UTM forwarding · HTTP 410 for archived · content negotiation |
 | `url-query` | 8 | Zod query schema: defaults, coercion, max per page (50), sanitization |
-| `auth` | 7 | Registration · login · duplicate rejection · JWT · `/me` profile · rate-limit decoupling |
+| `auth` | 12 | Registration · login · duplicate rejection · JWT · `/me` profile · rate-limit decoupling |
 | `vanity-alias` | 7 | Length bounds · character regex · reserved slug blocking (47 slugs) |
 | `claim` | 6 | Guest → user ownership · idempotency · anti-hijack guards |
 | `demo` | 3 | Anonymous link creation · redirect · validation |
