@@ -5,7 +5,7 @@
       "destination": "https://clicku-url-shortener.onrender.com/api/:path*"
     },
     {
-      "source": "/(login|register|signup|signin|logout|signout|auth|account|profile|dashboard|analytics|settings|deactivated|preview|overview|links|urls|pricing|features|faq|about|contact|support|help|docs|blog|terms|privacy|legal|status)",
+      "source": "/(login|register|signup|signin|logout|signout|auth|account|profile|dashboard|analytics|settings|deactivated|qr-studio|qr|preview|overview|links|urls|pricing|features|faq|about|contact|support|help|docs|blog|terms|privacy|legal|status)",
       "destination": "/index.html"
     },
     {
