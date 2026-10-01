@@ -64,6 +64,10 @@ describe("Vanity Custom Alias & Reserved Slugs Schema Tests", () => {
       "contact",
       "app",
       "status",
+      "qr-studio",
+      "QR-STUDIO",
+      "deactivated",
+      "DEACTIVATED",
     ];
     for (const slug of reservedSamples) {
       const result = customAliasSchema.safeParse(slug);
@@ -72,6 +76,10 @@ describe("Vanity Custom Alias & Reserved Slugs Schema Tests", () => {
         expect(result.error.issues[0].message).toContain("reserved for system use");
       }
     }
+
+    // Sub-3-character routes cannot be custom aliases due to min(3), but must remain reserved in the set
+    expect(RESERVED_SLUGS.has("qr")).toBe(true);
+    expect(RESERVED_SLUGS.has("QR".toLowerCase())).toBe(true);
   });
 
   it("should validate createUrlSchema with customAlias and status default", () => {

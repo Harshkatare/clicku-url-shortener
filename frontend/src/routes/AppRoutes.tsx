@@ -43,6 +43,10 @@ export function AppRoutes() {
           path="/settings"
           element={<ComingSoonPage />}
         />
+        <Route
+          path="/qr-studio"
+          element={<ComingSoonPage />}
+        />
       </Route>
 
       {/* Fallback route for undefined paths */}

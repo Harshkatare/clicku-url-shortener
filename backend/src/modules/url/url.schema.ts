@@ -13,6 +13,7 @@ export const RESERVED_SLUGS = new Set([
   "profile",
   "user",
   "users",
+  "deactivated",
 
   // Dashboard & Application
   "dashboard",
@@ -20,6 +21,8 @@ export const RESERVED_SLUGS = new Set([
   "links",
   "urls",
   "settings",
+  "qr-studio",
+  "qr",
   "preview",
   "overview",
   "app",
