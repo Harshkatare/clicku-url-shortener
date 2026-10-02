@@ -5,6 +5,7 @@ import cors from "cors";
 import authRoutes from "./modules/auth/auth.routes.js";
 import urlRoutes from "./modules/url/url.routes.js";
 import statsRoutes from "./modules/stats/stats.routes.js";
+import userRoutes from "./modules/user/user.routes.js";
 import redirectRoutes from "./routes/redirect.routes.js";
 
 import { errorMiddleware } from "./middleware/error.middleware.js";
@@ -63,6 +64,7 @@ app.use("/api", apiRateLimit);
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1/urls", urlRoutes);
 app.use("/api/v1/stats", statsRoutes);
+app.use("/api/v1/users", userRoutes);
 
 app.get("/favicon.ico", (_req, res) => {
   res.status(204).end();
