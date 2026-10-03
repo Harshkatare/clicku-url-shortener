@@ -6,6 +6,7 @@ import { DashboardPage } from "../pages/DashboardPage";
 import { LandingPage } from "../pages/LandingPage";
 import { DeactivatedPage } from "../pages/DeactivatedPage";
 import { ComingSoonPage } from "../pages/ComingSoonPage";
+import { SettingsPage } from "../pages/SettingsPage";
 
 import { ProtectedRoute } from "./ProtectedRoute";
 
@@ -41,7 +42,7 @@ export function AppRoutes() {
         />
         <Route
           path="/settings"
-          element={<ComingSoonPage />}
+          element={<SettingsPage />}
         />
         <Route
           path="/qr-studio"
