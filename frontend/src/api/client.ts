@@ -19,11 +19,15 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    const isLoginRequest = Boolean(
-      error.config?.url?.includes("/auth/login")
+    const url = error.config?.url ?? "";
+    const method = error.config?.method?.toLowerCase() ?? "";
+    const isCredentialCheck = Boolean(
+      url.includes("/auth/login") ||
+      url.includes("/users/me/change-password") ||
+      (url.includes("/users/me") && method === "delete")
     );
 
-    if (error.response?.status === 401 && !isLoginRequest) {
+    if (error.response?.status === 401 && !isCredentialCheck) {
       removeToken();
       if (
         window.location.pathname !== "/login" &&
