@@ -6,6 +6,7 @@ import { removeToken } from "../../features/auth/auth.storage";
 import { getMe } from "../../features/auth/auth.api";
 import { useTheme } from "../../hooks/useTheme";
 import { Logo } from "../common/Logo";
+import { Avatar } from "../common/Avatar";
 
 export function AppShell() {
   const location = useLocation();
@@ -38,17 +39,7 @@ export function AppShell() {
     navigate("/login", { replace: true });
   }
 
-  // 1. Hardened Initials Parsing: Trim, regex whitespace split, truthy filter
   const rawName = meData?.data?.name?.trim() || "";
-  const initials = rawName
-    ? rawName
-        .split(/\s+/)
-        .filter(Boolean)
-        .map((n) => n[0])
-        .slice(0, 2)
-        .join("")
-        .toUpperCase()
-    : "U";
 
   const navLinks = [
     { label: "Dashboard", path: "/dashboard" },
@@ -186,12 +177,12 @@ export function AppShell() {
           {/* User Avatar Initials Pill */}
           <button
             type="button"
-            className="flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-purple-600 text-xs font-bold text-white shadow-xs select-none transition hover:opacity-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
+            className="flex cursor-pointer items-center justify-center rounded-full transition hover:opacity-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
             title={rawName || "Profile Settings"}
             onClick={() => navigate("/settings")}
             aria-label="User settings"
           >
-            {initials}
+            <Avatar name={rawName} size="md" />
           </button>
 
           {/* Logout Action */}
