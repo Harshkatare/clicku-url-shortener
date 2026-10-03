@@ -4,6 +4,7 @@ import { DashboardLayout } from "../layouts/DashboardLayout";
 import { ProfileCard } from "../components/settings/ProfileCard";
 import { AvatarCard } from "../components/settings/AvatarCard";
 import { SecurityCard } from "../components/settings/SecurityCard";
+import { DangerZoneCard } from "../components/settings/DangerZoneCard";
 
 export function SettingsPage() {
   const { data: meData } = useQuery({
@@ -28,6 +29,7 @@ export function SettingsPage() {
         <ProfileCard user={user} />
         <AvatarCard userName={user?.name} />
         <SecurityCard />
+        <DangerZoneCard />
       </div>
     </DashboardLayout>
   );
