@@ -28,6 +28,7 @@ import { PaginationControls } from "../components/dashboard/PaginationControls";
 import { EditUrlModal } from "../components/dashboard/EditUrlModal";
 import { UrlCard } from "../components/dashboard/UrlCard";
 import { useDebounce } from "../hooks/useDebounce";
+import { QuickQrModal } from "../features/qr/QuickQrModal";
 
 export function DashboardPage() {
   const { showToast, removeToast } = useToastContext();
@@ -126,6 +127,7 @@ export function DashboardPage() {
   });
 
   const [editingUrl, setEditingUrl] = useState<Url | null>(null);
+  const [qrUrl, setQrUrl] = useState<Url | null>(null);
 
   // Latency-Safe 5-Second Deletion Manager
   const [pendingDeletionIds, setPendingDeletionIds] = useState<Set<string>>(new Set());
@@ -474,12 +476,7 @@ export function DashboardPage() {
                   onEdit={setEditingUrl}
                   onDelete={handleDeleteRequest}
                   onTogglePin={handleTogglePin}
-                  onQrClick={(u) =>
-                    showToast(
-                      "info",
-                      `QR Studio for "${u.customAlias || u.shortCode}" coming soon`
-                    )
-                  }
+                  onQrClick={setQrUrl}
                 />
               ))}
             </ul>
@@ -504,6 +501,13 @@ export function DashboardPage() {
         url={editingUrl}
         isOpen={Boolean(editingUrl)}
         onClose={() => setEditingUrl(null)}
+      />
+
+      {/* Quick QR Modal */}
+      <QuickQrModal
+        url={qrUrl}
+        isOpen={Boolean(qrUrl)}
+        onClose={() => setQrUrl(null)}
       />
     </DashboardLayout>
   );
