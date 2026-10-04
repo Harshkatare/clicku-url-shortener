@@ -29,11 +29,21 @@ import { EditUrlModal } from "../components/dashboard/EditUrlModal";
 import { UrlCard } from "../components/dashboard/UrlCard";
 import { useDebounce } from "../hooks/useDebounce";
 import { QuickQrModal } from "../features/qr/QuickQrModal";
+import { useOnboarding } from "../hooks/useOnboarding";
+import { OnboardingModal } from "../components/onboarding/OnboardingModal";
 
 export function DashboardPage() {
   const { showToast, removeToast } = useToastContext();
   const queryClient = useQueryClient();
   const [searchParams, setSearchParams] = useSearchParams();
+
+  const {
+    isOpen: isTourOpen,
+    step: tourStep,
+    nextStep: onTourNext,
+    prevStep: onTourPrev,
+    closeTour: onTourClose,
+  } = useOnboarding();
 
   // URL state extraction (deep-linking & refresh persistence)
   const pageParam = parseInt(searchParams.get("page") || "1", 10);
@@ -508,6 +518,15 @@ export function DashboardPage() {
         url={qrUrl}
         isOpen={Boolean(qrUrl)}
         onClose={() => setQrUrl(null)}
+      />
+
+      {/* Onboarding Tour Modal */}
+      <OnboardingModal
+        isOpen={isTourOpen}
+        step={tourStep}
+        onNext={onTourNext}
+        onPrev={onTourPrev}
+        onClose={onTourClose}
       />
     </DashboardLayout>
   );
