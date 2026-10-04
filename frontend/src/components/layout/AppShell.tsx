@@ -43,6 +43,7 @@ export function AppShell() {
 
   const navLinks = [
     { label: "Dashboard", path: "/dashboard" },
+    { label: "QR Studio", path: "/qr-studio" },
     { label: "Analytics", path: "/analytics" },
     { label: "Settings", path: "/settings" },
   ];
