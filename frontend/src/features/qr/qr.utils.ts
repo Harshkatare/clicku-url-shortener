@@ -141,3 +141,63 @@ export async function copyCanvasToClipboard(
     }),
   ]);
 }
+
+/**
+ * Checks whether the browser supports sharing PNG image files via Web Share API.
+ */
+export function canShareQr(): boolean {
+  if (
+    typeof navigator === "undefined" ||
+    typeof navigator.share !== "function" ||
+    typeof navigator.canShare !== "function"
+  ) {
+    return false;
+  }
+  try {
+    const testFile = new File([], "test.png", { type: "image/png" });
+    return navigator.canShare({ files: [testFile] });
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Shares a canvas QR code as a PNG file using the Web Share API.
+ * Gated by navigator.canShare and throws a catchable error if unsupported.
+ */
+export async function shareQrImage(
+  canvasElement: HTMLCanvasElement,
+  filename: string
+): Promise<void> {
+  const cleanFilename = filename.toLowerCase().endsWith(".png") ? filename : `${filename}.png`;
+
+  if (
+    typeof navigator === "undefined" ||
+    typeof navigator.share !== "function" ||
+    typeof navigator.canShare !== "function"
+  ) {
+    throw new Error("Web Share API is not supported in this browser.");
+  }
+
+  const blob = await new Promise<Blob>((resolve, reject) => {
+    canvasElement.toBlob((b) => {
+      if (b) {
+        resolve(b);
+      } else {
+        reject(new Error("Failed to generate PNG blob from canvas."));
+      }
+    }, "image/png");
+  });
+
+  const file = new File([blob], cleanFilename, { type: "image/png" });
+
+  if (!navigator.canShare({ files: [file] })) {
+    throw new Error("Sharing image files is not supported on this device.");
+  }
+
+  await navigator.share({
+    files: [file],
+    title: cleanFilename,
+  });
+}
+

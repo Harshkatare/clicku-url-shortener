@@ -9,6 +9,8 @@ import {
   downloadPng,
   downloadSvg,
   copyCanvasToClipboard,
+  shareQrImage,
+  canShareQr,
   SHORTLYNK_LOGO_DATA_URI,
 } from "./qr.utils";
 import { useToastContext } from "../../context/ToastContext";
@@ -89,6 +91,21 @@ export function QuickQrModal({ isOpen, onClose, url }: QuickQrModalProps) {
       showToast("success", "QR code copied to clipboard");
     } catch {
       showToast("error", "Failed to copy QR code to clipboard");
+    }
+  };
+
+  const isShareSupported = canShareQr();
+
+  const handleShare = async () => {
+    if (!canvasRef.current) return;
+    try {
+      await shareQrImage(canvasRef.current, `shortlynk-qr-${displaySlug}.png`);
+      showToast("success", "QR code shared");
+    } catch (err: unknown) {
+      if (err instanceof Error && err.name === "AbortError") {
+        return;
+      }
+      showToast("error", "Failed to share QR code");
     }
   };
 
@@ -178,11 +195,11 @@ export function QuickQrModal({ isOpen, onClose, url }: QuickQrModalProps) {
         </p>
 
         {/* Action Buttons */}
-        <div className="grid grid-cols-3 gap-2">
+        <div className={`grid gap-2 ${isShareSupported ? "grid-cols-4" : "grid-cols-3"}`}>
           <button
             type="button"
             onClick={handleDownloadPng}
-            className="flex items-center justify-center gap-1 rounded-xl bg-blue-600 px-3 py-2 text-xs font-medium text-white shadow-2xs transition hover:bg-blue-700 cursor-pointer"
+            className="flex items-center justify-center gap-1 rounded-xl bg-blue-600 px-2 sm:px-3 py-2 text-xs font-medium text-white shadow-2xs transition hover:bg-blue-700 cursor-pointer"
           >
             <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
@@ -192,7 +209,7 @@ export function QuickQrModal({ isOpen, onClose, url }: QuickQrModalProps) {
           <button
             type="button"
             onClick={handleDownloadSvg}
-            className="flex items-center justify-center gap-1 rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-700 shadow-2xs transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700 cursor-pointer"
+            className="flex items-center justify-center gap-1 rounded-xl border border-slate-200 bg-white px-2 sm:px-3 py-2 text-xs font-medium text-slate-700 shadow-2xs transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700 cursor-pointer"
           >
             <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
@@ -202,7 +219,7 @@ export function QuickQrModal({ isOpen, onClose, url }: QuickQrModalProps) {
           <button
             type="button"
             onClick={handleCopyImage}
-            className={`flex items-center justify-center gap-1 rounded-xl border px-3 py-2 text-xs font-medium shadow-2xs transition cursor-pointer ${
+            className={`flex items-center justify-center gap-1 rounded-xl border px-2 sm:px-3 py-2 text-xs font-medium shadow-2xs transition cursor-pointer ${
               isCopied
                 ? "border-emerald-500 bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300"
                 : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700"
@@ -224,6 +241,18 @@ export function QuickQrModal({ isOpen, onClose, url }: QuickQrModalProps) {
               </>
             )}
           </button>
+          {isShareSupported && (
+            <button
+              type="button"
+              onClick={handleShare}
+              className="flex items-center justify-center gap-1 rounded-xl border border-slate-200 bg-white px-2 sm:px-3 py-2 text-xs font-medium text-slate-700 shadow-2xs transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700 cursor-pointer"
+            >
+              <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+              </svg>
+              Share
+            </button>
+          )}
         </div>
 
         {/* Link to full studio */}

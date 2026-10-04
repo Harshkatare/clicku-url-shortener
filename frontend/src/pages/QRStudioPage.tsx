@@ -17,6 +17,8 @@ import {
   downloadPng,
   downloadSvg,
   copyCanvasToClipboard,
+  shareQrImage,
+  canShareQr,
   type QrResolution,
 } from "../features/qr/qr.utils";
 import { useToastContext } from "../context/ToastContext";
@@ -73,9 +75,15 @@ export function QRStudioPage() {
   const initialSlug = searchParams.get("slug") || "";
 
   // Active links list
-  const { data: urlsData, isLoading: isLoadingUrls } = useQuery({
+  const {
+    data: urlsData,
+    isLoading: isLoadingUrls,
+    isError: isErrorUrls,
+    refetch: refetchUrls,
+  } = useQuery({
     queryKey: ["urls", "studio-selector"],
     queryFn: () => getUrls({ limit: 50, status: "active" }),
+    staleTime: 30_000,
   });
   const activeUrls = urlsData?.data ?? [];
 
@@ -144,6 +152,12 @@ export function QRStudioPage() {
     if (mode !== "manual") return [];
     const query = extractSlug(manualInput).trim().toLowerCase();
     if (!query) return [];
+
+    const hasExactMatch = activeUrls.some(
+      (u) => (u.customAlias || u.shortCode).toLowerCase() === query
+    );
+    if (hasExactMatch) return [];
+
     return activeUrls
       .filter((u) => {
         const slug = (u.customAlias || u.shortCode).toLowerCase();
@@ -226,22 +240,40 @@ export function QRStudioPage() {
     }
   };
 
+  const isShareSupported = canShareQr();
+
+  const handleShare = async () => {
+    if (!canvasRef.current || !effectiveSlug || slugError) return;
+    try {
+      await shareQrImage(
+        canvasRef.current,
+        `shortlynk-qr-${effectiveSlug}.png`
+      );
+      showToast("success", "QR code shared");
+    } catch (err: unknown) {
+      if (err instanceof Error && err.name === "AbortError") {
+        return;
+      }
+      showToast("error", "Failed to share QR code");
+    }
+  };
+
   return (
     <DashboardLayout>
       <div className="mx-auto max-w-6xl py-6 sm:py-8">
         {/* Header */}
         <div className="mb-6 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-          <div>
+          <div className="min-w-0">
             <h1 className="text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
               QR Code Studio
             </h1>
-            <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
+            <p className="mt-1 min-w-0 text-sm text-slate-500 dark:text-slate-400">
               Customize, preview, and download print-ready QR codes for any short link.
             </p>
           </div>
           <Link
             to="/dashboard"
-            className="inline-flex items-center text-xs font-medium text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition"
+            className="inline-flex shrink-0 items-center text-xs font-medium text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white transition"
           >
             ← Back to Dashboard
           </Link>
@@ -250,7 +282,7 @@ export function QRStudioPage() {
         {/* Studio Grid */}
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
           {/* Controls Column (7 cols) */}
-          <div className="space-y-6 lg:col-span-7">
+          <div className="min-w-0 space-y-6 lg:col-span-7">
             {/* Link Selector Card */}
             <div className="rounded-2xl border border-slate-200/80 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900">
               <h2 className="text-base font-semibold text-slate-900 dark:text-white">
@@ -286,9 +318,20 @@ export function QRStudioPage() {
               </div>
 
               {mode === "link" ? (
-                <div className="mt-4">
+                <div className="mt-4 min-w-0 max-w-full">
                   {isLoadingUrls ? (
                     <div className="h-10 rounded-xl bg-slate-100 animate-pulse dark:bg-slate-800" />
+                  ) : isErrorUrls ? (
+                    <div className="flex items-center justify-between rounded-xl border border-red-200 bg-red-50 p-3 text-xs text-red-700 dark:border-red-900/50 dark:bg-red-950/20 dark:text-red-300">
+                      <span>Failed to load active links.</span>
+                      <button
+                        type="button"
+                        onClick={() => refetchUrls()}
+                        className="rounded-lg border border-red-200 bg-white px-2.5 py-1 font-medium text-red-700 hover:bg-red-50 dark:border-red-800 dark:bg-red-950 dark:text-red-300 dark:hover:bg-red-900 cursor-pointer"
+                      >
+                        Retry
+                      </button>
+                    </div>
                   ) : activeUrls.length > 0 ? (
                     <select
                       value={selectedSlug}
@@ -296,13 +339,17 @@ export function QRStudioPage() {
                         setSelectedSlug(e.target.value);
                         updateSlugParam(e.target.value);
                       }}
-                      className="w-full rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-2xs transition focus:border-blue-500 focus:outline-hidden focus:ring-1 focus:ring-blue-500 dark:border-slate-700 dark:bg-slate-800 dark:text-white cursor-pointer"
+                      className="w-full max-w-full min-w-0 truncate rounded-xl border border-slate-300 bg-white px-3 py-2 text-sm text-slate-900 shadow-2xs transition focus:border-blue-500 focus:outline-hidden focus:ring-1 focus:ring-blue-500 dark:border-slate-700 dark:bg-slate-800 dark:text-white cursor-pointer"
                     >
                       {activeUrls.map((url) => {
                         const slug = url.customAlias || url.shortCode;
+                        const displayUrl =
+                          url.originalUrl.length > 40
+                            ? `${url.originalUrl.slice(0, 40)}…`
+                            : url.originalUrl;
                         return (
                           <option key={url.id} value={slug}>
-                            {slug} — {url.originalUrl}
+                            {slug} — {displayUrl}
                           </option>
                         );
                       })}
@@ -319,7 +366,7 @@ export function QRStudioPage() {
                     Slug or Short Link
                   </label>
                   <div className="flex rounded-xl border border-slate-300 bg-white shadow-2xs focus-within:border-blue-500 focus-within:ring-1 focus-within:ring-blue-500 dark:border-slate-700 dark:bg-slate-800">
-                    <span className="inline-flex items-center px-3 text-xs text-slate-400 border-r border-slate-200 dark:border-slate-700 select-none">
+                    <span className="inline-flex shrink-0 items-center px-3 text-xs text-slate-400 border-r border-slate-200 dark:border-slate-700 select-none">
                       shortlynk.in/
                     </span>
                     <input
@@ -331,7 +378,7 @@ export function QRStudioPage() {
                         updateSlugParam(clean);
                       }}
                       placeholder="custom-slug"
-                      className="w-full bg-transparent px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-hidden dark:text-white"
+                      className="min-w-0 flex-1 bg-transparent px-3 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-hidden dark:text-white"
                     />
                   </div>
                   {slugError ? (
@@ -362,10 +409,10 @@ export function QRStudioPage() {
                               }}
                               className="flex w-full items-center justify-between rounded-lg px-2.5 py-1.5 text-xs text-left text-slate-700 hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800 transition-colors cursor-pointer"
                             >
-                              <span className="font-mono font-medium text-blue-600 dark:text-blue-400">
+                              <span className="shrink-0 font-mono font-medium text-blue-600 dark:text-blue-400">
                                 {slug}
                               </span>
-                              <span className="truncate ml-2 text-slate-400 max-w-[200px]">
+                              <span className="min-w-0 truncate ml-2 text-slate-400">
                                 {u.originalUrl}
                               </span>
                             </button>
@@ -394,15 +441,15 @@ export function QRStudioPage() {
                     type="color"
                     value={fgColor}
                     onChange={(e) => setFgColor(e.target.value)}
-                    className="h-9 w-9 rounded-lg border border-slate-200 cursor-pointer dark:border-slate-700 bg-transparent"
+                    className="h-9 w-9 shrink-0 rounded-lg border border-slate-200 cursor-pointer dark:border-slate-700 bg-transparent"
                   />
                   <input
                     type="text"
                     value={fgColor}
                     onChange={(e) => setFgColor(e.target.value)}
-                    className="w-24 rounded-lg border border-slate-300 px-2.5 py-1.5 text-xs font-mono text-slate-900 uppercase dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                    className="w-20 sm:w-24 shrink-0 rounded-lg border border-slate-300 px-2 py-1.5 text-xs font-mono text-slate-900 uppercase dark:border-slate-700 dark:bg-slate-800 dark:text-white"
                   />
-                  <div className="flex flex-wrap gap-1.5">
+                  <div className="flex flex-wrap gap-1.5 min-w-0 flex-1">
                     {FG_PRESETS.map((p) => (
                       <button
                         key={p.value}
@@ -427,15 +474,15 @@ export function QRStudioPage() {
                     type="color"
                     value={bgColor}
                     onChange={(e) => setBgColor(e.target.value)}
-                    className="h-9 w-9 rounded-lg border border-slate-200 cursor-pointer dark:border-slate-700 bg-transparent"
+                    className="h-9 w-9 shrink-0 rounded-lg border border-slate-200 cursor-pointer dark:border-slate-700 bg-transparent"
                   />
                   <input
                     type="text"
                     value={bgColor}
                     onChange={(e) => setBgColor(e.target.value)}
-                    className="w-24 rounded-lg border border-slate-300 px-2.5 py-1.5 text-xs font-mono text-slate-900 uppercase dark:border-slate-700 dark:bg-slate-800 dark:text-white"
+                    className="w-20 sm:w-24 shrink-0 rounded-lg border border-slate-300 px-2 py-1.5 text-xs font-mono text-slate-900 uppercase dark:border-slate-700 dark:bg-slate-800 dark:text-white"
                   />
-                  <div className="flex flex-wrap gap-1.5">
+                  <div className="flex flex-wrap gap-1.5 min-w-0 flex-1">
                     {BG_PRESETS.map((p) => (
                       <button
                         key={p.value}
@@ -500,12 +547,12 @@ export function QRStudioPage() {
           </div>
 
           {/* Live Preview & Actions Column (5 cols) */}
-          <div className="lg:col-span-5">
+          <div className="min-w-0 lg:col-span-5">
             <div className="sticky top-6 rounded-2xl border border-slate-200/80 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900">
               <h2 className="text-base font-semibold text-slate-900 dark:text-white">
                 Live Preview
               </h2>
-              <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">
+              <p className="mt-1 min-w-0 truncate text-xs text-slate-500 dark:text-slate-400">
                 Generated strictly for <span className="font-mono">{shortUrl || "shortlynk.in/..."}</span>
               </p>
 
@@ -517,6 +564,7 @@ export function QRStudioPage() {
                       ref={svgRef}
                       value={shortUrl}
                       size={220}
+                      className="h-auto max-w-full"
                       level="H"
                       bgColor={bgColor}
                       fgColor={fgColor}
@@ -563,14 +611,14 @@ export function QRStudioPage() {
 
               {/* Destination metadata */}
               {selectedUrlObj && (
-                <p className="mb-4 truncate text-center text-xs text-slate-500 dark:text-slate-400">
+                <p className="mb-4 min-w-0 truncate text-center text-xs text-slate-500 dark:text-slate-400">
                   Target: <span className="font-mono text-slate-700 dark:text-slate-300">{selectedUrlObj.originalUrl}</span>
                 </p>
               )}
 
               {/* Link copy pill */}
               <div className="mb-5 flex items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-3 py-2 text-xs dark:border-slate-800 dark:bg-slate-950">
-                <span className="truncate font-mono text-slate-700 dark:text-slate-300">
+                <span className="min-w-0 truncate font-mono text-slate-700 dark:text-slate-300">
                   {shortUrl || "—"}
                 </span>
                 <button
@@ -637,6 +685,20 @@ export function QRStudioPage() {
                     )}
                   </button>
                 </div>
+
+                {isShareSupported && (
+                  <button
+                    type="button"
+                    onClick={handleShare}
+                    disabled={!effectiveSlug || Boolean(slugError)}
+                    className="w-full flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white py-2 px-3 text-xs font-medium text-slate-700 shadow-2xs transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700 disabled:opacity-50 cursor-pointer"
+                  >
+                    <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                    </svg>
+                    Share QR Code
+                  </button>
+                )}
               </div>
             </div>
           </div>
