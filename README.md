@@ -18,12 +18,12 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-v0.6.1-blue?style=flat-square" alt="Version v0.6.1" />
+  <img src="https://img.shields.io/badge/version-v0.7.0-blue?style=flat-square" alt="Version v0.7.0" />
   <img src="https://img.shields.io/badge/TypeScript-strict-007ACC?style=flat-square&logo=typescript&logoColor=white" alt="TypeScript" />
   <img src="https://img.shields.io/badge/React_19-20232A?style=flat-square&logo=react&logoColor=61DAFB" alt="React 19" />
   <img src="https://img.shields.io/badge/Express_5-000000?style=flat-square&logo=express&logoColor=white" alt="Express 5" />
   <img src="https://img.shields.io/badge/PostgreSQL_16-316192?style=flat-square&logo=postgresql&logoColor=white" alt="PostgreSQL 16" />
-  <img src="https://img.shields.io/badge/94_Tests_Passing-brightgreen?style=flat-square&logo=vitest&logoColor=white" alt="94 Tests Passing" />
+  <img src="https://img.shields.io/badge/105_Tests_Passing-brightgreen?style=flat-square&logo=vitest&logoColor=white" alt="105 Tests Passing" />
   <img src="https://img.shields.io/badge/Tailwind_v4-38B2AC?style=flat-square&logo=tailwind-css&logoColor=white" alt="Tailwind CSS v4" />
 </p>
 
@@ -88,6 +88,7 @@ These are the problems that taught me the most — and the ones I document in th
         <li><b>Pin priority links</b> to the top of your dashboard</li>
         <li><b>Archive & deactivate</b> — returns HTTP 410 Gone with a /deactivated page</li>
         <li><b>5-second undo window</b> — deletions feel instant; undo before permanent removal</li>
+        <li><b>QR Code Studio</b> — generate and download custom QR codes (PNG/SVG) with color options</li>
       </ul>
       <h3>🔍 Search, Filter & Sort</h3>
       <ul>
@@ -100,14 +101,15 @@ These are the problems that taught me the most — and the ones I document in th
     <td width="50%" valign="top">
       <h3>📊 Analytics & Tracking</h3>
       <ul>
-        <li><b>Click counting</b> — every redirect increments via <code>sql\`clicks + 1\`</code></li>
+        <li><b>Click counting</b> — every redirect increments via <code>sql`clicks + 1`</code></li>
         <li><b>Dashboard stats</b> — total links, clicks, active links, avg clicks per link</li>
         <li><b>UTM preservation</b> — query params pass through to destination without stripping</li>
         <li><b>Public stats endpoint (cached 60s)</b> with 60-second in-memory cache</li>
       </ul>
-      <h3>🛡️ Security</h3>
+      <h3>🛡️ Security & Account</h3>
       <ul>
         <li><b>JWT auth</b> with client-side expiration guards and 401 auto-logout</li>
+        <li><b>User Settings</b> — update name, email, and password with current password verification</li>
         <li><b>Rate limiting: API (100/15m), auth (10/15m), demo (3/day), redirects (500/min)</b></li>
         <li><b>Zod validation</b> on every input — bodies, query params, route params</li>
         <li><b>10kb body limit,</b> request correlation IDs</li>
@@ -118,6 +120,7 @@ These are the problems that taught me the most — and the ones I document in th
     <td colspan="2" valign="top">
       <h3>🎨 Frontend</h3>
       <ul>
+        <li><b>Guided Onboarding</b> — step-by-step interactive tour for new users</li>
         <li><b>Dark mode</b> — OS preference detection, <code>color-scheme</code> synchronization (fixes Chromium scrollbar styling)</li>
         <li><b>Optimistic mutations</b> via TanStack Query — UI updates instantly, rolls back on failure</li>
         <li><b>Touch-friendly action buttons</b> — <code>@media (hover: hover) and (pointer: fine)</code> shows/hides action buttons based on device type</li>
@@ -369,6 +372,15 @@ All endpoints return `{ success: boolean, message?: string, data?: T }`.
 | `POST` | `/auth/login` | 10 / 15 min | Login → JWT |
 | `GET` | `/auth/me` | Standard | Current user profile |
 
+**Users** (`/api/v1/users`) — all require `Bearer` JWT
+
+| Method | Endpoint | Rate Limit | Description |
+|:---|:---|:---|:---|
+| `PATCH` | `/users/me` | Standard | Update profile name and email (conflict-checked) |
+| `POST` | `/users/me/change-password` | 5 / 15 min | Change password (verifies current password) |
+| `DELETE` | `/users/me` | 3 / 60 min | Delete account (verifies password, cascades URLs) |
+| `GET` | `/users/me/export` | Standard | Export user account and URL data (JSON download) |
+
 **URLs** (`/api/v1/urls`) — all require `Bearer` JWT
 
 | Method | Endpoint | Description |
@@ -392,7 +404,7 @@ All endpoints return `{ success: boolean, message?: string, data?: T }`.
 
 ## 🧪 Testing
 
-**94 tests** · **9 suites** · runs against a **real PostgreSQL database** — no mocks.
+**105 tests** · **10 suites** · runs against a **real PostgreSQL database** — no mocks.
 
 ```bash
 pnpm test        # Run all
@@ -402,9 +414,10 @@ pnpm test:watch  # Watch mode
 | Suite | Tests | What It Validates |
 |:---|:---:|:---|
 | `urls` | 46 | Full CRUD · search, filter, sort, pagination · vanity alias conflicts · reordering transactions · tenant isolation · pinning · user stats |
+| `auth` | 12 | Registration · login · duplicate rejection · JWT · `/me` profile · rate-limit decoupling |
+| `user` | 11 | Profile retrieval · profile update (name, email) · email collision handling · password change verification · auth & tenant isolation |
 | `redirect` | 9 | 302 redirect · click tracking · UTM forwarding · HTTP 410 for archived · content negotiation |
 | `url-query` | 8 | Zod query schema: defaults, coercion, max per page (50), sanitization |
-| `auth` | 12 | Registration · login · duplicate rejection · JWT · `/me` profile · rate-limit decoupling |
 | `vanity-alias` | 7 | Length bounds · character regex · reserved slug blocking (47 slugs) |
 | `claim` | 6 | Guest → user ownership · idempotency · anti-hijack guards |
 | `demo` | 3 | Anonymous link creation · redirect · validation |
@@ -425,19 +438,19 @@ clicku-url/
 │   │   ├── db/            # Drizzle schemas, pg pool, 6 SQL migrations
 │   │   ├── lib/           # Crypto, JWT, logger, rate limiters, error classes
 │   │   ├── middleware/     # Auth guard, error handler, request-id correlation
-│   │   ├── modules/       # auth · url · stats — controller/service/schema/routes each
+│   │   ├── modules/       # auth · url · stats · user — controller/service/schema/routes each
 │   │   ├── routes/        # Public redirect route (/:slug)
 │   │   └── types/         # Express namespace extensions
-│   ├── tests/             # 9 suites, 86 tests (Vitest + Supertest)
+│   ├── tests/             # 10 suites, 105 tests (Vitest + Supertest)
 │   ├── Dockerfile         # Node 22 Alpine
 │   └── docker-compose.yml # PostgreSQL 16 + backend
 ├── frontend/
 │   ├── src/
 │   │   ├── api/           # Axios + JWT interceptor + 401 auto-logout
 │   │   ├── components/    # Dashboard, landing, layout, shared UI
-│   │   ├── features/      # auth · urls — API clients, Zod schemas, types
+│   │   ├── features/      # auth · urls · qr · settings — API clients, Zod schemas, types
 │   │   ├── hooks/         # useTheme, useDebounce, useScrollReveal, useToast
-│   │   ├── pages/         # 6 pages: Landing, Login, Register, Dashboard, Deactivated, ComingSoon
+│   │   ├── pages/         # 8 pages: Landing, Login, Register, Dashboard, Deactivated, ComingSoon, QRStudio, Settings
 │   │   ├── routes/        # AppRoutes + ProtectedRoute (JWT expiry guard)
 │   │   └── context/       # Toast system with undo action support
 │   └── vercel.json        # Vercel rewrites
@@ -452,10 +465,10 @@ clicku-url/
 - [x] **v0.4** — Live MVP: auth, URL shortening, redirect endpoint, React 19 dashboard
 - [x] **v0.5** — Landing page rebuild, guest demo shortener, anonymous link claiming
 - [x] **v0.6** — Vanity aliases, search/filter/sort, pinning, HTTP 410 for archived links, touch-friendly UI
-- [ ] **v0.7** — Analytics studio: geo-location, device breakdowns, UTM campaign tracking, downloadable QR codes
-- [ ] **v0.8** — Custom branded domains (CNAME + auto-SSL), developer API keys, webhook events
-- [ ] **v0.9** — Team workspaces, RBAC, HttpOnly secure cookie migration
-- [ ] **v1.0** — Enterprise readiness: Redis edge caching, SSO/SAML
+- [x] **v0.7** — QR Code Studio (PNG/SVG export, color customization), User Settings (profile & password management), Guided Onboarding tour
+- [ ] **v0.8** — Analytics studio: geo-location, device breakdowns, UTM campaign tracking, legal pages, scale hardening
+- [ ] **v0.9** — Custom branded domains (CNAME + auto-SSL), developer API keys, webhook events
+- [ ] **v1.0** — Team workspaces, RBAC, enterprise readiness
 
 <br />
 
