@@ -1,7 +1,7 @@
 {
   "name": "shortlynk-frontend",
   "private": true,
-  "version": "0.6.1",
+  "version": "0.7.0",
   "description": "Frontend for Shortlynk URL shortener. Built with React 19, Vite, TypeScript, Tailwind CSS v4, TanStack Query, and React Hook Form.",
   "type": "module",
   "scripts": {

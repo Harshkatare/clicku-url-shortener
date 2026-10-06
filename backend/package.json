@@ -1,6 +1,6 @@
 {
   "name": "shortlynk-backend",
-  "version": "0.6.1",
+  "version": "0.7.0",
   "description": "URL shortening API built with Express 5, TypeScript, Drizzle ORM, and PostgreSQL. Includes rate limiting, JWT auth, Zod validation, and Drizzle migrations.",
   "main": "index.js",
   "scripts": {
