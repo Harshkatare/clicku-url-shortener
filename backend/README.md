@@ -3,8 +3,8 @@
 [![Express 5](https://img.shields.io/badge/Express_5-000000?style=flat-square&logo=express&logoColor=white)](https://expressjs.com/)
 [![PostgreSQL 16](https://img.shields.io/badge/PostgreSQL_16-316192?style=flat-square&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
 [![Drizzle ORM](https://img.shields.io/badge/Drizzle_ORM-C5F74F?style=flat-square&logo=drizzle&logoColor=black)](https://orm.drizzle.team/)
-[![Vitest](https://img.shields.io/badge/Tests-86_Passing-brightgreen?style=flat-square&logo=vitest&logoColor=white)](https://vitest.dev/)
-[![Version](https://img.shields.io/badge/version-0.6.0-blue?style=flat-square)](package.json)
+[![Vitest](https://img.shields.io/badge/Tests-105_Passing-brightgreen?style=flat-square&logo=vitest&logoColor=white)](https://vitest.dev/)
+[![Version](https://img.shields.io/badge/version-0.7.0-blue?style=flat-square)](package.json)
 
 Production-grade, high-concurrency URL shortening and redirection API for **[Shortlynk](https://shortlynk.in)**. Engineered with Express 5, TypeScript (NodeNext), Drizzle ORM, and PostgreSQL 16.
 
@@ -21,9 +21,10 @@ Production-grade, high-concurrency URL shortening and redirection API for **[Sho
 * **Guest Demo Shortener & PLG Claiming:**
   - `POST /api/v1/urls/demo`: Public rate-limited guest shortening (3 links/IP/24h).
   - `POST /api/v1/urls/claim`: Atomic SQL ownership transfer (`WHERE userId IS NULL`) claiming guest links upon authentication.
+* **User Settings & Account Lifecycle (`/api/v1/users`):** Profile management (`PATCH /users/me`), scrypt password changes (`POST /users/me/change-password`, rate limited 5/15m), complete data export (`GET /users/me/export`), and password-verified account deletion with cascading URL cleanup (`DELETE /users/me`, rate limited 3/60m).
 * **Connection Pool Resilience:** Tuned PostgreSQL pool (`max: 10`, `idleTimeoutMillis: 30000`, `connectionTimeoutMillis: 10000`), `pool.on('error')` crash defense interceptor for serverless Neon scale-to-zero handshakes, and 10s graceful shutdown force-kill fallback.
 * **Enterprise Security:** Scrypt password hashing with 16-byte random salt and `timingSafeEqual` comparison, 7-day signed JWT tokens, scoped rate limiters (credential-mutation routes strictly bounded to 10 req/15m while unblocking `/auth/me` session validation), and centralized `AppError` semantic error hierarchy.
-* **Integration Test Coverage:** 86 automated integration tests across 9 test suites powered by Vitest and Supertest (100% green pass rate).
+* **Integration Test Coverage:** 105 automated integration tests across 10 test suites powered by Vitest and Supertest (100% green pass rate).
 
 ---
 
@@ -38,7 +39,8 @@ backend/src/
 ├── modules/
 │   ├── auth/        # Auth controller, service, routes, Zod schemas
 │   ├── url/         # URL CRUD, demo shortening, link claiming
-│   └── stats/       # Platform telemetry and public metrics
+│   ├── stats/       # Platform telemetry and public metrics
+│   └── user/        # Profile update, password change, data export, account deletion
 ├── routes/          # Public redirect router (/:slug dual-resolution)
 ├── types/           # Express namespace typing extensions
 └── server.ts        # HTTP server lifecycle and graceful shutdown handling
@@ -58,7 +60,7 @@ pnpm build
 # Start production server
 pnpm start
 
-# Run all 86 automated integration tests
+# Run all 105 automated integration tests
 pnpm test
 
 # Run tests in watch mode
