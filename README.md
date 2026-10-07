@@ -415,7 +415,7 @@ pnpm test:watch  # Watch mode
 |:---|:---:|:---|
 | `urls` | 46 | Full CRUD · search, filter, sort, pagination · vanity alias conflicts · reordering transactions · tenant isolation · pinning · user stats |
 | `auth` | 12 | Registration · login · duplicate rejection · JWT · `/me` profile · rate-limit decoupling |
-| `user` | 11 | Profile retrieval · profile update (name, email) · email collision handling · password change verification · auth & tenant isolation |
+| `user` | 11 | Profile update (name, email) · email collision handling · password change verification · JSON data export · account deletion with URL cascade |
 | `redirect` | 9 | 302 redirect · click tracking · UTM forwarding · HTTP 410 for archived · content negotiation |
 | `url-query` | 8 | Zod query schema: defaults, coercion, max per page (50), sanitization |
 | `vanity-alias` | 7 | Length bounds · character regex · reserved slug blocking (47 slugs) |
