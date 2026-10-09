@@ -273,7 +273,7 @@ Expanding the regex naively to `{3,50}` would intercept SPA routes like `/dashbo
 
 **Solution:** A 4-tier rewrite precedence:
 1. `/api/:path*` → backend API
-2. `/(login|register|dashboard|...)` → SPA (protected by the backend's 47-entry `RESERVED_SLUGS` blacklist)
+2. `/(login|register|dashboard|...)` → SPA (protected by the backend's 60-entry `RESERVED_SLUGS` list)
 3. `/:slug([A-Za-z0-9_-]{3,50})` → redirect endpoint
 4. `/*` → SPA fallback
 </details>
@@ -418,7 +418,7 @@ pnpm test:watch  # Watch mode
 | `user` | 11 | Profile update (name, email) · email collision handling · password change verification · JSON data export · account deletion with URL cascade |
 | `redirect` | 9 | 302 redirect · click tracking · UTM forwarding · HTTP 410 for archived · content negotiation |
 | `url-query` | 8 | Zod query schema: defaults, coercion, max per page (50), sanitization |
-| `vanity-alias` | 7 | Length bounds · character regex · reserved slug blocking (47 slugs) |
+| `vanity-alias` | 7 | Length bounds · character regex · reserved slug blocking (60 slugs) |
 | `claim` | 6 | Guest → user ownership · idempotency · anti-hijack guards |
 | `demo` | 3 | Anonymous link creation · redirect · validation |
 | `health` | 2 | `/health` and `/api/health` liveness |
