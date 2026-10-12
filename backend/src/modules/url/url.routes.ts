@@ -1,12 +1,14 @@
 import { Router } from "express";
 
 import * as urlController from "./url.controller.js";
+import * as analyticsController from "../analytics/analytics.controller.js";
 
 import { asyncHandler } from "../../utils/async-handler.js";
 
 import { protect } from "../../middleware/auth.middleware.js";
 
 import { demoRateLimit } from "../../lib/rate-limit/demo-rate-limit.js";
+import { analyticsUrlRateLimit } from "../../lib/rate-limit/analytics-rate-limit.js";
 
 const router = Router();
 
@@ -32,6 +34,13 @@ router.get(
   "/stats",
   protect,
   asyncHandler(urlController.getUserUrlStats)
+);
+
+router.get(
+  "/:id/analytics",
+  protect,
+  analyticsUrlRateLimit,
+  asyncHandler(analyticsController.getUrlAnalytics)
 );
 
 router.post(
