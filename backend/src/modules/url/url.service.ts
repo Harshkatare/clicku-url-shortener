@@ -93,7 +93,7 @@ export async function createShortUrl(
   );
 }
 
-export async function redirectToOriginalUrl(slug: string) {
+export async function redirectToOriginalUrl(slug: string): Promise<{ originalUrl: string; urlId: string }> {
   const existingUrl = await db.query.urls.findFirst({
     where: or(eq(urls.shortCode, slug), eq(urls.customAlias, slug)),
   });
@@ -115,7 +115,10 @@ export async function redirectToOriginalUrl(slug: string) {
     })
     .where(eq(urls.id, existingUrl.id));
 
-  return existingUrl.originalUrl;
+  return {
+    originalUrl: existingUrl.originalUrl,
+    urlId: existingUrl.id,
+  };
 }
 
 function escapeLikePattern(input: string): string {

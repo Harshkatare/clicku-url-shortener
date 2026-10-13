@@ -12,6 +12,8 @@ import {
  } from "./url.schema.js";
 import { ArchivedUrlError } from "../../lib/errors/index.js";
 import { env } from "../../config/env.js";
+import { logger } from "../../lib/logger.js";
+import { trackClickAsync } from "../../lib/telemetry/track-click.js";
 
 export async function createShortUrl(
   req: Request,
@@ -59,8 +61,11 @@ export async function redirectToOriginalUrl(
   const slug = (req.params.slug || req.params.shortCode) as string;
 
   let originalUrl: string;
+  let urlId: string;
   try {
-    originalUrl = await urlService.redirectToOriginalUrl(slug);
+    const result = await urlService.redirectToOriginalUrl(slug);
+    originalUrl = result.originalUrl;
+    urlId = result.urlId;
   } catch (error) {
     if (error instanceof ArchivedUrlError) {
       const isHtmlBrowser = Boolean(req.headers.accept?.includes("text/html"));
@@ -77,32 +82,36 @@ export async function redirectToOriginalUrl(
     throw error;
   }
 
-    const queryKeys = Object.keys(req.query);
-    if (queryKeys.length > 0) {
-      try{
-        const targetUrl = new URL(originalUrl);
+  let destination = originalUrl;
+  const queryKeys = Object.keys(req.query);
+  if (queryKeys.length > 0) {
+    try {
+      const targetUrl = new URL(originalUrl);
 
-        for (const [key, value] of Object.entries(req.query)) {
-          if (typeof value === "string") {
-            targetUrl.searchParams.set(key, value);
-          }
-          else if (Array.isArray(value)) {
-            targetUrl.searchParams.delete(key);
+      for (const [key, value] of Object.entries(req.query)) {
+        if (typeof value === "string") {
+          targetUrl.searchParams.set(key, value);
+        } else if (Array.isArray(value)) {
+          targetUrl.searchParams.delete(key);
 
-            for (const v of value) {
-              if (typeof v === "string") {
-                targetUrl.searchParams.append(key, v);
-              }
+          for (const v of value) {
+            if (typeof v === "string") {
+              targetUrl.searchParams.append(key, v);
             }
           }
         }
-        return res.redirect(targetUrl.toString());
-      } catch {
-        return res.redirect(originalUrl);
       }
+      destination = targetUrl.toString();
+    } catch {
+      destination = originalUrl;
     }
+  }
 
-  res.redirect(originalUrl);
+  res.redirect(destination);
+
+  trackClickAsync({ urlId, req }).catch((err) => {
+    logger.error({ err }, "Click dispatch failed");
+  });
 }
 
 export async function getUserUrls(
