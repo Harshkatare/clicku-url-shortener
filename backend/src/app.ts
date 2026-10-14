@@ -7,6 +7,7 @@ import urlRoutes from "./modules/url/url.routes.js";
 import statsRoutes from "./modules/stats/stats.routes.js";
 import userRoutes from "./modules/user/user.routes.js";
 import analyticsRoutes from "./modules/analytics/analytics.routes.js";
+import adminRoutes from "./modules/admin/admin.routes.js";
 import redirectRoutes from "./routes/redirect.routes.js";
 
 import { errorMiddleware } from "./middleware/error.middleware.js";
@@ -67,6 +68,7 @@ app.use("/api/v1/urls", urlRoutes);
 app.use("/api/v1/stats", statsRoutes);
 app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/analytics", analyticsRoutes);
+app.use("/api/v1/admin", adminRoutes);
 
 app.get("/favicon.ico", (_req, res) => {
   res.status(204).end();

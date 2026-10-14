@@ -24,3 +24,16 @@ export const analyticsOverviewRateLimit = rateLimit({
     message: "Too many analytics requests. Please try again later.",
   },
 });
+
+export const adminStatsRateLimit = rateLimit({
+  windowMs: 60 * 1000,
+  limit: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  skip: () => env.NODE_ENV === "test",
+  message: {
+    success: false,
+    message: "Too many admin requests. Please try again later.",
+  },
+});
+

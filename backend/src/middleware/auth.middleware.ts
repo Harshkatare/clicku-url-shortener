@@ -44,6 +44,7 @@ export async function protect(
     columns: {
       id: true,
       isActive: true,
+      role: true,
     },
   });
 
@@ -57,6 +58,7 @@ export async function protect(
 
   req.user = {
     id: user.id,
+    role: user.role,
   };
 
   next();
