@@ -3,6 +3,8 @@ import { db } from "../../db/index.js";
 import { clickEvents } from "../../db/schema/click-events.js";
 import { urls } from "../../db/schema/urls.js";
 import { BadRequestError, NotFoundError } from "../../lib/errors/index.js";
+import { logger } from "../../lib/logger.js";
+import { runRollupIfNeeded } from "../../lib/telemetry/rollup-worker.js";
 import { AnalyticsQueryInput, VALID_TIMEZONES } from "./analytics.schema.js";
 
 export interface AnalyticsSummary {
@@ -84,6 +86,11 @@ export async function getUrlAnalytics(
   if (!VALID_TIMEZONES.has(tz)) {
     throw new BadRequestError("Invalid IANA timezone");
   }
+
+  // Trigger lazy 90-day retention rollup check (non-blocking)
+  runRollupIfNeeded().catch((err) => {
+    logger.error({ err }, "Lazy rollup trigger failed in getUrlAnalytics");
+  });
 
   const safeTz = tz;
 
@@ -245,6 +252,11 @@ export async function getOverviewAnalytics(
   if (!VALID_TIMEZONES.has(tz)) {
     throw new BadRequestError("Invalid IANA timezone");
   }
+
+  // Trigger lazy 90-day retention rollup check (non-blocking)
+  runRollupIfNeeded().catch((err) => {
+    logger.error({ err }, "Lazy rollup trigger failed in getOverviewAnalytics");
+  });
 
   const safeTz = tz;
   const timeCondition = sql`${clickEvents.clickedAt} >= NOW() - (${days} * INTERVAL '1 day')`;
