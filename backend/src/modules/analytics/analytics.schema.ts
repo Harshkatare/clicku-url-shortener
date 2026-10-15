@@ -1,9 +1,16 @@
 import { z } from "zod";
 
-export const VALID_TIMEZONES = new Set([
-  ...Intl.supportedValuesOf("timeZone"),
-  "UTC",
-]);
+export function isValidTimeZone(tz: string): boolean {
+  if (!tz || typeof tz !== "string") {
+    return false;
+  }
+  try {
+    Intl.DateTimeFormat(undefined, { timeZone: tz });
+    return true;
+  } catch {
+    return false;
+  }
+}
 
 export const analyticsQuerySchema = z.object({
   days: z.coerce
@@ -13,7 +20,7 @@ export const analyticsQuerySchema = z.object({
   tz: z
     .string()
     .default("UTC")
-    .refine((val) => VALID_TIMEZONES.has(val), {
+    .refine(isValidTimeZone, {
       message: "Invalid IANA timezone",
     }),
   includeBots: z

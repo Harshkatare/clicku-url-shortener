@@ -5,7 +5,7 @@ import { urls } from "../../db/schema/urls.js";
 import { BadRequestError, NotFoundError } from "../../lib/errors/index.js";
 import { logger } from "../../lib/logger.js";
 import { runRollupIfNeeded } from "../../lib/telemetry/rollup-worker.js";
-import { AnalyticsQueryInput, VALID_TIMEZONES } from "./analytics.schema.js";
+import { AnalyticsQueryInput, isValidTimeZone } from "./analytics.schema.js";
 
 export interface AnalyticsSummary {
   totalClicks: number;
@@ -83,7 +83,7 @@ export async function getUrlAnalytics(
 ): Promise<UrlAnalyticsResponse> {
   const { days, tz, includeBots } = query;
 
-  if (!VALID_TIMEZONES.has(tz)) {
+  if (!isValidTimeZone(tz)) {
     throw new BadRequestError("Invalid IANA timezone");
   }
 
@@ -140,8 +140,8 @@ export async function getUrlAnalytics(
       .from(clickEvents)
       .innerJoin(urls, eq(clickEvents.urlId, urls.id))
       .where(and(tenantCondition, botCondition))
-      .groupBy(sql`to_char(${clickEvents.clickedAt} AT TIME ZONE ${safeTz}, 'YYYY-MM-DD')`)
-      .orderBy(sql`to_char(${clickEvents.clickedAt} AT TIME ZONE ${safeTz}, 'YYYY-MM-DD')`),
+      .groupBy(sql`1`)
+      .orderBy(sql`1`),
 
     db
       .select({
@@ -186,8 +186,8 @@ export async function getUrlAnalytics(
       .from(clickEvents)
       .innerJoin(urls, eq(clickEvents.urlId, urls.id))
       .where(and(tenantCondition, botCondition))
-      .groupBy(sql`extract(hour from ${clickEvents.clickedAt} AT TIME ZONE ${safeTz})::int`)
-      .orderBy(sql`extract(hour from ${clickEvents.clickedAt} AT TIME ZONE ${safeTz})::int`),
+      .groupBy(sql`1`)
+      .orderBy(sql`1`),
   ]);
 
   const summary: AnalyticsSummary = {
@@ -249,7 +249,7 @@ export async function getOverviewAnalytics(
 ): Promise<OverviewAnalyticsResponse> {
   const { days, tz, includeBots } = query;
 
-  if (!VALID_TIMEZONES.has(tz)) {
+  if (!isValidTimeZone(tz)) {
     throw new BadRequestError("Invalid IANA timezone");
   }
 
@@ -294,8 +294,8 @@ export async function getOverviewAnalytics(
       .from(clickEvents)
       .innerJoin(urls, eq(clickEvents.urlId, urls.id))
       .where(and(tenantCondition, botCondition))
-      .groupBy(sql`to_char(${clickEvents.clickedAt} AT TIME ZONE ${safeTz}, 'YYYY-MM-DD')`)
-      .orderBy(sql`to_char(${clickEvents.clickedAt} AT TIME ZONE ${safeTz}, 'YYYY-MM-DD')`),
+      .groupBy(sql`1`)
+      .orderBy(sql`1`),
 
     db
       .select({
@@ -340,8 +340,8 @@ export async function getOverviewAnalytics(
       .from(clickEvents)
       .innerJoin(urls, eq(clickEvents.urlId, urls.id))
       .where(and(tenantCondition, botCondition))
-      .groupBy(sql`extract(hour from ${clickEvents.clickedAt} AT TIME ZONE ${safeTz})::int`)
-      .orderBy(sql`extract(hour from ${clickEvents.clickedAt} AT TIME ZONE ${safeTz})::int`),
+      .groupBy(sql`1`)
+      .orderBy(sql`1`),
 
     db
       .select({
