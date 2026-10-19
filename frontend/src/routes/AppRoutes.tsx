@@ -5,7 +5,7 @@ import { RegisterPage } from "../pages/RegisterPage";
 import { DashboardPage } from "../pages/DashboardPage";
 import { LandingPage } from "../pages/LandingPage";
 import { DeactivatedPage } from "../pages/DeactivatedPage";
-import { ComingSoonPage } from "../pages/ComingSoonPage";
+import { AnalyticsPage } from "../pages/AnalyticsPage";
 import { SettingsPage } from "../pages/SettingsPage";
 import { QRStudioPage } from "../pages/QRStudioPage";
 
@@ -39,7 +39,7 @@ export function AppRoutes() {
         />
         <Route
           path="/analytics"
-          element={<ComingSoonPage />}
+          element={<AnalyticsPage />}
         />
         <Route
           path="/settings"
