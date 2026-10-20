@@ -75,6 +75,7 @@ describe("Auth API Integration Tests", () => {
     expect(res.body.success).toBe(true);
     expect(res.body.data.email).toBe(testEmail);
     expect(res.body.data.name).toBe("Test User");
+    expect(res.body.data.role).toBe("user");
   });
 
   // 6. Test Protected Route without Token (401 Unauthorized)
