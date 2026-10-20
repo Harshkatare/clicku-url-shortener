@@ -8,6 +8,7 @@ import { DeactivatedPage } from "../pages/DeactivatedPage";
 import { AnalyticsPage } from "../pages/AnalyticsPage";
 import { SettingsPage } from "../pages/SettingsPage";
 import { QRStudioPage } from "../pages/QRStudioPage";
+import { AdminDashboardPage } from "../pages/AdminDashboardPage";
 
 import { ProtectedRoute } from "./ProtectedRoute";
 
@@ -36,6 +37,10 @@ export function AppRoutes() {
         <Route
           path="/dashboard"
           element={<DashboardPage />}
+        />
+        <Route
+          path="/admin"
+          element={<AdminDashboardPage />}
         />
         <Route
           path="/analytics"
