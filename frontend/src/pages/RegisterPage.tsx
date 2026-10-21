@@ -210,6 +210,23 @@ export function RegisterPage() {
             ? "Creating account..."
             : "Register"}
         </button>
+
+        <p className="mt-3 text-center text-xs text-gray-500 dark:text-slate-400">
+          By creating an account, you agree to our{" "}
+          <Link
+            to="/terms"
+            className="font-medium text-blue-600 hover:underline dark:text-blue-400"
+          >
+            Terms of Service
+          </Link>{" "}
+          and{" "}
+          <Link
+            to="/privacy"
+            className="font-medium text-blue-600 hover:underline dark:text-blue-400"
+          >
+            Privacy Policy
+          </Link>.
+        </p>
       </form>
 
       <p className="mt-8 text-center text-sm text-gray-500 dark:text-slate-400">
