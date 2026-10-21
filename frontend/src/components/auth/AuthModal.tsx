@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import axios from "axios";
 import { Logo } from "../common/Logo";
 import { PasswordStrengthMeter } from "./PasswordStrengthMeter";
@@ -443,7 +443,22 @@ export function AuthModal({
 
         {/* Footer Terms */}
         <p className="mt-4 text-center text-[11px] text-slate-400 dark:text-slate-500">
-          By continuing, you agree to our Terms of Service and Privacy Policy.
+          By continuing, you agree to our{" "}
+          <Link
+            to="/terms"
+            onClick={onClose}
+            className="font-medium text-slate-600 underline hover:text-slate-900 dark:text-slate-300 dark:hover:text-white"
+          >
+            Terms of Service
+          </Link>{" "}
+          and{" "}
+          <Link
+            to="/privacy"
+            onClick={onClose}
+            className="font-medium text-slate-600 underline hover:text-slate-900 dark:text-slate-300 dark:hover:text-white"
+          >
+            Privacy Policy
+          </Link>.
         </p>
       </div>
     </div>
