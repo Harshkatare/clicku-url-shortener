@@ -130,20 +130,20 @@ export function Footer({ onLogin, onRegister }: FooterProps = {}) {
             </h4>
             <ul className="mt-4 space-y-2.5 text-sm text-slate-600 dark:text-slate-400">
               <li>
-                <a
-                  href="#privacy"
+                <Link
+                  to="/privacy"
                   className="transition-colors hover:text-blue-600 dark:hover:text-blue-400"
                 >
                   Privacy Policy
-                </a>
+                </Link>
               </li>
               <li>
-                <a
-                  href="#terms"
+                <Link
+                  to="/terms"
                   className="transition-colors hover:text-blue-600 dark:hover:text-blue-400"
                 >
                   Terms of Service
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
