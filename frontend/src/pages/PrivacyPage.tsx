@@ -1,4 +1,5 @@
 import { LegalPageLayout, type TocItem } from "../layouts/LegalPageLayout";
+import { SUPPORT_EMAIL } from "../config/constants";
 
 const PRIVACY_TOC: TocItem[] = [
   { id: "core-principles", label: "Core Principles" },
@@ -165,10 +166,10 @@ export function PrivacyPage() {
         <p className="mt-3">
           For privacy inquiries, data requests, or security concerns, reach out to:{" "}
           <a
-            href="mailto:support@shortlynk.in"
+            href={`mailto:${SUPPORT_EMAIL}`}
             className="font-medium text-blue-600 underline hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300"
           >
-            support@shortlynk.in
+            {SUPPORT_EMAIL}
           </a>
         </p>
       </section>

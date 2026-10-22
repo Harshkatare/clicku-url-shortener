@@ -1,4 +1,5 @@
 import { LegalPageLayout, type TocItem } from "../layouts/LegalPageLayout";
+import { SUPPORT_EMAIL } from "../config/constants";
 
 const TERMS_TOC: TocItem[] = [
   { id: "acceptance", label: "Acceptance of Terms" },
@@ -136,10 +137,10 @@ export function TermsPage() {
         <p className="mt-3">
           If you have questions or concerns regarding these Terms of Service, please reach out to us at:{" "}
           <a
-            href="mailto:support@shortlynk.in"
+            href={`mailto:${SUPPORT_EMAIL}`}
             className="font-medium text-blue-600 underline hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300"
           >
-            support@shortlynk.in
+            {SUPPORT_EMAIL}
           </a>
         </p>
       </section>
