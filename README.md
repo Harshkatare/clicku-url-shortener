@@ -18,12 +18,12 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-v0.7.0-blue?style=flat-square" alt="Version v0.7.0" />
+  <img src="https://img.shields.io/badge/version-v0.8.0-blue?style=flat-square" alt="Version v0.8.0" />
   <img src="https://img.shields.io/badge/TypeScript-strict-007ACC?style=flat-square&logo=typescript&logoColor=white" alt="TypeScript" />
   <img src="https://img.shields.io/badge/React_19-20232A?style=flat-square&logo=react&logoColor=61DAFB" alt="React 19" />
   <img src="https://img.shields.io/badge/Express_5-000000?style=flat-square&logo=express&logoColor=white" alt="Express 5" />
   <img src="https://img.shields.io/badge/PostgreSQL_16-316192?style=flat-square&logo=postgresql&logoColor=white" alt="PostgreSQL 16" />
-  <img src="https://img.shields.io/badge/105_Tests_Passing-brightgreen?style=flat-square&logo=vitest&logoColor=white" alt="105 Tests Passing" />
+  <img src="https://img.shields.io/badge/126_Tests_Passing-brightgreen?style=flat-square&logo=vitest&logoColor=white" alt="126 Tests Passing" />
   <img src="https://img.shields.io/badge/Tailwind_v4-38B2AC?style=flat-square&logo=tailwind-css&logoColor=white" alt="Tailwind CSS v4" />
 </p>
 
@@ -101,18 +101,21 @@ These are the problems that taught me the most — and the ones I document in th
     <td width="50%" valign="top">
       <h3>📊 Analytics & Tracking</h3>
       <ul>
-        <li><b>Click counting</b> — every redirect increments via <code>sql`clicks + 1`</code></li>
-        <li><b>Dashboard stats</b> — total links, clicks, active links, avg clicks per link</li>
-        <li><b>UTM preservation</b> — query params pass through to destination without stripping</li>
-        <li><b>Public stats endpoint (cached 60s)</b> with 60-second in-memory cache</li>
+        <li><b>Click telemetry</b> — asynchronous off-path capture with 50-item backpressure queue</li>
+        <li><b>Zero-PII storage</b> — salted SHA-256 IP hashing with daily-rotating salt; raw IPs never stored</li>
+        <li><b>Visual analytics</b> — pure SVG daily time-series, peak hours, country, referrer, and device breakdowns</li>
+        <li><b>Bot filtering & timezones</b> — optional crawler inclusion toggle and IANA timezone shifting</li>
+        <li><b>90-day retention rollups</b> — multi-CTE worker summarizes mature events into daily stats and purges raw records</li>
+        <li><b>Public stats endpoint</b> with 60-second in-memory cache</li>
       </ul>
       <h3>🛡️ Security & Account</h3>
       <ul>
+        <li><b>Role-based administration</b> — <code>/admin</code> panel with connection pool metrics and tenant volume stats</li>
+        <li><b>Tenant isolation</b> — returns HTTP 404 on unauthorized analytics drilldowns to prevent slug enumeration</li>
+        <li><b>Legal documentation</b> — responsive <code>/privacy</code> and <code>/terms</code> with desktop TOC, mobile jump pills, and browsewrap agreements</li>
         <li><b>JWT auth</b> with client-side expiration guards and 401 auto-logout</li>
-        <li><b>User Settings</b> — update name, email, and password with current password verification</li>
-        <li><b>Rate limiting: API (100/15m), auth (10/15m), demo (3/day), redirects (500/min)</b></li>
-        <li><b>Zod validation</b> on every input — bodies, query params, route params</li>
-        <li><b>10kb body limit,</b> request correlation IDs</li>
+        <li><b>Rate limiting</b>: API (100/15m), auth (10/15m), analytics (30/m), demo (3/day), redirects (500/m)</li>
+        <li><b>Zod validation</b> across all request bodies, route parameters, and query strings</li>
       </ul>
     </td>
   </tr>
@@ -156,7 +159,7 @@ flowchart TD
     subgraph Backend["Backend — Express 5 + Node 22"]
         MW["Middleware Stack\nHelmet → CORS → 10kb Limit → Request ID → Pino"]
         RL["Rate Limiters\nAPI: 100/15m · Auth: 10/15m · Demo: 3/day · Redirects: 500/min"]
-        Modules["Feature Modules\nAuth · URL · Stats · Redirect"]
+        Modules["Feature Modules\nAuth · URL · Stats · Redirect · Analytics · Admin"]
         Errors["Error Hierarchy\nAppError → BadRequest · Unauthorized\nNotFound · Conflict · ArchivedUrl(410)"]
     end
 
@@ -400,11 +403,24 @@ All endpoints return `{ success: boolean, message?: string, data?: T }`.
 |:---|:---|:---|
 | `GET` | `/stats/public` | Public stats (60s cache) |
 
+**Analytics** (`/api/v1/analytics`, `/api/v1/urls/:id/analytics`) — requires `Bearer` JWT
+
+| Method | Endpoint | Rate Limit | Description |
+|:---|:---|:---:|:---|
+| `GET` | `/urls/:id/analytics` | 30 / min | Link click drilldown (range, includeBots, tz) |
+| `GET` | `/analytics/overview` | 20 / min | Account-level aggregate click telemetry |
+
+**Admin** (`/api/v1/admin`) — requires `Bearer` JWT with `admin` role
+
+| Method | Endpoint | Rate Limit | Description |
+|:---|:---|:---:|:---|
+| `GET` | `/admin/stats` | Standard | Platform volume and PostgreSQL connection pool metrics |
+
 <br />
 
 ## 🧪 Testing
 
-**105 tests** · **10 suites** · runs against a **real PostgreSQL database** — no mocks.
+**126 tests** · **12 suites** · runs against a **real PostgreSQL database** — no mocks.
 
 ```bash
 pnpm test        # Run all
@@ -414,12 +430,14 @@ pnpm test:watch  # Watch mode
 | Suite | Tests | What It Validates |
 |:---|:---:|:---|
 | `urls` | 46 | Full CRUD · search, filter, sort, pagination · vanity alias conflicts · reordering transactions · tenant isolation · pinning · user stats |
-| `auth` | 12 | Registration · login · duplicate rejection · JWT · `/me` profile · rate-limit decoupling |
+| `analytics` | 16 | Time-range queries (7d/30d/90d) · timezone offset normalization · bot traffic filtering · tenant isolation (404 guard) · 90-day rollup worker · flush pending barrier |
+| `auth` | 12 | Registration · login · duplicate rejection · JWT · `/me` profile with user role · rate-limit decoupling |
 | `user` | 11 | Profile update (name, email) · email collision handling · password change verification · JSON data export · account deletion with URL cascade |
 | `redirect` | 9 | 302 redirect · click tracking · UTM forwarding · HTTP 410 for archived · content negotiation |
 | `url-query` | 8 | Zod query schema: defaults, coercion, max per page (50), sanitization |
-| `vanity-alias` | 7 | Length bounds · character regex · reserved slug blocking (60 slugs) |
+| `vanity-alias` | 7 | Length bounds · character regex · reserved slug blocking (60+ slugs) |
 | `claim` | 6 | Guest → user ownership · idempotency · anti-hijack guards |
+| `admin` | 5 | Role guard (`admin` required, 403 for user, 401 unauth) · zero-PII data assertions · connection pool telemetry |
 | `demo` | 3 | Anonymous link creation · redirect · validation |
 | `health` | 2 | `/health` and `/api/health` liveness |
 | `stats` | 1 | Public stats |
@@ -441,7 +459,7 @@ clicku-url/
 │   │   ├── modules/       # auth · url · stats · user — controller/service/schema/routes each
 │   │   ├── routes/        # Public redirect route (/:slug)
 │   │   └── types/         # Express namespace extensions
-│   ├── tests/             # 10 suites, 105 tests (Vitest + Supertest)
+│   ├── tests/             # 12 suites, 126 tests (Vitest + Supertest)
 │   ├── Dockerfile         # Node 22 Alpine
 │   └── docker-compose.yml # PostgreSQL 16 + backend
 ├── frontend/
@@ -450,7 +468,7 @@ clicku-url/
 │   │   ├── components/    # Dashboard, landing, layout, shared UI
 │   │   ├── features/      # auth · urls · qr · settings — API clients, Zod schemas, types
 │   │   ├── hooks/         # useTheme, useDebounce, useScrollReveal, useToast
-│   │   ├── pages/         # 8 pages: Landing, Login, Register, Dashboard, Deactivated, ComingSoon, QRStudio, Settings
+│   │   ├── pages/         # 12 pages: Landing, Login, Register, Dashboard, Analytics, AdminDashboard, Settings, QRStudio, Privacy, Terms, Deactivated, ComingSoon
 │   │   ├── routes/        # AppRoutes + ProtectedRoute (JWT expiry guard)
 │   │   └── context/       # Toast system with undo action support
 │   └── vercel.json        # Vercel rewrites
@@ -466,7 +484,7 @@ clicku-url/
 - [x] **v0.5** — Landing page rebuild, guest demo shortener, anonymous link claiming
 - [x] **v0.6** — Vanity aliases, search/filter/sort, pinning, HTTP 410 for archived links, touch-friendly UI
 - [x] **v0.7** — QR Code Studio (PNG/SVG export, color customization), User Settings (profile & password management), Guided Onboarding tour
-- [ ] **v0.8** — Analytics studio: geo-location, device breakdowns, UTM campaign tracking, legal pages, scale hardening
+- [x] **v0.8** — Click telemetry & analytics suite: time-series, peak hours, country/device/referrer breakdowns, bot filtering, 90-day rollups, admin panel, legal pages
 - [ ] **v0.9** — Custom branded domains (CNAME + auto-SSL), developer API keys, webhook events
 - [ ] **v1.0** — Team workspaces, RBAC, enterprise readiness
 
