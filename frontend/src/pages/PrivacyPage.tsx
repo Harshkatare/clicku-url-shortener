@@ -1,203 +1,177 @@
-import { useEffect } from "react";
-import { Link } from "react-router-dom";
-import { Logo } from "../components/common/Logo";
-import { Footer } from "../components/landing/Footer";
-import { useTheme } from "../hooks/useTheme";
-import { getToken, isTokenExpired } from "../features/auth/auth.storage";
+import { LegalPageLayout, type TocItem } from "../layouts/LegalPageLayout";
+
+const PRIVACY_TOC: TocItem[] = [
+  { id: "core-principles", label: "Core Principles" },
+  { id: "data-collection", label: "Data We Collect" },
+  { id: "telemetry", label: "Click Telemetry Mechanics" },
+  { id: "retention", label: "Data Retention & Lifecycle" },
+  { id: "user-rights", label: "User Rights & Data Portability" },
+  { id: "subprocessors", label: "Subprocessors & Infrastructure" },
+  { id: "modifications", label: "Policy Changes" },
+  { id: "contact", label: "Contact Us" },
+];
 
 export function PrivacyPage() {
-  const { dark, toggle } = useTheme();
-  const token = getToken();
-  const isAuthenticated = Boolean(token && !isTokenExpired(token));
-
-  useEffect(() => {
-    window.scrollTo(0, 0);
-  }, []);
-
   return (
-    <div className="min-h-screen flex flex-col justify-between bg-slate-50 text-slate-900 transition-colors duration-200 dark:bg-slate-950 dark:text-slate-100">
-      <div>
-        {/* Top Glassmorphic Navbar */}
-        <header className="sticky top-0 z-40 glass border-b border-gray-200/50 dark:border-slate-700/50 transition-colors duration-200">
-          <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6">
-            <Link to="/" className="flex shrink-0 items-center gap-2 sm:gap-2.5">
-              <Logo size={32} />
-              <span className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">
-                ShortLynk
-              </span>
-            </Link>
+    <LegalPageLayout
+      title="Privacy Policy"
+      lastUpdated="October 2026"
+      tocItems={PRIVACY_TOC}
+      seeAlso={{ label: "Terms of Service", to: "/terms" }}
+    >
+      {/* 1. Core Principles */}
+      <section id="core-principles" className="scroll-mt-28">
+        <h2 className="text-lg font-bold text-slate-900 dark:text-white">
+          1. Core Privacy Principles
+        </h2>
 
-            <div className="flex shrink-0 items-center gap-3">
-              <button
-                type="button"
-                onClick={toggle}
-                aria-label="Toggle theme"
-                className="flex h-9 w-9 items-center justify-center rounded-xl border border-gray-200 bg-gray-50 text-gray-700 transition hover:bg-gray-100 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700 sm:h-10 sm:w-10 cursor-pointer"
-                title="Toggle theme"
-              >
-                {dark ? (
-                  <svg className="h-4.5 w-4.5 sm:h-5 sm:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
-                    />
-                  </svg>
-                ) : (
-                  <svg className="h-4.5 w-4.5 sm:h-5 sm:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
-                    />
-                  </svg>
-                )}
-              </button>
+        {/* Commitment Callout Card */}
+        <div className="mt-4 rounded-xl border border-emerald-500/30 bg-emerald-50/60 p-4.5 dark:border-emerald-500/20 dark:bg-emerald-950/30">
+          <h3 className="text-xs font-bold uppercase tracking-wider text-emerald-800 dark:text-emerald-300">
+            Our Baseline Commitments
+          </h3>
+          <ul className="mt-3 space-y-2 text-xs leading-relaxed text-emerald-900 dark:text-emerald-200">
+            <li className="flex items-start gap-2">
+              <span className="font-bold text-emerald-600 dark:text-emerald-400">✓</span>
+              <span><strong>Zero data sales:</strong> We do not sell, rent, monetize, or trade user data or visitor telemetry with advertisers or third parties.</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="font-bold text-emerald-600 dark:text-emerald-400">✓</span>
+              <span><strong>No tracking cookies:</strong> ShortLynk uses zero cross-site advertising pixels, behavioral trackers, or third-party profiling cookies.</span>
+            </li>
+            <li className="flex items-start gap-2">
+              <span className="font-bold text-emerald-600 dark:text-emerald-400">✓</span>
+              <span><strong>Ephemeral visitor processing:</strong> Visitor IP addresses are hashed using a daily-rotated salt and never stored in raw form.</span>
+            </li>
+          </ul>
+        </div>
+      </section>
 
-              {isAuthenticated ? (
-                <Link
-                  to="/dashboard"
-                  className="rounded-xl bg-blue-600 px-3.5 py-1.5 text-xs font-semibold text-white shadow-xs transition hover:bg-blue-700 sm:px-4 sm:py-2 sm:text-sm cursor-pointer"
-                >
-                  Dashboard
-                </Link>
-              ) : (
-                <Link
-                  to="/login"
-                  className="rounded-xl border border-gray-300/90 bg-white px-3 py-1.5 text-xs font-medium text-gray-700 shadow-xs transition hover:bg-gray-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-200 dark:hover:bg-slate-700 sm:px-4 sm:py-2 sm:text-sm cursor-pointer"
-                >
-                  Sign In
-                </Link>
-              )}
-            </div>
-          </div>
-        </header>
+      <hr className="border-slate-200/80 dark:border-slate-800/80" />
 
-        {/* Main Content */}
-        <main className="mx-auto max-w-3xl px-6 py-12 prose dark:prose-invert">
-          <div className="border-b border-slate-200 pb-6 dark:border-slate-800">
-            <h1 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-4xl">
-              Privacy Policy
-            </h1>
-            <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">
-              Last updated: October 2026
-            </p>
-          </div>
+      {/* 2. Data Collection */}
+      <section id="data-collection" className="scroll-mt-28">
+        <h2 className="text-lg font-bold text-slate-900 dark:text-white">
+          2. Data We Collect and Store
+        </h2>
+        <p className="mt-3">
+          We collect only information necessary to provide URL shortening, link management, and aggregate performance analytics.
+        </p>
 
-          <div className="mt-8 space-y-8 text-sm leading-relaxed text-slate-600 dark:text-slate-300">
-            <section>
-              <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
-                1. Overview
-              </h2>
-              <p className="mt-3">
-                ShortLynk provides link shortening and click telemetry services. We design and operate the platform with data minimization as a core constraint:
-              </p>
-              <ul className="mt-2 list-disc pl-5 space-y-1">
-                <li>
-                  <strong className="text-slate-900 dark:text-white">Zero data sales:</strong> We do not sell, rent, or monetize your data or your visitors' data to third-party brokers, advertisers, or aggregators.
-                </li>
-                <li>
-                  <strong className="text-slate-900 dark:text-white">No third-party tracking cookies:</strong> We do not set cross-site tracking cookies, behavioral tracking scripts, or ad-network beacons.
-                </li>
-                <li>
-                  <strong className="text-slate-900 dark:text-white">No cross-site profiling:</strong> Visitor clicks are not linked across distinct websites or used to build behavioral dossiers.
-                </li>
-              </ul>
-            </section>
+        <h3 className="mt-4 text-sm font-semibold text-slate-900 dark:text-white">
+          A. Account Data (Registered Users)
+        </h3>
+        <ul className="mt-2 list-disc pl-5 space-y-1">
+          <li><strong>Credentials:</strong> Name and email address. Passwords are protected using scrypt with unique salts; plaintext passwords are never stored.</li>
+          <li><strong>Session tokens:</strong> Cryptographically signed JWT tokens stored in browser local storage.</li>
+          <li><strong>Link records:</strong> Original destination URLs, custom slugs, title tags, link status (active, expiring, or archived), and pinned state.</li>
+        </ul>
 
-            <section>
-              <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
-                2. Information Collected from Account Holders
-              </h2>
-              <p className="mt-3">
-                When you create an account or interact with our dashboard, we collect:
-              </p>
-              <ul className="mt-2 list-disc pl-5 space-y-1">
-                <li>
-                  <strong className="text-slate-900 dark:text-white">Account credentials:</strong> Your name, email address, and password. Passwords are never stored in plain text; they are hashed using the scrypt key derivation function with unique cryptographic salts.
-                </li>
-                <li>
-                  <strong className="text-slate-900 dark:text-white">Authentication tokens:</strong> JSON Web Tokens (JWT) stored locally in browser storage to authenticate API sessions.
-                </li>
-                <li>
-                  <strong className="text-slate-900 dark:text-white">Link metadata:</strong> Destination URLs, generated short codes, custom aliases, creation timestamps, link status (active, expiring, or archived), and pinned state.
-                </li>
-              </ul>
-            </section>
+        <h3 className="mt-4 text-sm font-semibold text-slate-900 dark:text-white">
+          B. Redirect Telemetry (Visitors)
+        </h3>
+        <p className="mt-2">
+          When a visitor clicks a ShortLynk shortlink, we process the incoming HTTP request in memory to generate aggregate analytics for the link owner. Raw IP addresses and raw User-Agent strings are never written to the database.
+        </p>
+      </section>
 
-            <section>
-              <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
-                3. Click Telemetry & Redirect Processing
-              </h2>
-              <p className="mt-3">
-                When an end user clicks a shortened link (<code className="rounded bg-slate-100 px-1.5 py-0.5 text-xs font-mono text-slate-800 dark:bg-slate-800 dark:text-slate-200">/:code</code>), our redirect engine captures aggregate operational metrics:
-              </p>
-              <ul className="mt-2 list-disc pl-5 space-y-1">
-                <li>
-                  <strong className="text-slate-900 dark:text-white">Ephemeral IP hashing:</strong> Visitor IP addresses are hashed in-memory using SHA-256 combined with a daily salt that rotates automatically at 00:00 UTC. This generates an ephemeral identifier (<code className="text-xs font-mono">ipHash</code>) to count daily unique clicks while mathematically preventing cross-day user tracking. Raw IP addresses are immediately discarded and never stored in the database.
-                </li>
-                <li>
-                  <strong className="text-slate-900 dark:text-white">GeoIP resolution:</strong> Coarse geographic location (country code and city) is derived in-memory via <code className="text-xs font-mono">geoip-lite</code> before the IP address is discarded.
-                </li>
-                <li>
-                  <strong className="text-slate-900 dark:text-white">Device & browser classification:</strong> The User-Agent header is parsed in-memory to classify device type (desktop, mobile, tablet), browser engine, operating system, and automated bot status (<code className="text-xs font-mono">isbot</code>). The raw User-Agent string is discarded and never stored.
-                </li>
-                <li>
-                  <strong className="text-slate-900 dark:text-white">Referrer attribution:</strong> HTTP referrers are parsed to retain only the referring domain (e.g., <code className="text-xs font-mono">twitter.com</code> or <code className="text-xs font-mono">Direct</code>). Query strings and sensitive URL parameters are stripped prior to storage.
-                </li>
-              </ul>
-            </section>
+      <hr className="border-slate-200/80 dark:border-slate-800/80" />
 
-            <section>
-              <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
-                4. Data Retention & 90-Day Rollup
-              </h2>
-              <p className="mt-3">
-                Raw click event records are retained in the database for 90 days to power granular time-series analytics and peak hour breakdowns.
-              </p>
-              <p className="mt-2">
-                An automated rollup worker runs daily to aggregate click statistics older than 90 days into permanent historical summary records (<code className="rounded bg-slate-100 px-1.5 py-0.5 text-xs font-mono text-slate-800 dark:bg-slate-800 dark:text-slate-200">daily_url_stats</code>). Once rolled up, the corresponding raw click records are permanently purged from the database.
-              </p>
-            </section>
+      {/* 3. Telemetry Mechanics */}
+      <section id="telemetry" className="scroll-mt-28">
+        <h2 className="text-lg font-bold text-slate-900 dark:text-white">
+          3. Click Telemetry Pipeline
+        </h2>
+        <div className="mt-3 space-y-2.5">
+          <p>
+            <strong>Ephemeral IP Hashing:</strong> The visitor IP address is hashed in memory using SHA-256 combined with a daily random salt (<code className="rounded bg-slate-100 px-1 py-0.5 text-xs font-mono text-slate-800 dark:bg-slate-800 dark:text-slate-200">ipHash</code>). The salt rotates every midnight UTC and previous salts are discarded. Once rotated, past hashes cannot be linked to future visits.
+          </p>
+          <p>
+            <strong>Geographic Resolution:</strong> We resolve country and city codes locally in memory using the MaxMind GeoLite2 database via <code className="rounded bg-slate-100 px-1 py-0.5 text-xs font-mono text-slate-800 dark:bg-slate-800 dark:text-slate-200">geoip-lite</code>. No external API calls are made with visitor IP addresses.
+          </p>
+          <p>
+            <strong>User-Agent Classification:</strong> Request headers are parsed into structured primitives (<code className="rounded bg-slate-100 px-1 py-0.5 text-xs font-mono text-slate-800 dark:bg-slate-800 dark:text-slate-200">deviceType</code>, <code className="rounded bg-slate-100 px-1 py-0.5 text-xs font-mono text-slate-800 dark:bg-slate-800 dark:text-slate-200">browser</code>, <code className="rounded bg-slate-100 px-1 py-0.5 text-xs font-mono text-slate-800 dark:bg-slate-800 dark:text-slate-200">os</code>). The raw User-Agent string is discarded immediately.
+          </p>
+          <p>
+            <strong>Referrer Sanitization:</strong> Referring URLs are stripped to hostnames only (e.g. <code className="rounded bg-slate-100 px-1 py-0.5 text-xs font-mono text-slate-800 dark:bg-slate-800 dark:text-slate-200">twitter.com</code>). Query strings, tracking parameters, and subpaths are permanently discarded.
+          </p>
+        </div>
+      </section>
 
-            <section>
-              <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
-                5. Account Control & User Rights
-              </h2>
-              <p className="mt-3">
-                You maintain direct control over your stored data:
-              </p>
-              <ul className="mt-2 list-disc pl-5 space-y-1">
-                <li>
-                  <strong className="text-slate-900 dark:text-white">Data export:</strong> You can export a full machine-readable JSON archive containing your account profile, all created links, and aggregated click statistics from the Settings page at any time.
-                </li>
-                <li>
-                  <strong className="text-slate-900 dark:text-white">Account deletion:</strong> You can delete your account from the Settings page. This executes an immediate database cascade that permanently removes your user record, all associated URLs, and all related click telemetry records.
-                </li>
-              </ul>
-            </section>
+      <hr className="border-slate-200/80 dark:border-slate-800/80" />
 
-            <section>
-              <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
-                6. Contact
-              </h2>
-              <p className="mt-3">
-                If you have questions about this Privacy Policy or our telemetry handling, contact us at:{" "}
-                <a
-                  href="mailto:support@shortlynk.in"
-                  className="font-medium text-blue-600 underline hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300"
-                >
-                  support@shortlynk.in
-                </a>
-              </p>
-            </section>
-          </div>
-        </main>
-      </div>
+      {/* 4. Retention & Lifecycle */}
+      <section id="retention" className="scroll-mt-28">
+        <h2 className="text-lg font-bold text-slate-900 dark:text-white">
+          4. Data Retention and Lifecycle
+        </h2>
+        <p className="mt-3">
+          Detailed raw click records are retained for a rolling <strong>90-day window</strong>.
+        </p>
+        <p className="mt-2">
+          A daily rollup worker aggregates click totals, unique visitors, and dimensional breakdowns into permanent daily summaries (<code className="rounded bg-slate-100 px-1 py-0.5 text-xs font-mono text-slate-800 dark:bg-slate-800 dark:text-slate-200">daily_url_stats</code>). Once rolled up, the raw click events are permanently deleted from the database.
+        </p>
+      </section>
 
-      <Footer />
-    </div>
+      <hr className="border-slate-200/80 dark:border-slate-800/80" />
+
+      {/* 5. User Rights */}
+      <section id="user-rights" className="scroll-mt-28">
+        <h2 className="text-lg font-bold text-slate-900 dark:text-white">
+          5. User Rights and Data Control
+        </h2>
+        <ul className="mt-3 list-disc pl-5 space-y-1.5">
+          <li><strong>Data Export:</strong> Registered users can export their complete account history, links, and analytics data in JSON format on demand from the Settings page.</li>
+          <li><strong>Account Deletion:</strong> Registered users can permanently delete their account at any time. Account deletion executes a cascading purge removing all user records, shortened links, and associated click records from PostgreSQL.</li>
+        </ul>
+      </section>
+
+      <hr className="border-slate-200/80 dark:border-slate-800/80" />
+
+      {/* 6. Subprocessors */}
+      <section id="subprocessors" className="scroll-mt-28">
+        <h2 className="text-lg font-bold text-slate-900 dark:text-white">
+          6. Subprocessors and Infrastructure
+        </h2>
+        <p className="mt-3">
+          ShortLynk relies on infrastructure providers to host and deliver the service:
+        </p>
+        <ul className="mt-2 list-disc pl-5 space-y-1">
+          <li><strong>Vercel:</strong> Static frontend hosting and edge routing.</li>
+          <li><strong>Render:</strong> API application server and redirect engine hosting.</li>
+          <li><strong>Neon:</strong> Managed serverless PostgreSQL database storage.</li>
+        </ul>
+      </section>
+
+      <hr className="border-slate-200/80 dark:border-slate-800/80" />
+
+      {/* 7. Modifications */}
+      <section id="modifications" className="scroll-mt-28">
+        <h2 className="text-lg font-bold text-slate-900 dark:text-white">
+          7. Policy Modifications
+        </h2>
+        <p className="mt-3">
+          We may update this Privacy Policy from time to time to reflect operational or architectural adjustments. Any modifications will be reflected with an updated &ldquo;Last updated&rdquo; timestamp at the top of this page.
+        </p>
+      </section>
+
+      <hr className="border-slate-200/80 dark:border-slate-800/80" />
+
+      {/* 8. Contact */}
+      <section id="contact" className="scroll-mt-28">
+        <h2 className="text-lg font-bold text-slate-900 dark:text-white">
+          8. Contact Information
+        </h2>
+        <p className="mt-3">
+          For privacy inquiries, data requests, or security concerns, reach out to:{" "}
+          <a
+            href="mailto:support@shortlynk.in"
+            className="font-medium text-blue-600 underline hover:text-blue-500 dark:text-blue-400 dark:hover:text-blue-300"
+          >
+            support@shortlynk.in
+          </a>
+        </p>
+      </section>
+    </LegalPageLayout>
   );
 }
