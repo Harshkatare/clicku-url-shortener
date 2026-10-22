@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { Logo } from "../common/Logo";
+import { SUPPORT_EMAIL } from "../../config/constants";
 
 export interface FooterProps {
   onLogin?: () => void;
@@ -135,6 +136,14 @@ export function Footer({ onLogin, onRegister }: FooterProps = {}) {
                 >
                   Terms of Service
                 </Link>
+              </li>
+              <li>
+                <a
+                  href={`mailto:${SUPPORT_EMAIL}`}
+                  className="transition-colors hover:text-blue-600 dark:hover:text-blue-400"
+                >
+                  Contact Support
+                </a>
               </li>
             </ul>
           </div>
