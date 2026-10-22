@@ -12,7 +12,7 @@ export function Footer({ onLogin, onRegister }: FooterProps = {}) {
   };
 
   return (
-    <footer className="border-t border-slate-200/80 bg-white/60 py-14 backdrop-blur-xs transition-colors duration-200 dark:border-slate-800/80 dark:bg-slate-950/60">
+    <footer className="border-t border-slate-200/80 bg-white/60 py-14 backdrop-blur-xs transition-colors duration-200 dark:border-slate-800/80 dark:bg-slate-950/60 print:hidden">
       <div className="mx-auto max-w-7xl px-6">
         <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 lg:grid-cols-5">
           {/* Brand & Mission (2 columns on desktop) */}
@@ -28,15 +28,6 @@ export function Footer({ onLogin, onRegister }: FooterProps = {}) {
             <p className="mt-3 max-w-sm text-sm leading-relaxed text-slate-600 dark:text-slate-400">
               Shorten, analyze, optimize. The high-performance link management platform engineered for speed, telemetry, and conversion.
             </p>
-
-            {/* Live Operational Status Indicator */}
-            <div className="mt-5 inline-flex items-center gap-2 rounded-full border border-emerald-500/20 bg-emerald-50/70 px-3 py-1 text-xs font-medium text-emerald-700 dark:border-emerald-500/30 dark:bg-emerald-950/40 dark:text-emerald-400">
-              <span className="relative flex h-2 w-2">
-                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75"></span>
-                <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500"></span>
-              </span>
-              All systems operational
-            </div>
           </div>
 
           {/* Product Links */}
