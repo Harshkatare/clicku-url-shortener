@@ -4,7 +4,7 @@
 [![Tailwind CSS v4](https://img.shields.io/badge/Tailwind_v4-38B2AC?style=flat-square&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
 [![Vite 8](https://img.shields.io/badge/Vite_8-646CFF?style=flat-square&logo=vite&logoColor=white)](https://vitejs.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![Version](https://img.shields.io/badge/version-0.7.0-blue?style=flat-square)](package.json)
+[![Version](https://img.shields.io/badge/version-0.8.0-blue?style=flat-square)](package.json)
 
 The client-side Single-Page Application (SPA) for **[Shortlynk](https://shortlynk.in)**. Built with React 19, Tailwind CSS v4, and Vite 8, engineered for high conversion, responsive dark-mode theming, and resilient server-state caching.
 
@@ -13,6 +13,8 @@ The client-side Single-Page Application (SPA) for **[Shortlynk](https://shortlyn
 ## 🌟 Key Architecture & Features
 
 * **Inlined URL Creation Bar (`CreateUrlBar.tsx`):** Workspace command bar integrating destination URL input and custom vanity alias input on a single card row (`shortlynk.in/` domain badge, inside-right 1-click clipboard paste button, permanent vibrant blue CTA, and localized focus indicators).
+* **Click Analytics & Drilldown (`AnalyticsPage.tsx`):** Comprehensive analytics dashboard with time-series charts, country distribution, device/browser/OS breakdown, top referrers, and bot filtering toggle.
+* **Admin Dashboard (`AdminDashboardPage.tsx`):** Protected administrative portal with connection pool metrics and global platform usage telemetry.
 * **QR Code Studio & Quick Modal (`QRStudioPage.tsx`, `QuickQrModal.tsx`):** Standalone QR studio and dashboard inline modal powered by `qrcode.react`. Features Level H error correction, resolution choices (512px, 1024px, 2048px), foreground/background color pickers, center logo toggle, PNG/SVG downloads, clipboard copy, and native Web Share API.
 * **User Settings & Account Lifecycle (`SettingsPage.tsx`):** Account management workspace with profile card (name/email update with conflict checks), avatar gradient selector, password management with strength meter, JSON data export, and password-confirmed account deletion.
 * **Guided Onboarding Tour (`OnboardingModal.tsx`):** 3-step interactive first-visit tour on `/dashboard` with live short-link creation form and settings restart trigger.
@@ -24,7 +26,6 @@ The client-side Single-Page Application (SPA) for **[Shortlynk](https://shortlyn
 * **High-Conversion Public Landing Page:** Hero with interactive public demo shortener, live database platform telemetry strip (`PlatformStatsProof`), technical metrics ribbon (`TechnicalMetricsStrip`), features grid, transparent pricing tiers, animated FAQ accordion, and brand watermark CTA banner.
 * **Unified AuthModal Experience & PLG Claiming:** Tabbed modal overlay (Login / Signup) with Escape key dismissal, Windows scrollbar stabilization, real-time 4-level password entropy analysis (`PasswordStrengthMeter`), and automatic claiming of guest-shortened URLs from `sessionStorage` upon authentication (`POST /api/v1/urls/claim`).
 * **Optimistic Toast Engine & Undo Buffer:** Global `ToastProvider` context and floating `ToastContainer` with 5-second delayed deletion undo buffer and unmount timer map cleanup.
-* **Unreleased Route Protection:** Dedicated `ComingSoonPage.tsx` for `/analytics` with universal catch-all routing fallback.
 * **Tailwind CSS v4 Design System:** `@variant dark` engine with system/manual toggle, custom CSS tokens (`.glass`, `.card-hover`, `.progress-bar`), and 8 keyframe animations.
 * **Fault-Tolerant UX:** Global `ErrorBoundary` crash recovery shell and dual-layer clipboard copy utility with legacy fallback.
 
@@ -48,11 +49,11 @@ frontend/src/
 │   └── ErrorBoundary.tsx # Crash recovery shell
 ├── config/          # Client environment validation (env.ts)
 ├── context/         # ToastContext & ToastProvider
-├── features/        # TanStack Query hooks, schemas, API calls (auth, urls, qr, user)
+├── features/        # TanStack Query hooks, schemas, API calls (analytics, auth, qr, urls, user)
 ├── hooks/           # useTheme, useDebounce, useToast, useScrollReveal, useAnimateCounter, useOnboarding
 ├── layouts/         # AuthLayout, DashboardLayout
-├── pages/           # LandingPage, LoginPage, RegisterPage, DashboardPage,
-│                    # DeactivatedPage, ComingSoonPage, QRStudioPage, SettingsPage
+├── pages/           # LandingPage, LoginPage, RegisterPage, DashboardPage, AnalyticsPage,
+│                    # AdminDashboardPage, SettingsPage, QRStudioPage, PrivacyPage, TermsPage, DeactivatedPage
 ├── routes/          # AppRoutes and ProtectedRoute authentication guard
 ├── types/           # Client TypeScript declarations (toast.types.ts)
 └── utils/           # Clipboard copy utility with HTTP execCommand fallback

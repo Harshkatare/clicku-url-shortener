@@ -16,7 +16,7 @@ const CACHE_TTL_MS = 60 * 1000; // 60 seconds TTL
 export async function getPublicStats(): Promise<PublicStats> {
   const now = Date.now();
 
-  // Return cached telemetry if within 60s TTL
+  // Return cached stats if within 60s TTL
   if (cachedStats && now - lastFetchedAt < CACHE_TTL_MS) {
     return cachedStats;
   }

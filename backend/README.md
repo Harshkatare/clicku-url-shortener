@@ -3,8 +3,8 @@
 [![Express 5](https://img.shields.io/badge/Express_5-000000?style=flat-square&logo=express&logoColor=white)](https://expressjs.com/)
 [![PostgreSQL 16](https://img.shields.io/badge/PostgreSQL_16-316192?style=flat-square&logo=postgresql&logoColor=white)](https://www.postgresql.org/)
 [![Drizzle ORM](https://img.shields.io/badge/Drizzle_ORM-C5F74F?style=flat-square&logo=drizzle&logoColor=black)](https://orm.drizzle.team/)
-[![Vitest](https://img.shields.io/badge/Tests-105_Passing-brightgreen?style=flat-square&logo=vitest&logoColor=white)](https://vitest.dev/)
-[![Version](https://img.shields.io/badge/version-0.7.0-blue?style=flat-square)](package.json)
+[![Vitest](https://img.shields.io/badge/Tests-126_Passing-brightgreen?style=flat-square&logo=vitest&logoColor=white)](https://vitest.dev/)
+[![Version](https://img.shields.io/badge/version-0.8.0-blue?style=flat-square)](package.json)
 
 Production-grade, high-concurrency URL shortening and redirection API for **[Shortlynk](https://shortlynk.in)**. Engineered with Express 5, TypeScript (NodeNext), Drizzle ORM, and PostgreSQL 16.
 
@@ -16,15 +16,17 @@ Production-grade, high-concurrency URL shortening and redirection API for **[Sho
 * **Custom Vanity Slugs & Dual-Resolution Ingress:** Custom vanity aliases (`shortlynk.in/:alias`, 3–50 chars) alongside 6-character Base62 short codes. Enforces reserved system slugs guard (`RESERVED_SLUGS` Set), dual-identity lookup (`or(eq(shortCode, slug), eq(customAlias, slug))`), and PostgreSQL unique constraint collision interception (`23505` ➔ HTTP 409 Conflict).
 * **Server-Side Search, Filter & Sort Pagination Engine:** Parameterized Drizzle query builder supporting case-insensitive `ilike` multi-field search (`originalUrl`, `shortCode`, `customAlias`), SQL LIKE wildcard sanitization (`%`, `_`, `\`), status filtering (`active`, `expiring`, `archived`, `pinned`), dynamic 4-way sorting (`createdAt`, `clicks`, `sortOrder`), and DoS-bounded pagination envelopes (max 50/page).
 * **Sticky Link Prioritization (Composite B-Tree Index):** Sticky hoisting of high-priority links via primary sorting `orderBy(desc(urls.isPinned), sortOrder)` backed by a composite B-tree index on `(user_id, is_pinned)` in PostgreSQL for rapid retrieval.
+* **Click Analytics & Rollup Worker:** Granular click tracking (`click_events`) capturing device, browser, OS, country, and bot detection flags. Includes 90-day aggregation rollup worker summarizing historical data into `daily_url_stats` with chunked cleanup.
 * **RFC 9110 HTTP 410 Gone Deactivation Guards:** Strict HTTP 410 Gone lifecycle handling for archived links, dual-resolution content negotiation (`text/html` redirects browser requests to `/deactivated?code=:slug`, `application/json` returns 410 JSON), and click telemetry preservation shielding creator stats from automated web crawlers.
 * **UTM & Query Parameter Forwarding:** Transparent marketing attribution preservation across HTTP 302 redirects via native WHATWG URL parsing and query merging.
-* **Guest Demo Shortener & PLG Claiming:**
+* **Guest Demo Shortener & Claiming:**
   - `POST /api/v1/urls/demo`: Public rate-limited guest shortening (3 links/IP/24h).
   - `POST /api/v1/urls/claim`: Atomic SQL ownership transfer (`WHERE userId IS NULL`) claiming guest links upon authentication.
 * **User Settings & Account Lifecycle (`/api/v1/users`):** Profile management (`PATCH /users/me`), scrypt password changes (`POST /users/me/change-password`, rate limited 5/15m), complete data export (`GET /users/me/export`), and password-verified account deletion with cascading URL cleanup (`DELETE /users/me`, rate limited 3/60m).
+* **Admin Metrics (`/api/v1/admin`):** Role-guarded system endpoint (`GET /admin/stats`, rate limited 10 req/min) returning PostgreSQL connection pool telemetry and platform volume statistics.
 * **Connection Pool Resilience:** Tuned PostgreSQL pool (`max: 10`, `idleTimeoutMillis: 30000`, `connectionTimeoutMillis: 10000`), `pool.on('error')` crash defense interceptor for serverless Neon scale-to-zero handshakes, and 10s graceful shutdown force-kill fallback.
 * **Enterprise Security:** Scrypt password hashing with 16-byte random salt and `timingSafeEqual` comparison, 7-day signed JWT tokens, scoped rate limiters (credential-mutation routes strictly bounded to 10 req/15m while unblocking `/auth/me` session validation), and centralized `AppError` semantic error hierarchy.
-* **Integration Test Coverage:** 105 automated integration tests across 10 test suites powered by Vitest and Supertest (100% green pass rate).
+* **Integration Test Coverage:** 126 automated integration tests across 12 test suites powered by Vitest and Supertest (100% green pass rate).
 
 ---
 
@@ -33,16 +35,19 @@ Production-grade, high-concurrency URL shortening and redirection API for **[Sho
 ```text
 backend/src/
 ├── config/          # Environment variable validation with Zod
-├── db/              # Drizzle ORM schema definitions and migrations
+├── db/              # Drizzle ORM schema definitions and 7 SQL migrations
 ├── lib/             # Crypto, tokens, logger, rate-limiters, AppError classes
 ├── middleware/      # JWT auth guard, request-id injector, centralized error handler
 ├── modules/
+│   ├── admin/       # Platform administration and system metrics
+│   ├── analytics/   # Time-series analytics, bot detection, rollup workers
 │   ├── auth/        # Auth controller, service, routes, Zod schemas
+│   ├── stats/       # Platform metrics and public stats
 │   ├── url/         # URL CRUD, demo shortening, link claiming
-│   ├── stats/       # Platform telemetry and public metrics
 │   └── user/        # Profile update, password change, data export, account deletion
 ├── routes/          # Public redirect router (/:slug dual-resolution)
 ├── types/           # Express namespace typing extensions
+├── utils/           # Helper functions (async-handler, user-agent parsing)
 └── server.ts        # HTTP server lifecycle and graceful shutdown handling
 ```
 
@@ -60,11 +65,8 @@ pnpm build
 # Start production server
 pnpm start
 
-# Run all 105 automated integration tests
+# Run all 126 automated integration tests
 pnpm test
-
-# Run tests in watch mode
-pnpm test:watch
 
 # Database schema migrations
 pnpm db:generate

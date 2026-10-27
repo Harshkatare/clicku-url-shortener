@@ -10,7 +10,7 @@ import { authRateLimit } from "../../lib/rate-limit/auth-rate-limit.js"
 
 const router = Router();
 
-// Credential mutation routes - strictly protected against brute-force attacks (10 req / 15m)
+// Auth routes (rate-limited)
 router.post(
   "/signup",
   authRateLimit,

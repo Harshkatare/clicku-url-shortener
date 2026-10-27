@@ -165,8 +165,8 @@ flowchart TD
 
     subgraph Database["PostgreSQL 16 — Neon Serverless"]
         Pool["pg Pool\nmax:10 · idle:30s · timeout:10s"]
-        Drizzle["Drizzle ORM\n6 SQL Migrations"]
-        Tables["users · urls\nComposite B-tree: (user_id, is_pinned)"]
+        Drizzle["Drizzle ORM\n7 SQL Migrations"]
+        Tables["users · urls · click_events · daily_url_stats\nComposite B-tree: (user_id, is_pinned)"]
     end
 
     User --> Vercel
@@ -188,6 +188,8 @@ flowchart TD
 ```mermaid
 erDiagram
     users ||--o{ urls : creates
+    urls ||--o{ click_events : tracks
+    urls ||--o{ daily_url_stats : aggregates
     users {
         uuid id PK
         text name
@@ -201,7 +203,7 @@ erDiagram
     urls {
         uuid id PK
         uuid user_id FK "nullable — anonymous demo links"
-        varchar short_code UK "6 chars, auto-generated"
+        varchar short_code UK "10 chars max, auto-generated"
         text original_url
         varchar custom_alias UK "3–50 chars, optional"
         varchar status "active | expiring | archived"
@@ -210,6 +212,27 @@ erDiagram
         integer clicks "default: 0"
         timestamp created_at
         timestamp updated_at
+    }
+    click_events {
+        uuid id PK
+        uuid url_id FK
+        timestamp clicked_at
+        varchar ip_hash
+        varchar country
+        varchar city
+        boolean is_bot
+        varchar device_type
+        varchar browser
+        varchar os
+        varchar referrer
+    }
+    daily_url_stats {
+        uuid id PK
+        uuid url_id FK
+        date date
+        integer total_clicks
+        integer unique_visitors
+        jsonb metadata
     }
 ```
 
@@ -220,8 +243,6 @@ erDiagram
 ## 🧠 Key Engineering Decisions
 
 These are the tradeoffs that shaped the system — not just what I chose, but **why**, and **what I rejected**.
-
-> Full Architecture Decision Records (40+ documents) are maintained in [`dev_team_internals/04_notes/`](dev_team_internals/04_notes/).
 
 <details open>
 <summary><b>Express 5 over Fastify</b></summary>
@@ -342,6 +363,7 @@ pnpm install && pnpm dev
 
 **Backend** (`backend/.env`)
 ```env
+NODE_ENV=development
 PORT=5000
 DATABASE_URL=postgresql://postgres:postgres@localhost:5432/shortlynk_db
 JWT_SECRET=<any-string-min-10-characters>
@@ -364,7 +386,7 @@ All endpoints return `{ success: boolean, message?: string, data?: T }`.
 
 | Method | Endpoint | Auth | Description |
 |:---|:---|:---|:---|
-| `GET` | `/health` | — | Server liveness |
+| `GET` | `/health`, `/api/health` | — | Server liveness |
 | `GET` | `/:slug` | — | **Redirect** — HTTP 302 with click tracking, UTM pass-through, HTTP 410 for archived |
 
 **Auth** (`/api/v1/auth`)
@@ -414,7 +436,7 @@ All endpoints return `{ success: boolean, message?: string, data?: T }`.
 
 | Method | Endpoint | Rate Limit | Description |
 |:---|:---|:---:|:---|
-| `GET` | `/admin/stats` | Standard | Platform volume and PostgreSQL connection pool metrics |
+| `GET` | `/admin/stats` | 10 / min | Platform volume and PostgreSQL connection pool metrics |
 
 <br />
 
@@ -423,8 +445,7 @@ All endpoints return `{ success: boolean, message?: string, data?: T }`.
 **126 tests** · **12 suites** · runs against a **real PostgreSQL database** — no mocks.
 
 ```bash
-pnpm test        # Run all
-pnpm test:watch  # Watch mode
+cd backend && pnpm test
 ```
 
 | Suite | Tests | What It Validates |
@@ -451,14 +472,16 @@ pnpm test:watch  # Watch mode
 ```
 clicku-url/
 ├── backend/
+│   ├── scripts/       # Utility scripts (promote-admin, rollup worker)
 │   ├── src/
 │   │   ├── config/        # Zod-validated env vars — fail-fast on boot
-│   │   ├── db/            # Drizzle schemas, pg pool, 6 SQL migrations
+│   │   ├── db/            # Drizzle schemas, pg pool, 7 SQL migrations
 │   │   ├── lib/           # Crypto, JWT, logger, rate limiters, error classes
-│   │   ├── middleware/     # Auth guard, error handler, request-id correlation
-│   │   ├── modules/       # auth · url · stats · user — controller/service/schema/routes each
+│   │   ├── middleware/    # Auth guard, error handler, request-id correlation
+│   │   ├── modules/       # admin · analytics · auth · stats · url · user
 │   │   ├── routes/        # Public redirect route (/:slug)
-│   │   └── types/         # Express namespace extensions
+│   │   ├── types/         # Express namespace extensions
+│   │   └── utils/         # Helper functions (async-handler, user-agent parsing)
 │   ├── tests/             # 12 suites, 126 tests (Vitest + Supertest)
 │   ├── Dockerfile         # Node 22 Alpine
 │   └── docker-compose.yml # PostgreSQL 16 + backend
@@ -466,9 +489,9 @@ clicku-url/
 │   ├── src/
 │   │   ├── api/           # Axios + JWT interceptor + 401 auto-logout
 │   │   ├── components/    # Dashboard, landing, layout, shared UI
-│   │   ├── features/      # auth · urls · qr · settings — API clients, Zod schemas, types
-│   │   ├── hooks/         # useTheme, useDebounce, useScrollReveal, useToast
-│   │   ├── pages/         # 12 pages: Landing, Login, Register, Dashboard, Analytics, AdminDashboard, Settings, QRStudio, Privacy, Terms, Deactivated, ComingSoon
+│   │   ├── features/      # analytics · auth · qr · urls · user — API clients, Zod schemas, types
+│   │   ├── hooks/         # useTheme, useDebounce, useScrollReveal, useToast, useAnimateCounter, useOnboarding
+│   │   ├── pages/         # 11 pages: Landing, Login, Register, Dashboard, Analytics, AdminDashboard, Settings, QRStudio, Privacy, Terms, Deactivated
 │   │   ├── routes/        # AppRoutes + ProtectedRoute (JWT expiry guard)
 │   │   └── context/       # Toast system with undo action support
 │   └── vercel.json        # Vercel rewrites
@@ -486,7 +509,7 @@ clicku-url/
 - [x] **v0.7** — QR Code Studio (PNG/SVG export, color customization), User Settings (profile & password management), Guided Onboarding tour
 - [x] **v0.8** — Click telemetry & analytics suite: time-series, peak hours, country/device/referrer breakdowns, bot filtering, 90-day rollups, admin panel, legal pages
 - [ ] **v0.9** — Custom branded domains (CNAME + auto-SSL), developer API keys, webhook events
-- [ ] **v1.0** — Team workspaces, RBAC, enterprise readiness
+- [ ] **v1.0** — Team workspaces, RBAC
 
 <br />
 
