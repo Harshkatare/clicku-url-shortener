@@ -61,6 +61,13 @@ app.get("/api/health", (_req, res) => {
   });
 });
 
+app.get("/api/v1/health", (_req, res) => {
+  res.status(200).json({
+    success: true,
+    message: "server is running",
+  });
+});
+
 app.use("/api", apiRateLimit);
 
 app.use("/api/v1/auth", authRoutes);

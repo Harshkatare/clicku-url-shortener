@@ -22,4 +22,14 @@ describe("Health Check API", () => {
       message: "server is running",
     });
   });
+
+  it("Should return 200 on /api/v1/health route alias", async () => {
+    const response = await request(app).get("/api/v1/health");
+
+    expect(response.status).toBe(200);
+    expect(response.body).toEqual({
+      success: true,
+      message: "server is running",
+    });
+  });
 });
