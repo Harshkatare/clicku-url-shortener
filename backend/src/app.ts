@@ -1,6 +1,7 @@
 import express from "express";
 import helmet from "helmet";
 import cors from "cors";
+import cookieParser from "cookie-parser";
 
 import authRoutes from "./modules/auth/auth.routes.js";
 import urlRoutes from "./modules/url/url.routes.js";
@@ -25,19 +26,28 @@ app.set("trust proxy", env.NODE_ENV === "production" ? 2 : 1);
 
 app.use(helmet());
 
+const allowedOrigins = [
+  env.CLIENT_URL,
+  "https://www.shortlynk.in",
+  "https://shortlynk.in",
+].filter(Boolean);
+
 app.use(
   cors({
-    origin: env.CLIENT_URL,
+    origin: allowedOrigins,
+    credentials: true,
   })
 );
 
 app.use(express.json({ limit: "10kb" }));
+app.use(cookieParser());
 
 app.use(requestIdMiddleware);
 
 app.use(
   pinoHttp({
     logger,
+    redact: ['req.headers["x-diag-token"]'],
 
     customProps(req) {
       return {

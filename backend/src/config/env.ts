@@ -19,6 +19,14 @@ const envSchema = z.object({
     .min(10),
 
   CLIENT_URL: z.url(),
+
+  GOOGLE_CLIENT_ID: z.string().optional(),
+  GOOGLE_CLIENT_SECRET: z.string().optional(),
+
+  RESEND_API_KEY: z.string().optional(),
+  EMAIL_FROM: z.string().optional(),
+
+  DIAG_TOKEN: z.string().min(16).optional(),
 });
 
 const parsedEnv =
