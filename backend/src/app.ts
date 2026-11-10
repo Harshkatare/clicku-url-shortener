@@ -1,3 +1,4 @@
+import crypto from "crypto";
 import express from "express";
 import helmet from "helmet";
 import cors from "cors";
@@ -76,6 +77,42 @@ app.get("/api/v1/health", (_req, res) => {
     success: true,
     message: "server is running",
   });
+});
+
+app.get("/api/v1/auth/test-cookie", (req, res) => {
+  const expected = env.DIAG_TOKEN;
+  const supplied = req.headers["x-diag-token"];
+
+  if (!expected || typeof supplied !== "string") {
+    return res.status(404).json({
+      success: false,
+      message: "Route not found",
+    });
+  }
+
+  const expectedBuf = Buffer.from(expected, "utf8");
+  const suppliedBuf = Buffer.from(supplied, "utf8");
+
+  if (
+    suppliedBuf.length !== expectedBuf.length ||
+    !crypto.timingSafeEqual(suppliedBuf, expectedBuf)
+  ) {
+    return res.status(404).json({
+      success: false,
+      message: "Route not found",
+    });
+  }
+
+  res.setHeader("Cache-Control", "no-store");
+  res.cookie("sl_diag_test", "1", {
+    httpOnly: true,
+    secure: true,
+    sameSite: "lax",
+    path: "/api/v1/auth",
+    maxAge: 60_000,
+  });
+
+  return res.status(204).end();
 });
 
 app.use("/api", apiRateLimit);
