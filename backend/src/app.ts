@@ -1,4 +1,3 @@
-import crypto from "crypto";
 import express from "express";
 import helmet from "helmet";
 import cors from "cors";
@@ -76,42 +75,6 @@ app.get("/api/v1/health", (_req, res) => {
   res.status(200).json({
     success: true,
     message: "server is running",
-  });
-});
-
-app.get("/api/v1/health/ip", (req, res) => {
-  const expected = env.DIAG_TOKEN;
-  const supplied = req.headers["x-diag-token"];
-
-  if (!expected || typeof supplied !== "string") {
-    return res.status(404).json({
-      success: false,
-      message: "Route not found",
-    });
-  }
-
-  const bufExpected = Buffer.from(expected, "utf8");
-  const bufSupplied = Buffer.from(supplied, "utf8");
-
-  if (
-    bufSupplied.length !== bufExpected.length ||
-    !crypto.timingSafeEqual(bufSupplied, bufExpected)
-  ) {
-    return res.status(404).json({
-      success: false,
-      message: "Route not found",
-    });
-  }
-
-  const suppliedFwd = req.headers["x-forwarded-for"];
-
-  res.setHeader("Cache-Control", "no-store");
-  return res.status(200).json({
-    ip: req.ip ?? null,
-    ips: req.ips ?? [],
-    forwardedFor: Array.isArray(suppliedFwd)
-      ? suppliedFwd.join(", ")
-      : (suppliedFwd ?? null),
   });
 });
 
