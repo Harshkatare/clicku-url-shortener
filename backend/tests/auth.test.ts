@@ -1,3 +1,4 @@
+import crypto from "crypto";
 import request from "supertest";
 import app from "../src/app.js";
 import { db, pool } from "../src/db/index.js";
@@ -166,6 +167,28 @@ describe("Auth API Integration Tests", () => {
 
     expect(res.status).toBe(400);
     expect(res.body.success).toBe(false);
+  });
+
+  it("should reject login with 401 when password_hash is null", async () => {
+    const nullPwEmail = `test_nullpw_${Date.now()}@example.com`;
+    const testUserId = crypto.randomUUID();
+
+    try {
+      await db.insert(users).values({
+        id: testUserId,
+        name: "Null Password User",
+        email: nullPwEmail,
+        passwordHash: null,
+      });
+
+      const res = await request(app)
+        .post("/api/v1/auth/login")
+        .send({ email: nullPwEmail, password: "anyPassword123" });
+
+      expect(res.status).toBe(401);
+    } finally {
+      await db.delete(users).where(eq(users.id, testUserId));
+    }
   });
 
   // Clean up database connection after tests finish

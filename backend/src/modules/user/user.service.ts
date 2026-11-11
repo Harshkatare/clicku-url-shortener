@@ -65,6 +65,10 @@ export async function changePassword(userId: string, data: ChangePasswordInput) 
     throw new NotFoundError("User not found");
   }
 
+  if (!user.passwordHash) {
+    throw new UnauthorizedError("No password set");
+  }
+
   const isPasswordValid = await verifyPassword(
     data.currentPassword,
     user.passwordHash
@@ -94,6 +98,10 @@ export async function deleteAccount(userId: string, data: DeleteAccountInput) {
 
   if (!user) {
     throw new NotFoundError("User not found");
+  }
+
+  if (!user.passwordHash) {
+    throw new UnauthorizedError("No password set");
   }
 
   const isPasswordValid = await verifyPassword(
