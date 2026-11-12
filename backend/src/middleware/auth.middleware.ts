@@ -10,6 +10,8 @@ import { eq } from "drizzle-orm";
 
 interface JwtPayload {
   userId: string;
+  sid?: string;
+  iat?: number;
 }
 
 export async function protect(
@@ -45,6 +47,7 @@ export async function protect(
       id: true,
       isActive: true,
       role: true,
+      sessionsInvalidatedAt: true,
     },
   });
 
@@ -56,9 +59,21 @@ export async function protect(
     throw new UnauthorizedError("Account is deactivated");
   }
 
+  if (
+    user.sessionsInvalidatedAt &&
+    (!decoded.iat ||
+      decoded.iat * 1000 <
+        user.sessionsInvalidatedAt.getTime())
+  ) {
+    throw new UnauthorizedError(
+      "Session has been revoked"
+    );
+  }
+
   req.user = {
     id: user.id,
     role: user.role,
+    sid: decoded.sid,
   };
 
   next();
